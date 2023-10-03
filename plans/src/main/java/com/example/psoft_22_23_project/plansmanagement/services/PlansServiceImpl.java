@@ -26,7 +26,7 @@ import com.example.psoft_22_23_project.plansmanagement.api.EditPlanMoneyRequest;
 import com.example.psoft_22_23_project.plansmanagement.api.EditPlansRequest;
 import com.example.psoft_22_23_project.plansmanagement.model.*;
 import com.example.psoft_22_23_project.plansmanagement.repositories.PlansRepository;
-import com.example.psoft_22_23_project.subscriptionsmanagement.repositories.SubscriptionsRepository;
+//import com.example.psoft_22_23_project.subscriptionsmanagement.repositories.SubscriptionsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -44,7 +44,7 @@ public class PlansServiceImpl implements PlansService {
 
 	private final PlansRepository repository;
 
-	private final SubscriptionsRepository subscriptionsRepository;
+	//private final SubscriptionsRepository subscriptionsRepository;
 
 	private final CreatePlansMapper createPlansMapper;
 
@@ -177,9 +177,9 @@ public class PlansServiceImpl implements PlansService {
 		}
 
 		// Check if there are any subscriptions with non-null users for the specific plan
-		if (subscriptionsRepository.existsByPlanAndUserNotNull(plans)) {
-			throw new IllegalArgumentException("Can't delete this plan, it has active subscriptions");
-		}
+		//if (subscriptionsRepository.existsByPlanAndUserNotNull(plans)) {
+		//	throw new IllegalArgumentException("Can't delete this plan, it has active subscriptions");
+		//}
 
 		// Perform the soft deletion if the version matches
 		return repository.ceaseByPlan(plans, desiredVersion);

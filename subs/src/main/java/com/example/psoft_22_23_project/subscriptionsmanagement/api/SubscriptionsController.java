@@ -1,21 +1,13 @@
 package com.example.psoft_22_23_project.subscriptionsmanagement.api;
 
 
-import com.example.psoft_22_23_project.subscriptionsmanagement.model.PlansDetails;
 import com.example.psoft_22_23_project.subscriptionsmanagement.services.SubscriptionsService;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import javax.validation.Valid;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Subscriptions", description = "Endpoints for managing subscriptions")
 @RestController
@@ -31,7 +23,7 @@ public class SubscriptionsController {
     private final SubscriptionsViewMapper subscriptionsViewMapper;
 
     private final PlansDetailsViewMapper plansDetailsViewMapper;
-
+/*
     private Long getVersionFromIfMatchHeader(final String ifMatchHeader) {
         if (ifMatchHeader.startsWith("\"")) {
             return Long.parseLong(ifMatchHeader.substring(1, ifMatchHeader.length() - 1));
@@ -45,18 +37,6 @@ public class SubscriptionsController {
         return subscriptionsViewMapper.toSubscriptionsView(service.findAll());
     }
 
-/*
-    @Operation(summary = "Gets a specific subscription")
-    @GetMapping(value = "/{id}")
-    public ResponseEntity<SubscriptionsView> findById(
-            @PathVariable("id") @Parameter(description = "The id of the subscription to find") final String id) {
-        final var foo = service.findOne(id).orElseThrow(() -> new NotFoundException(Plans.class, id));
-
-        return ResponseEntity.ok().eTag(Long.toString(foo.getVersion())).body(subscriptionsViewMapper.toSubscriptionsView(foo));
-    }
-*/
-    // the client determines the id of the resource since the client sends the name,
-    // so POST to the collection
 
     @PostMapping(value = "/create")
     @ResponseStatus(HttpStatus.CREATED)
@@ -72,23 +52,6 @@ public class SubscriptionsController {
                 .body(subscriptionsViewMapper.toSubscriptionView(subscriptions));
     }
 
-/*
-
-    @DeleteMapping("/{id}")
-    public String delete(@PathVariable("id") Long id) {
-        //try {
-            service.delete(id);
-            return "Subscription canceled with success";
-
-
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        } catch (AccessDeniedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-    }
-
-*/
     @Operation(summary = "Cancel a subscription")
     @PatchMapping
     public ResponseEntity<SubscriptionsView> cancelSubscription(final WebRequest request) {
@@ -150,5 +113,7 @@ public class SubscriptionsController {
 
         service.migrateAllToPlan(getVersionFromIfMatchHeader(ifMatchValue), actualPlan, newPlan);
     }
+
+ */
 
 }

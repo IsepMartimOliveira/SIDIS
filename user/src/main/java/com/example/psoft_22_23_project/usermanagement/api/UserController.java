@@ -20,14 +20,11 @@
  */
 package com.example.psoft_22_23_project.usermanagement.api;
 
-import com.example.psoft_22_23_project.devicemanagement.api.DeviceController;
 import com.example.psoft_22_23_project.usermanagement.model.User;
 import com.example.psoft_22_23_project.usermanagement.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -45,7 +42,6 @@ import java.net.URISyntaxException;
 @RequestMapping(path = "api/user/photo")
 @RequiredArgsConstructor
 public class UserController {
-	private static final Logger logger = LoggerFactory.getLogger(DeviceController.class);
 
 	private final UserService userService;
 
@@ -76,7 +72,7 @@ public class UserController {
 		try {
 			contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
 		} catch (final IOException ex) {
-			logger.info("Could not determine file type.");
+			//logger.info("Could not determine file type.");
 		}
 
 		// Fallback to the default content type if type could not be determined

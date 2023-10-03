@@ -20,14 +20,15 @@
  */
 package com.example.psoft_22_23_project.subscriptionsmanagement.api;
 
-import com.example.psoft_22_23_project.plansmanagement.model.Plans;
+//import com.example.psoft_22_23_project.plansmanagement.model.Plans;
+
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.PlansDetails;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 
 @Mapper(componentModel = "spring")
 public abstract class PlansDetailsViewMapper {
+	/*
 	@Mapping(source = "plans.name.name", target = "name")
 	@Mapping(source = "plans.description.description", target = "description")
 	@Mapping(source = "plans.numberOfMinutes.numberOfMinutes", target = "numberOfMinutes")
@@ -40,6 +41,8 @@ public abstract class PlansDetailsViewMapper {
 	@Mapping(source = "plans.promoted.promoted", target = "promoted")
 	@Mapping(source = "plans.fact", target = "fact")
 	@Mapping(source = "plans.weather", target = "weather")
+
+	 */
 	public abstract PlansDetailsView toPlansDetailsView(PlansDetails plans);
 
 }

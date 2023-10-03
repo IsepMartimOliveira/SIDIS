@@ -1,10 +1,11 @@
 package com.example.psoft_22_23_project.subscriptionsmanagement.api;
 
-import com.example.psoft_22_23_project.plansmanagement.model.Plans;
-import com.example.psoft_22_23_project.subscriptionsmanagement.model.PaymentType;
-import lombok.*;
+//import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 
-import javax.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.validation.constraints.Pattern;
 
 @Data

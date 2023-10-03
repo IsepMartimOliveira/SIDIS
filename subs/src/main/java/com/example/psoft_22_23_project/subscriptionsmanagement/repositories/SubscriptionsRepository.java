@@ -1,19 +1,10 @@
 package com.example.psoft_22_23_project.subscriptionsmanagement.repositories;
 
 
-import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptions;
-import com.example.psoft_22_23_project.usermanagement.model.User;
-import lombok.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 @Repository
 public interface SubscriptionsRepository extends JpaRepository<Subscriptions, Long> {
@@ -21,7 +12,7 @@ public interface SubscriptionsRepository extends JpaRepository<Subscriptions, Lo
 
     Optional<Subscriptions> findById(long id);
 
-
+/*
     Optional<Subscriptions> findByPlan(Plans plans);
 
     boolean existsByPlanAndUserNotNull(Plans plans);
@@ -35,6 +26,8 @@ public interface SubscriptionsRepository extends JpaRepository<Subscriptions, Lo
     List<Subscriptions> findAllByPlanAndActiveStatus_Active(Plans plan, @NonNull boolean activeStatus_active);
 
     Optional<Subscriptions> findByActiveStatus_ActiveAndUser(@NotNull boolean active, @NotNull User user);
+
+ */
 
 }
 

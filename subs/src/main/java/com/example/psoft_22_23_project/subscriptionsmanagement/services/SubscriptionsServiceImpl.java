@@ -1,36 +1,50 @@
 package com.example.psoft_22_23_project.subscriptionsmanagement.services;
 
-import com.example.psoft_22_23_project.devicemanagement.repositories.DeviceRepository;
-import com.example.psoft_22_23_project.plansmanagement.model.Plans;
-import com.example.psoft_22_23_project.plansmanagement.repositories.PlansRepository;
 import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreateSubscriptionsRequest;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.PlansDetails;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptions;
-import com.example.psoft_22_23_project.subscriptionsmanagement.repositories.SubscriptionsRepository;
-import com.example.psoft_22_23_project.usermanagement.model.User;
-import com.example.psoft_22_23_project.usermanagement.repositories.UserRepository;
-import com.sun.jdi.request.DuplicateRequestException;
-import io.joshworks.restclient.http.HttpResponse;
-import io.joshworks.restclient.http.Unirest;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import javax.persistence.EntityNotFoundException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class SubscriptionsServiceImpl implements SubscriptionsService {
+    @Override
+    public Iterable<Subscriptions> findAll() {
+        return null;
+    }
+
+    @Override
+    public Subscriptions create(CreateSubscriptionsRequest resource) {
+        return null;
+    }
+
+    @Override
+    public Subscriptions cancelSubscription(long desiredVersion) {
+        return null;
+    }
+
+    @Override
+    public Subscriptions renewAnualSubscription(long desiredVersion) {
+        return null;
+    }
+
+    @Override
+    public Subscriptions changePlan(long desiredVersion, String name) {
+        return null;
+    }
+
+    @Override
+    public void migrateAllToPlan(long desiredVersion, String actualPlan, String newPlan) {
+
+    }
+
+    @Override
+    public PlansDetails planDetails() {
+        return null;
+    }
+    /*
+
 
     private final SubscriptionsRepository repository;
 
@@ -74,21 +88,9 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
             if (existingSubscription.get().getActiveStatus().isActive()) {
                 throw new IllegalArgumentException("You need to let your active subscription end in order to subscribe");
             }
-/*
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            LocalDate dateTime = LocalDate.parse(existingSubscription.get().getEndDate().getEndDate(), formatter);
-
-            if (LocalDate.now().isBefore(dateTime)) {
-                throw new IllegalArgumentException("You need to let your active subscription end in order to subscribe");
-            }*/
         }
 
 
-
-        /*
-        if (existingSubscription.isPresent()) {
-            throw new IllegalArgumentException("You need to cancel your active subscription in order to subscribe");
-        }*/
 
 
         // construct a new object based on data received by the service
@@ -98,36 +100,7 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         return repository.save(obj);
     }
 
-    /*
 
-    @Override
-    public void delete(final Long id) {
-        // Check if subscription exists
-        Subscriptions subscription = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Subscription not found with ID " + id));
-
-        // Check if the current user is authorized to delete the subscription
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        int commaIndex = username.indexOf(",");
-
-        String newString;
-        if (commaIndex != -1) {
-            newString = username.substring(0, commaIndex);
-        } else {
-            newString = username;
-        }
-
-        User user = subscription.getUser();
-        boolean userAuthorized = Long.valueOf(newString).equals(user.getId());
-        if (!userAuthorized) {
-            throw new AccessDeniedException("User not allowed to delete the subscription");
-        }
-
-        // Delete the subscription
-        repository.delete(subscription);
-    }
-
-*/
 
     @Override
     public Subscriptions cancelSubscription(final long desiredVersion){
@@ -150,16 +123,6 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
                 .orElseThrow(() -> new EntityNotFoundException("No subscriptions associated with this user"));
 
 
-        /*
-        if (!subscription.getActiveStatus().isActive()){
-            throw new EntityNotFoundException("Subscription already canceled");
-        }
-
-        boolean userAuthorized = Long.valueOf(newString).equals(user.getId());
-        if (!userAuthorized) {
-            throw new NotFoundException("User not allowed to cancel the subscription");
-        }
-*/
 
         subscription.deactivate(desiredVersion);
 
@@ -190,15 +153,7 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
                     subscription.getEndDate().setEndDate(String.valueOf(startDate.plusMonths((LocalDate.now().getMonthValue() - startDate.getMonthValue())+1)));
                 }
             }
-        } /*else {
-            if (startDate.getYear() == LocalDate.now().getYear()) {
-                subscription.getEndDate().setEndDate(String.valueOf(startDate.plusYears(1)));
-            } else if (startDate.getMonthValue() == LocalDate.now().getMonthValue() && startDate.getDayOfMonth() >= LocalDate.now().getDayOfMonth()) {
-                subscription.getEndDate().setEndDate(String.valueOf(startDate.plusYears(1)));
-            } else {
-                subscription.getEndDate().setEndDate(String.valueOf(startDate.plusYears((LocalDate.now().getYear() - startDate.getYear()) + 1)));
-            }
-        }*/
+        }
         return repository.save(subscription);
     }
 
@@ -222,12 +177,7 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         Subscriptions subscription = repository.findByActiveStatus_ActiveAndUser(true, user)
                 .orElseThrow(() -> new EntityNotFoundException("No subscriptions associated with this user"));
 
-        /*
-        boolean userAuthorized = Long.valueOf(newString).equals(user.getId());
-        if (!userAuthorized) {
-            throw new NotFoundException("User not allowed to view this plan details");
-        }
-        */
+
         String body = getFunnyFact();
         JSONObject jsonObject = new JSONObject(body);
         String fact = jsonObject.getString("text");
@@ -256,7 +206,7 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
 
     }
 
-    //5f5469901a834fac88b174917231706
+
 
     private String getWeather() throws JSONException {
 
@@ -332,18 +282,6 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         Subscriptions subscription = repository.findByActiveStatus_ActiveAndUser(true, user)
                 .orElseThrow(() -> new EntityNotFoundException("No subscriptions associated with this user"));
 
-
-        /*
-        if (!subscription.getActiveStatus().isActive()){
-            throw new EntityNotFoundException("Subscription is canceled, not possible to renew");
-        }
-
-
-        boolean userAuthorized = Long.valueOf(newString).equals(user.getId());
-        if (!userAuthorized) {
-            throw new NotFoundException("User not allowed to cancel the subscription");
-        }
-*/
         if (Objects.equals(subscription.getPaymentType().getPaymentType(), "monthly")){
 
             throw new IllegalArgumentException("You can not renew a monthly subscription");
@@ -445,7 +383,11 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
             repository.save(sub);
         }
     }
+
+     */
+
 }
+
 
 
 

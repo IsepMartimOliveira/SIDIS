@@ -2,12 +2,10 @@ package com.example.psoft_22_23_project.subscriptionsmanagement.model;
 
 
 
-import com.example.psoft_22_23_project.plansmanagement.model.Plans;
-import com.example.psoft_22_23_project.usermanagement.model.User;
-import lombok.Data;
+//import com.example.psoft_22_23_project.plansmanagement.model.Plans;
+//import com.example.psoft_22_23_project.usermanagement.model.User;
+
 import lombok.Getter;
-import lombok.Setter;
-import org.hibernate.StaleObjectStateException;
 
 import javax.persistence.*;
 
@@ -16,11 +14,13 @@ import javax.persistence.*;
 @Getter
 @Table(name = "Subscriptions")
 public class Subscriptions {
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     protected Subscriptions(){
 
     }
-
+/*
 
     public Subscriptions(Plans plan, PaymentType paymentType, User user) {
         this.startDate = new StartDate();
@@ -83,9 +83,16 @@ public class Subscriptions {
         }
 
         this.plan = plan;
+
+
     }
 
+ */
+/*
     @OneToOne(fetch = FetchType.EAGER)
     private User user;
+
+
+ */
 
 }
