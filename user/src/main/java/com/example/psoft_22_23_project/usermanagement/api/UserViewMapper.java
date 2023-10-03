@@ -18,19 +18,19 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.example.psoft_22_23_project.subscriptionsmanagement.services;
+package com.example.psoft_22_23_project.usermanagement.api;
 
-import com.example.psoft_22_23_project.plansmanagement.model.Plans;
-import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreateSubscriptionsRequest;
-import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptions;
 import com.example.psoft_22_23_project.usermanagement.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+
+import java.util.List;
+
 
 @Mapper(componentModel = "spring")
-public abstract class CreateSubscriptionsMapper {
-	@Mapping(source = "request.paymentType", target = "paymentType.paymentType")
-	public abstract Subscriptions create(User user, Plans plan, CreateSubscriptionsRequest request);
+public abstract class UserViewMapper {
+	@Mapping(source = "userImage.fileName", target = "fileName")
+	public abstract UserView toUserView(User user);
 
+	public abstract List<UserView> toUserView(List<User> users);
 }
