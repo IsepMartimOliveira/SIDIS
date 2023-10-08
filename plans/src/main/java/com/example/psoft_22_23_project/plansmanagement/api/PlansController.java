@@ -20,7 +20,6 @@
  */
 package com.example.psoft_22_23_project.plansmanagement.api;
 
-import com.example.psoft_22_23_project.plansmanagement.model.FeeRevision;
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 import com.example.psoft_22_23_project.plansmanagement.services.PlansService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,9 +34,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import javax.validation.Valid;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Optional;
 
 
 @Tag(name = "Plans", description = "Endpoints for managing plans")
@@ -70,7 +71,16 @@ public class PlansController {
 	@Operation(summary = "Creates a new Plan")
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED) public ResponseEntity<PlansView>
-	create(@Valid @RequestBody final CreatePlanRequest resource) {
+	create(@Valid @RequestBody final CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException {
+
+		//get
+		//String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		/*
+		HttpRequest request = HttpRequest.newBuilder()
+				.uri(new URI("http://localhost:8083/api/user/findAll"))
+				.GET()
+				.build();
+		 */
 		final Plans plan = service.create(resource);
 		final var newPlanUri =
 				ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(plan.getName().getName()).build() .toUri();

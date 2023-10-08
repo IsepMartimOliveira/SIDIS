@@ -20,70 +20,24 @@
  */
 package com.example.psoft_22_23_project.usermanagement.api;
 
-import com.example.psoft_22_23_project.usermanagement.model.User;
 import com.example.psoft_22_23_project.usermanagement.services.UserService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.net.URISyntaxException;
-
-@Tag(name = "UserAdmin")
 @RestController
-@RequestMapping(path = "api/user/photo")
+@RequestMapping(path = "/api/user")
 @RequiredArgsConstructor
 public class UserController {
+    private final UserViewMapper userViewMapper;
 
-	private final UserService userService;
+    private final UserService userService;
+    @GetMapping("/findAll")
+    public Iterable<UserView> findAll() {
+        return userViewMapper.toUserView(userService.findAll());
 
-	private final UserViewMapper userViewMapper;
-
-
-
-	@Operation(summary = "Upload Image")
-	@PatchMapping
-	@ResponseStatus(HttpStatus.CREATED)
-	public ResponseEntity<UserView> upload(
-			@RequestParam(name = "file", required = false) final MultipartFile file)
-			throws URISyntaxException {
-
-		User user = userService.upload(file);
-		return ResponseEntity.ok().body(userViewMapper.toUserView(user));
-
-	}
-
-	@Operation(summary = "Downloads a photo of a device")
-	@GetMapping
-	public ResponseEntity<Resource> downloadFile(final HttpServletRequest request) {
-
-
-		Resource resource = userService.seeImage();
-
-		String contentType = null;
-		try {
-			contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
-		} catch (final IOException ex) {
-			//logger.info("Could not determine file type.");
-		}
-
-		// Fallback to the default content type if type could not be determined
-		if (contentType == null) {
-			contentType = "application/octet-stream";
-		}
-
-		return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType))
-				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
-				.body(resource);
-	}
+    }
 
 
 }

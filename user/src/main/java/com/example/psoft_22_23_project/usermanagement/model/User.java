@@ -76,12 +76,13 @@ public class User implements UserDetails {
 	@Setter
 	private String location;
 
-	@OneToOne(fetch = FetchType.EAGER)
-	private UserImage userImage;
-
+	//@OneToOne(fetch = FetchType.EAGER)
+	//private UserImage userImage;
+/*
 	public void setUserImage(UserImage userImage) {
 		this.userImage = userImage;
 	}
+ */
 
 	@ElementCollection
 	@Getter

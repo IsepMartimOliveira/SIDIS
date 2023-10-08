@@ -122,9 +122,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 						//all public endpoints
 						.antMatchers("/api/public/**").permitAll()
+						.antMatchers("/api/user/**").permitAll()
 
 						// Plans management
-						.antMatchers(HttpMethod.GET,"/api/plans").permitAll()
+						.antMatchers(HttpMethod.POST,"/api/plans").permitAll()
 
 						// get a device image management
 						.antMatchers(HttpMethod.GET, "/api/device/photo/**").permitAll()

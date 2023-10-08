@@ -22,15 +22,14 @@ package com.example.psoft_22_23_project.usermanagement.api;
 
 import com.example.psoft_22_23_project.usermanagement.model.User;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 import java.util.List;
 
 
 @Mapper(componentModel = "spring")
 public abstract class UserViewMapper {
-	@Mapping(source = "userImage.fileName", target = "fileName")
 	public abstract UserView toUserView(User user);
 
-	public abstract List<UserView> toUserView(List<User> users);
+	public abstract List<UserView> toUserView(Iterable<User> users);
+
 }

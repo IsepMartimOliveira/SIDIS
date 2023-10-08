@@ -22,27 +22,20 @@ package com.example.psoft_22_23_project.usermanagement.services;
 
 import com.example.psoft_22_23_project.exceptions.ConflictException;
 import com.example.psoft_22_23_project.filestoragemanagement.service.FileStorageService;
-import com.example.psoft_22_23_project.usermanagement.api.*;
+import com.example.psoft_22_23_project.usermanagement.api.UserEditMapper;
+import com.example.psoft_22_23_project.usermanagement.api.UserViewMapper;
 import com.example.psoft_22_23_project.usermanagement.model.User;
-import com.example.psoft_22_23_project.usermanagement.model.UserImage;
 import com.example.psoft_22_23_project.usermanagement.repositories.UserImageRepository;
 import com.example.psoft_22_23_project.usermanagement.repositories.UserRepository;
-import com.example.psoft_22_23_project.utils.Utils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.Resource;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.transaction.Transactional;
 import javax.validation.ValidationException;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -51,66 +44,37 @@ public class UserService implements UserDetailsService {
 	private final UserRepository userRepo;
 	private final UserViewMapper userViewMapper;
 	private final PasswordEncoder passwordEncoder;
+	private final UserEditMapper userEditMapper;
 
 	private final UserRepository userRepository;
 
 	private final UserImageRepository userImageRepository;
 	private final FileStorageService fileStorageService;
 
+	@Transactional
+	public User create(final CreateUserRequest request) {
+		if (userRepo.findByUsername(request.getUsername()).isPresent()) {
+			throw new ConflictException("Username already exists!");
+		}
+		if (!request.getPassword().equals(request.getRePassword())) {
+			throw new ValidationException("Passwords don't match!");
+		}
 
+
+
+		final User user = userEditMapper.create(request);
+		user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+		return userRepo.save(user);
+	}
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		return null;
 	}
 
-    public User upload(MultipartFile file) {
+	public Iterable<User> findAll() {
 
-		String username = SecurityContextHolder.getContext().getAuthentication().getName();
-		int commaIndex = username.indexOf(",");
-		String newString;
-		if (commaIndex != -1) {
-			newString = username.substring(0, commaIndex);
-		} else {
-			newString = username;
-		}
-
-		User user = userRepository.findById(Long.valueOf(newString))
-				.orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
-		UserImage userImage = null;
-
-		if (file != null) {
-			final String fileName = fileStorageService.storeFile(user.getUsername(), file);
-
-			String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(fileName)
-					.toUriString();
-			fileDownloadUri = fileDownloadUri.replace("/photos/", "/photo/");
-
-			userImage = new UserImage(Utils.transformSpaces(user.getUsername()), fileName, fileDownloadUri, file.getContentType(), file.getSize());
-			user.setUserImage(userImage);
-			userImageRepository.save(userImage);
-			userRepository.save(user);
-		}
-
-		return user;
-
-	}
-
-	public Resource seeImage() {
-		String username = SecurityContextHolder.getContext().getAuthentication().getName();
-		int commaIndex = username.indexOf(",");
-		String newString;
-		if (commaIndex != -1) {
-			newString = username.substring(0, commaIndex);
-		} else {
-			newString = username;
-		}
-
-		User user = userRepository.findById(Long.valueOf(newString))
-				.orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
-		final Resource resource = fileStorageService.loadFileAsResource(user.getUserImage().getFileName());
-		return resource;
+		return userRepository.findAll();
 
 	}
 }

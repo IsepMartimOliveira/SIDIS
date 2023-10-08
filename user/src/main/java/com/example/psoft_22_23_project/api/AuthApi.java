@@ -24,6 +24,7 @@ package com.example.psoft_22_23_project.api;
 import com.example.psoft_22_23_project.usermanagement.api.UserView;
 import com.example.psoft_22_23_project.usermanagement.api.UserViewMapper;
 import com.example.psoft_22_23_project.usermanagement.model.User;
+import com.example.psoft_22_23_project.usermanagement.services.CreateUserRequest;
 import com.example.psoft_22_23_project.usermanagement.services.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -38,10 +39,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.time.Instant;
@@ -49,10 +47,6 @@ import java.time.Instant;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
 
-/**
- * Based on https://github.com/Yoh0xFF/java-spring-security-example
- *
- */
 @Tag(name = "Authentication")
 @RestController
 @RequiredArgsConstructor
@@ -67,7 +61,7 @@ public class AuthApi {
 
 	private final UserService userService;
 
-	@PostMapping("login")
+	@PostMapping("/login")
 	public ResponseEntity<UserView> login(@RequestBody @Valid final AuthRequest request) {
 		try {
 			final Authentication authentication = authenticationManager.authenticate(
@@ -94,6 +88,12 @@ public class AuthApi {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
 	}
+	@PostMapping("/register")
+	public UserView create(@RequestBody @Valid final CreateUserRequest request) {
+		final User user = userService.create(request);
+		return userViewMapper.toUserView(user);
+	}
+
 
 
 }
