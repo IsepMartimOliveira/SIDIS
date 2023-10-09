@@ -33,6 +33,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Optional;
 
@@ -184,6 +189,18 @@ public class PlansServiceImpl implements PlansService {
 		// Perform the soft deletion if the version matches
 		return repository.ceaseByPlan(plans, desiredVersion);
 	}
+
+	/*public static HttpRequest createHttpRequest(String url) throws Exception {
+		HttpRequest request = HttpRequest.newBuilder()
+				.uri(new URI("http://localhost:8083/api/user/findAll"))
+				.GET()
+				.build();
+	}
+
+	public static HttpResponse<String> sendHttpRequest(HttpRequest request) throws IOException, InterruptedException {
+		return HttpClient.newHttpClient()
+				.send(request, HttpResponse.BodyHandlers.ofString());
+	}*/
 
 
 }
