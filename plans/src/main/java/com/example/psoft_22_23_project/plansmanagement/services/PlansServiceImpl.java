@@ -24,11 +24,11 @@ import com.example.psoft_22_23_project.exceptions.NotFoundException;
 import com.example.psoft_22_23_project.plansmanagement.api.CreatePlanRequest;
 import com.example.psoft_22_23_project.plansmanagement.api.EditPlanMoneyRequest;
 import com.example.psoft_22_23_project.plansmanagement.api.EditPlansRequest;
-import com.example.psoft_22_23_project.plansmanagement.model.*;
+import com.example.psoft_22_23_project.plansmanagement.model.FeeRevision;
+import com.example.psoft_22_23_project.plansmanagement.model.Plans;
+import com.example.psoft_22_23_project.plansmanagement.model.PromotionResult;
 import com.example.psoft_22_23_project.plansmanagement.repositories.PlansRepository;
-//import com.example.psoft_22_23_project.subscriptionsmanagement.repositories.SubscriptionsRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +38,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
-import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
@@ -82,7 +81,6 @@ public class PlansServiceImpl implements PlansService {
 			throw new IllegalArgumentException("Plan with name " + resource.getName()+ " already exists locally!");
 		}
 
-		try {
 			URI uri = new URI("http://localhost:8090/api/plans/" + resource.getName());
 
 			HttpRequest request = HttpRequest.newBuilder()
@@ -99,15 +97,11 @@ public class PlansServiceImpl implements PlansService {
 			}
 			else if(response.statusCode()==401){
 				throw new IllegalArgumentException("Authentication failed. Please check your credentials or login to access this resource.");
-
 			}
 
 			Plans obj = createPlansMapper.create(resource);
 			return repository.save(obj);
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new RuntimeException("An error occurred while checking for plan existence.");
-		}
+
 	}
 
 

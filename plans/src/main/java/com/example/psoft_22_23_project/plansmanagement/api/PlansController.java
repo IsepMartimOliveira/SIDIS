@@ -26,7 +26,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.h2.table.Plan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -105,7 +104,8 @@ public class PlansController {
 				ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(plan.getName().getName()).build() .toUri();
 		return
 				ResponseEntity.created(newPlanUri).eTag(Long.toString(plan.getVersion()))
-						.body(plansViewMapper.toPlansView(plan)); }
+						.body(plansViewMapper.toPlansView(plan));
+	}
 
 
 	@Operation(summary = "Gets money history of plan")
