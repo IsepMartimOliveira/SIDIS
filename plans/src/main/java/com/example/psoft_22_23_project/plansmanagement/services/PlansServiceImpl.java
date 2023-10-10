@@ -28,6 +28,7 @@ import com.example.psoft_22_23_project.plansmanagement.model.*;
 import com.example.psoft_22_23_project.plansmanagement.repositories.PlansRepository;
 //import com.example.psoft_22_23_project.subscriptionsmanagement.repositories.SubscriptionsRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +36,9 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.http.HttpClient;
+import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
@@ -63,35 +66,60 @@ public class PlansServiceImpl implements PlansService {
 	public List<FeeRevision> history(final String name) {
 		Optional<Plans> plans = repository.findByName_Name(name);
 
-		if (plans.isPresent()){
+		if (plans.isPresent()) {
 			Plans plans1 = plans.get();
 			List<FeeRevision> list = plans1.getFeeRevisions();
 			return list;
 
-		}else throw new IllegalArgumentException("Plan with name "+name+" does not exist");
+		} else throw new IllegalArgumentException("Plan with name " + name + " does not exist");
 
 	}
 
 	@Override
-	public Plans create( final CreatePlanRequest resource) {
+	public Plans create(CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException {
 		Optional<Plans> plans = repository.findByName_Name(resource.getName());
 		if (plans.isPresent()) {
-			throw new IllegalArgumentException("Plan with name "+resource.getName()+" already exists!");
+			throw new IllegalArgumentException("Plan with name " + resource.getName()+ " already exists locally!");
 		}
 
-		Plans obj = createPlansMapper.create(resource);
-		return repository.save(obj);
+		try {
+			URI uri = new URI("http://localhost:8090/api/plans/" + resource.getName());
 
+			HttpRequest request = HttpRequest.newBuilder()
+					.uri(uri)
+					.GET()
+					.build();
+
+			HttpClient client = HttpClient.newHttpClient();
+
+			HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+			if (response.statusCode() == 200) {
+				throw new IllegalArgumentException("Plan with name " + resource.getName() + " already exists!");
+			}
+			else if(response.statusCode()==401){
+				throw new IllegalArgumentException("Authentication failed. Please check your credentials or login to access this resource.");
+
+			}
+
+			Plans obj = createPlansMapper.create(resource);
+			return repository.save(obj);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException("An error occurred while checking for plan existence.");
+		}
 	}
+
+
 
 	@Override
 	public Plans partialUpdate(final String name, final EditPlansRequest resource, final long desiredVersion) {
 		final var plans = repository.findByName_Name(name)
-				.orElseThrow(() -> new IllegalArgumentException("Plan with name "+name+" doesn't exists!"));
+				.orElseThrow(() -> new IllegalArgumentException("Plan with name " + name + " doesn't exists!"));
 
 		plans.updateData(desiredVersion, resource.getDescription(),
-				resource.getMaximumNumberOfUsers(),resource.getNumberOfMinutes(),
-				resource.getMusicCollection(),resource.getMusicSuggestion(),resource.getActive(),resource.getPromoted());
+				resource.getMaximumNumberOfUsers(), resource.getNumberOfMinutes(),
+				resource.getMusicCollection(), resource.getMusicSuggestion(), resource.getActive(), resource.getPromoted());
 
 		return repository.save(plans);
 	}
@@ -99,7 +127,7 @@ public class PlansServiceImpl implements PlansService {
 	@Override
 	public Plans moneyUpdate(final String name, final EditPlanMoneyRequest resource, final long desiredVersion) {
 		final var plans = repository.findByName_Name(name)
-				.orElseThrow(() -> new IllegalArgumentException("Plan with name "+name+" doesn't exists!"));
+				.orElseThrow(() -> new IllegalArgumentException("Plan with name " + name + " doesn't exists!"));
 
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		int commaIndex = username.indexOf(",");
@@ -112,7 +140,7 @@ public class PlansServiceImpl implements PlansService {
 		}
 
 
-		plans.moneyData(desiredVersion, resource.getAnnualFee(), resource.getMonthlyFee(),newString);
+		plans.moneyData(desiredVersion, resource.getAnnualFee(), resource.getMonthlyFee(), newString);
 
 		return repository.save(plans);
 	}
@@ -120,10 +148,10 @@ public class PlansServiceImpl implements PlansService {
 	@Override
 	public Plans deactivate(final String name, final long desiredVersion) {
 		final Plans plans = repository.findByName_Name(name)
-				.orElseThrow(() -> new IllegalArgumentException("Plan with name "+name+" doesn't exists!"));
+				.orElseThrow(() -> new IllegalArgumentException("Plan with name " + name + " doesn't exists!"));
 
-		if (!plans.getActive().getActive()){
-			throw new IllegalArgumentException("Plan with name "+name+" is already deactivate");
+		if (!plans.getActive().getActive()) {
+			throw new IllegalArgumentException("Plan with name " + name + " is already deactivate");
 		}
 		plans.deactivate(desiredVersion);
 
@@ -142,7 +170,7 @@ public class PlansServiceImpl implements PlansService {
 		}
 
 		// Check if plan is already promoted
-		if (plan.getPromoted().getPromoted()){
+		if (plan.getPromoted().getPromoted()) {
 			throw new IllegalArgumentException("Can't promote this plan, " + plan.getName().getName() + " plan is already promoted");
 		}
 
@@ -167,8 +195,6 @@ public class PlansServiceImpl implements PlansService {
 	}
 
 
-
-
 	@Override
 	@Transactional
 	public int cease(String name, final long desiredVersion) {
@@ -190,17 +216,12 @@ public class PlansServiceImpl implements PlansService {
 		return repository.ceaseByPlan(plans, desiredVersion);
 	}
 
-	/*public static HttpRequest createHttpRequest(String url) throws Exception {
-		HttpRequest request = HttpRequest.newBuilder()
-				.uri(new URI("http://localhost:8083/api/user/findAll"))
-				.GET()
-				.build();
+	public void checkRepository() throws URISyntaxException, IOException, InterruptedException {
+
+
 	}
 
-	public static HttpResponse<String> sendHttpRequest(HttpRequest request) throws IOException, InterruptedException {
-		return HttpClient.newHttpClient()
-				.send(request, HttpResponse.BodyHandlers.ofString());
-	}*/
-
-
+	public Optional<Plans> getPlanByName(String planName) {
+		return repository.findByName_Name(planName);
+	}
 }

@@ -26,6 +26,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.h2.table.Plan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -39,6 +40,7 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Optional;
 
 
 @Tag(name = "Plans", description = "Endpoints for managing plans")
@@ -68,12 +70,29 @@ public class PlansController {
 		return plansViewMapper.toPlansView(service.findAtive());
 	}
 
+		@Operation(summary = "Get Plan by name")
+		@GetMapping("/{planName}")
+
+		public ResponseEntity<PlansView> getPlanByName(@PathVariable String planName) {
+			Optional<Plans> planOptional = service.getPlanByName(planName);
+
+			if (planOptional.isPresent()) {
+				Plans plan = planOptional.get();
+				PlansView plansView = plansViewMapper.toPlansView(plan);
+				return ResponseEntity.ok(plansView);
+			} else {
+				return ResponseEntity.notFound().build();
+			}
+		}
+
+
+
 	@Operation(summary = "Creates a new Plan")
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED) public ResponseEntity<PlansView>
 	create(@Valid @RequestBody final CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException {
 
-		//get
+
 		//String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		/*
 		HttpRequest request = HttpRequest.newBuilder()

@@ -28,12 +28,14 @@ import com.example.psoft_22_23_project.plansmanagement.model.FeeRevision;
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 import com.example.psoft_22_23_project.plansmanagement.model.PromotionResult;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
 
 public interface PlansService {
 
-	Plans create(CreatePlanRequest resource);
+	Plans create(CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException;
 
 	Plans partialUpdate(String name, EditPlansRequest resource, long parseLong);
 
@@ -48,4 +50,7 @@ public interface PlansService {
 	Iterable<Plans> findAtive();
 
 	List<FeeRevision> history(String name);
+
+
+	Optional<Plans> getPlanByName(String planName);
 }

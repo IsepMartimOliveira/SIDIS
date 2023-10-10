@@ -92,6 +92,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 				// Plans management
 				.antMatchers(HttpMethod.POST,"/api/plans").hasRole("Marketing_Director")
+				.antMatchers(HttpMethod.GET,"/api/plans/**").permitAll()
+
 
 				.anyRequest().authenticated()
 
