@@ -20,11 +20,17 @@
  */
 package com.example.psoft_22_23_project.usermanagement.api;
 
+import com.example.psoft_22_23_project.usermanagement.model.User;
 import com.example.psoft_22_23_project.usermanagement.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping(path = "/api/user")
@@ -37,6 +43,20 @@ public class UserController {
     public Iterable<UserView> findAll() {
         return userViewMapper.toUserView(userService.findAll());
 
+    }
+
+    @Operation(summary = "Get User by name")
+    @GetMapping("/{username}")
+
+    public ResponseEntity<User> getUserByName(@PathVariable String username) {
+        Optional<User> userOptional = userService.getUserByName(username);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            return ResponseEntity.ok(user);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
 

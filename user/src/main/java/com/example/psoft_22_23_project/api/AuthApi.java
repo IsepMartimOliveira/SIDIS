@@ -42,6 +42,8 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.time.Instant;
 
 import static java.lang.String.format;
@@ -89,7 +91,7 @@ public class AuthApi {
 		}
 	}
 	@PostMapping("/register")
-	public UserView create(@RequestBody @Valid final CreateUserRequest request) {
+	public UserView create(@RequestBody @Valid final CreateUserRequest request) throws IOException, URISyntaxException, InterruptedException {
 		final User user = userService.create(request);
 		return userViewMapper.toUserView(user);
 	}

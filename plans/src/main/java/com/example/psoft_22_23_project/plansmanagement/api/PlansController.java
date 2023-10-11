@@ -69,20 +69,20 @@ public class PlansController {
 		return plansViewMapper.toPlansView(service.findAtive());
 	}
 
-		@Operation(summary = "Get Plan by name")
-		@GetMapping("/{planName}")
+	@Operation(summary = "Get Plan by name")
+	@GetMapping("/{planName}")
 
-		public ResponseEntity<PlansView> getPlanByName(@PathVariable String planName) {
-			Optional<Plans> planOptional = service.getPlanByName(planName);
+	public ResponseEntity<PlansView> getPlanByName(@PathVariable String planName) {
+		Optional<Plans> planOptional = service.getPlanByName(planName);
 
-			if (planOptional.isPresent()) {
-				Plans plan = planOptional.get();
-				PlansView plansView = plansViewMapper.toPlansView(plan);
-				return ResponseEntity.ok(plansView);
-			} else {
-				return ResponseEntity.notFound().build();
-			}
+		if (planOptional.isPresent()) {
+			Plans plan = planOptional.get();
+			PlansView plansView = plansViewMapper.toPlansView(plan);
+			return ResponseEntity.ok(plansView);
+		} else {
+			return ResponseEntity.notFound().build();
 		}
+	}
 
 
 

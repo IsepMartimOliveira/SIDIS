@@ -93,7 +93,7 @@ public class PlansServiceImpl implements PlansService {
 			HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
 			if (response.statusCode() == 200) {
-				throw new IllegalArgumentException("Plan with name " + resource.getName() + " already exists!");
+				throw new IllegalArgumentException("Plan with name " + resource.getName() + " already exists on another machine!");
 			}
 			else if(response.statusCode()==401){
 				throw new IllegalArgumentException("Authentication failed. Please check your credentials or login to access this resource.");
@@ -210,12 +210,36 @@ public class PlansServiceImpl implements PlansService {
 		return repository.ceaseByPlan(plans, desiredVersion);
 	}
 
-	public void checkRepository() throws URISyntaxException, IOException, InterruptedException {
-
-
-	}
+	
 
 	public Optional<Plans> getPlanByName(String planName) {
 		return repository.findByName_Name(planName);
 	}
+
+	/*public Optional<Plans> checkRepository(String name) throws URISyntaxException, IOException, InterruptedException {
+
+		Optional<Plans> plans = repository.findByName_Name(name);
+		if (plans.isPresent()) {
+			throw new IllegalArgumentException("Plan with name " + name+ " already exists locally!");
+		}
+
+		URI uri = new URI("http://localhost:8090/api/plans/" + name);
+
+		HttpRequest request = HttpRequest.newBuilder()
+				.uri(uri)
+				.GET()
+				.build();
+
+		HttpClient client = HttpClient.newHttpClient();
+
+		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+		if (response.statusCode() == 200) {
+			throw new IllegalArgumentException("Plan with name " + name + " already exists on another machine!");
+		}
+		else if(response.statusCode()==401){
+			throw new IllegalArgumentException("Authentication failed. Please check your credentials or login to access this resource.");
+		}
+		return plans;
+	}*/
 }

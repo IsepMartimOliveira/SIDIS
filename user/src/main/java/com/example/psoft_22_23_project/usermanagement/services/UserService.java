@@ -27,15 +27,26 @@ import com.example.psoft_22_23_project.usermanagement.api.UserViewMapper;
 import com.example.psoft_22_23_project.usermanagement.model.User;
 import com.example.psoft_22_23_project.usermanagement.repositories.UserImageRepository;
 import com.example.psoft_22_23_project.usermanagement.repositories.UserRepository;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.transaction.Transactional;
 import javax.validation.ValidationException;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -52,10 +63,32 @@ public class UserService implements UserDetailsService {
 	private final FileStorageService fileStorageService;
 
 	@Transactional
-	public User create(final CreateUserRequest request) {
-		if (userRepo.findByUsername(request.getUsername()).isPresent()) {
-			throw new ConflictException("Username already exists!");
+	public User create(final CreateUserRequest request) throws IOException, InterruptedException, URISyntaxException {
+
+		Optional<User> user2 = userRepository.findByUsername(request.getUsername());
+
+		if (user2.isPresent()) {
+			throw new ConflictException("Username already exists locally!");
 		}
+
+		URI uri = new URI("http://localhost:8092/api/user/" + request.getUsername());
+
+		HttpRequest requestAPI = HttpRequest.newBuilder()
+				.uri(uri)
+				.GET()
+				.build();
+
+		HttpClient client = HttpClient.newHttpClient();
+
+		HttpResponse<String> response = client.send(requestAPI, HttpResponse.BodyHandlers.ofString());
+
+		if (response.statusCode() == 200) {
+			throw new IllegalArgumentException("Username with name " + request.getUsername() + " already exists on another machine!");
+		}
+		else if(response.statusCode()==401){
+			throw new IllegalArgumentException("Authentication failed. Please check your credentials or login to access this resource.");
+		}
+
 		if (!request.getPassword().equals(request.getRePassword())) {
 			throw new ValidationException("Passwords don't match!");
 		}
@@ -77,4 +110,6 @@ public class UserService implements UserDetailsService {
 		return userRepository.findAll();
 
 	}
+	public Optional<User> getUserByName(String Username) {return userRepository.findByUsername(Username);}
+
 }
