@@ -118,15 +118,13 @@ public class PlansController {
 	@PatchMapping(value = "/update/{name}")
 	public ResponseEntity<PlansView> partialUpdate(final WebRequest request,
 												 @PathVariable("name") @Parameter(description = "The name of the plan to update") final String name,
-												 @Valid @RequestBody final EditPlansRequest resource) {
+												 @Valid @RequestBody final EditPlansRequest resource) throws URISyntaxException, IOException, InterruptedException {
 
 		final String ifMatchValue = request.getHeader("If-Match");
 		if (ifMatchValue == null || ifMatchValue.isEmpty()) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 					"You must issue a conditional PATCH using 'if-match'");
 		}
-
-
 
 		final var plans = service.partialUpdate(name, resource, getVersionFromIfMatchHeader(ifMatchValue));
 		return ResponseEntity.ok().eTag(Long.toString(plans.getVersion())).body(plansViewMapper.toPlansView(plans));
@@ -142,7 +140,7 @@ public class PlansController {
 		final String ifMatchValue = request.getHeader("If-Match");
 		if (ifMatchValue == null || ifMatchValue.isEmpty()) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-					"You must issue a conditional PATCH using 'if-match'");
+					"You must issue a conditional PATCH using 'if-match' (1)");
 		}
 
 		final Plans plans = service.moneyUpdate(name, resource, getVersionFromIfMatchHeader(ifMatchValue));

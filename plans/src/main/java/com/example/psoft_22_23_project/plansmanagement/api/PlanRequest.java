@@ -20,25 +20,29 @@
  */
 package com.example.psoft_22_23_project.plansmanagement.api;
 
-import com.example.psoft_22_23_project.plansmanagement.model.Plans;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import lombok.Data;
 
+@Data
+public class PlanRequest {
+	private String name;
+	private String description;
+	private String numberOfMinutes;
+	private String musicSuggestion;
+	private String maximumNumberOfUsers;
+	private String musicCollection;
+	private String annualFee;
+	private String monthlyFee;
+	private String active;
+	private String promoted;
 
-@Mapper(componentModel = "spring")
-public abstract class PlansViewMapper {
-	@Mapping(source = "plans.name.name", target = "name")
-	@Mapping(source = "plans.description.description", target = "description")
-	@Mapping(source = "plans.numberOfMinutes.numberOfMinutes", target = "numberOfMinutes")
-	@Mapping(source = "plans.maximumNumberOfUsers.maximumNumberOfUsers", target = "maximumNumberOfUsers")
-	@Mapping(source = "plans.musicCollection.musicCollection", target = "musicCollection")
-	@Mapping(source = "plans.musicSuggestion.musicSuggestion", target = "musicSuggestion")
-	@Mapping(source = "plans.annualFee.annualFee", target = "annualFee")
-	@Mapping(source = "plans.monthlyFee.monthlyFee", target = "monthlyFee")
-	@Mapping(source = "plans.active.active", target = "active")
-	@Mapping(source = "plans.promoted.promoted", target = "promoted")
-	public abstract PlansView toPlansView(Plans plans);
+	public String getAnnualFee() {
+		String numericPart = annualFee.replaceAll("[^\\d.]", ""); // Removes non-numeric characters except '.'
+		return numericPart;
+	}
 
-	public abstract Iterable<PlansView> toPlansView(Iterable<Plans> plans);
+	public String getMonthlyFee() {
+		String numericPart = monthlyFee.replaceAll("[^\\d.]", ""); // Removes non-numeric characters except '.'
 
+		return numericPart;
+	}
 }

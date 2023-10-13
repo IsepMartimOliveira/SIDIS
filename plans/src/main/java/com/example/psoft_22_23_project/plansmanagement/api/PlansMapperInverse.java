@@ -26,19 +26,18 @@ import org.mapstruct.Mapping;
 
 
 @Mapper(componentModel = "spring")
-public abstract class PlansViewMapper {
-	@Mapping(source = "plans.name.name", target = "name")
-	@Mapping(source = "plans.description.description", target = "description")
-	@Mapping(source = "plans.numberOfMinutes.numberOfMinutes", target = "numberOfMinutes")
-	@Mapping(source = "plans.maximumNumberOfUsers.maximumNumberOfUsers", target = "maximumNumberOfUsers")
-	@Mapping(source = "plans.musicCollection.musicCollection", target = "musicCollection")
-	@Mapping(source = "plans.musicSuggestion.musicSuggestion", target = "musicSuggestion")
-	@Mapping(source = "plans.annualFee.annualFee", target = "annualFee")
-	@Mapping(source = "plans.monthlyFee.monthlyFee", target = "monthlyFee")
-	@Mapping(source = "plans.active.active", target = "active")
-	@Mapping(source = "plans.promoted.promoted", target = "promoted")
-	public abstract PlansView toPlansView(Plans plans);
+public abstract class PlansMapperInverse {
+	@Mapping(source = "plans.name", target = "name.name")
+	@Mapping(source = "plans.description", target = "description.description")
+	@Mapping(source = "plans.numberOfMinutes", target = "numberOfMinutes.numberOfMinutes")
+	@Mapping(source = "plans.maximumNumberOfUsers", target = "maximumNumberOfUsers.maximumNumberOfUsers")
+	@Mapping(source = "plans.musicCollection", target = "musicCollection.musicCollection")
+	@Mapping(source = "plans.musicSuggestion", target = "musicSuggestion.musicSuggestion")
+	@Mapping(source = "plans.annualFee", target = "annualFee.annualFee")
+	@Mapping(source = "plans.monthlyFee", target = "monthlyFee.monthlyFee")
+	@Mapping(source = "plans.active", target = "active.active")
+	@Mapping(source = "plans.promoted", target = "promoted.promoted")
+	public abstract Plans toPlansView(PlanRequest plans);
 
-	public abstract Iterable<PlansView> toPlansView(Iterable<Plans> plans);
 
 }

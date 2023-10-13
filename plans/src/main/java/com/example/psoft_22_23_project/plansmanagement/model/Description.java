@@ -1,8 +1,7 @@
 package com.example.psoft_22_23_project.plansmanagement.model;
+
+import com.google.gson.annotations.SerializedName;
 import lombok.Data;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -15,6 +14,7 @@ public class Description {
     @Column(name = "Description")
     @NotNull
     @Size(min = 1)
+    @SerializedName("description")
     private String description;
 
     public void setDescription(String description) {

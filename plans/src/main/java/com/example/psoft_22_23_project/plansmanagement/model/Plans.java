@@ -1,12 +1,9 @@
 package com.example.psoft_22_23_project.plansmanagement.model;
 
-import lombok.Data;
 import lombok.Getter;
-import lombok.Setter;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
-import org.hibernate.envers.Audited;
 
 import javax.persistence.*;
 import java.util.ArrayList;

@@ -1,9 +1,7 @@
 package com.example.psoft_22_23_project.plansmanagement.model;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.Data;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -15,6 +13,7 @@ import javax.validation.constraints.NotNull;
 public class AnnualFee {
     @Column(name = "Annual_Fee")
     @NotNull
+    @SerializedName("annualFee")
     @Min(0)
     private double annualFee;
 
@@ -23,5 +22,11 @@ public class AnnualFee {
             throw new IllegalArgumentException("Annual_Fee must be positive");
         }
         this.annualFee = annualFee;
+    }
+
+    public void setAnnualFee(String annualFee) {
+        String numericPart = annualFee.replaceAll("[^\\d.]", ""); // Removes non-numeric characters except '.'
+
+        this.annualFee = Double.parseDouble(numericPart);
     }
 }

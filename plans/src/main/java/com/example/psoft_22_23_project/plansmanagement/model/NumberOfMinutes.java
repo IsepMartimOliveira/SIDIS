@@ -1,13 +1,10 @@
 package com.example.psoft_22_23_project.plansmanagement.model;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.Data;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.regex.Matcher;
@@ -19,6 +16,7 @@ public class NumberOfMinutes {
     @Column(name = "Number_Of_Minutes")
     @NotNull
     @Size(min = 1)
+    @SerializedName("numberOfMinutes")
     private String numberOfMinutes;
 
     public void setNumberOfMinutes(String numberOfMinutes) {

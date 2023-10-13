@@ -21,13 +21,12 @@
 package com.example.psoft_22_23_project.plansmanagement.services;
 
 import com.example.psoft_22_23_project.exceptions.NotFoundException;
-import com.example.psoft_22_23_project.plansmanagement.api.CreatePlanRequest;
-import com.example.psoft_22_23_project.plansmanagement.api.EditPlanMoneyRequest;
-import com.example.psoft_22_23_project.plansmanagement.api.EditPlansRequest;
+import com.example.psoft_22_23_project.plansmanagement.api.*;
 import com.example.psoft_22_23_project.plansmanagement.model.FeeRevision;
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 import com.example.psoft_22_23_project.plansmanagement.model.PromotionResult;
 import com.example.psoft_22_23_project.plansmanagement.repositories.PlansRepository;
+import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -54,6 +53,8 @@ public class PlansServiceImpl implements PlansService {
 	//private final SubscriptionsRepository subscriptionsRepository;
 
 	private final CreatePlansMapper createPlansMapper;
+	private final PlansMapperInverse plansMapperInverse;
+
 
 	@Override
 	public Iterable<Plans> findAtive() {
@@ -107,15 +108,56 @@ public class PlansServiceImpl implements PlansService {
 
 
 	@Override
-	public Plans partialUpdate(final String name, final EditPlansRequest resource, final long desiredVersion) {
-		final var plans = repository.findByName_Name(name)
-				.orElseThrow(() -> new IllegalArgumentException("Plan with name " + name + " doesn't exists!"));
+	public Plans partialUpdate(final String name, final EditPlansRequest resource, final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
 
-		plans.updateData(desiredVersion, resource.getDescription(),
-				resource.getMaximumNumberOfUsers(), resource.getNumberOfMinutes(),
-				resource.getMusicCollection(), resource.getMusicSuggestion(), resource.getActive(), resource.getPromoted());
+		//encontrar plano localmente
+		final Optional<Plans> plans = repository.findByName_Name(name);
+				//.orElseThrow(() -> new IllegalArgumentException("Plan with name " + name + " doesn't exists locally!"));
+		if (plans.isPresent()){
+			Plans plans1 = plans.get();
+			plans1.updateData(desiredVersion, resource.getDescription(),
+					resource.getMaximumNumberOfUsers(), resource.getNumberOfMinutes(),
+					resource.getMusicCollection(), resource.getMusicSuggestion(), resource.getActive(), resource.getPromoted());
+			return repository.save(plans1);
+		}
+		URI uri = new URI("http://localhost:8090/api/plans/" + name);
+		HttpRequest request = HttpRequest.newBuilder()
+				.uri(uri)
+				.GET()
+				.build();
 
-		return repository.save(plans);
+		HttpClient client = HttpClient.newHttpClient();
+		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+		if (response.statusCode() == 200) {
+			String apiUrl = "http://localhost:8090/api/plans/update/" + name;
+			Gson gson = new Gson();
+			String json = gson.toJson(resource);
+			HttpRequest requestpatch = HttpRequest.newBuilder()
+					.uri(URI.create(apiUrl))
+					.header("Content-Type", "application/json")
+					.header("if-match", Long.toString(desiredVersion) )
+					.method("PATCH", HttpRequest.BodyPublishers.ofString(json))
+					.build();
+			HttpClient httpClient = HttpClient.newHttpClient();
+			HttpResponse<String> responses = httpClient.send(requestpatch, HttpResponse.BodyHandlers.ofString());
+
+			if (responses.statusCode() == 500){
+				throw new IllegalArgumentException("You must issue a conditional PATCH using 'if-match' (2)!");
+			}else if(responses.statusCode() == 200){
+				//error para mapiar
+				//mapear para objeto string e dps fazer mapiar para objeto
+				PlanRequest planRequest = gson.fromJson(responses.body(), PlanRequest.class);
+				return plansMapperInverse.toPlansView(planRequest);
+			} else if (responses.statusCode() == 409) {
+				throw new IllegalArgumentException("If match number wrong!");
+			}
+			throw new IllegalArgumentException("Plan with name " + name + " was updated!");
+		}
+		else if(response.statusCode()==401){
+			throw new IllegalArgumentException("Authentication failed. Please check your credentials or login to access this resource.");
+		}
+		throw new IllegalArgumentException("Plan with name " + name + " does not exists on another machine and locally !");
 	}
 
 	@Override

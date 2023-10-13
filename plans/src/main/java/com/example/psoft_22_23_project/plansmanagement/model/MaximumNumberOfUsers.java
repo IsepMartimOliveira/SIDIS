@@ -1,9 +1,7 @@
 package com.example.psoft_22_23_project.plansmanagement.model;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.Data;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -16,7 +14,12 @@ public class MaximumNumberOfUsers {
     @Column(name = "Maximum_Number_Of_Users")
     @NotNull
     @Min(0)
+    @SerializedName("maximumNumberOfUsers")
     private Integer maximumNumberOfUsers;
+
+    public void setMaximumNumberOfUsers(String maximumNumberOfUsers) {
+        this.maximumNumberOfUsers = Integer.valueOf(maximumNumberOfUsers);
+    }
 
     public void setMaximumNumberOfUsers(Integer maximumNumberOfUsers) {
         if (maximumNumberOfUsers == null || maximumNumberOfUsers < 0) {
@@ -24,4 +27,5 @@ public class MaximumNumberOfUsers {
         }
         this.maximumNumberOfUsers = maximumNumberOfUsers;
     }
+
 }

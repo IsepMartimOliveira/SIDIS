@@ -37,7 +37,7 @@ public interface PlansService {
 
 	Plans create(CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException;
 
-	Plans partialUpdate(String name, EditPlansRequest resource, long parseLong);
+	Plans partialUpdate(String name, EditPlansRequest resource, long parseLong) throws URISyntaxException, IOException, InterruptedException;
 
 	Plans moneyUpdate(String name, EditPlanMoneyRequest resource, long desiredVersion);
 

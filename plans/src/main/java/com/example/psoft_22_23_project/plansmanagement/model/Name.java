@@ -1,6 +1,6 @@
 package com.example.psoft_22_23_project.plansmanagement.model;
 
-import lombok.*;
+import lombok.Data;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;

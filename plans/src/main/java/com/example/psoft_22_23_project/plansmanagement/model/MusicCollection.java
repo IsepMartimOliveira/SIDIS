@@ -1,10 +1,8 @@
 package com.example.psoft_22_23_project.plansmanagement.model;
 
 
+import com.google.gson.annotations.SerializedName;
 import lombok.Data;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -17,6 +15,7 @@ public class MusicCollection {
     @Column(name = "Music_Collection")
     @NotNull
     @Min(0)
+    @SerializedName("musicCollection")
     private Integer musicCollection;
 
     public void setMusicCollection(Integer musicCollection) {
@@ -24,5 +23,9 @@ public class MusicCollection {
             throw new IllegalArgumentException("Music Collection number must be positive");
         }
         this.musicCollection = musicCollection;
+    }
+
+    public void setMusicCollection(String musicCollection) {
+        this.musicCollection = Integer.valueOf(musicCollection);
     }
 }
