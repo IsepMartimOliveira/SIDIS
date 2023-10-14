@@ -54,7 +54,6 @@ public class PlansServiceImpl implements PlansService {
 
 	private final CreatePlansMapper createPlansMapper;
 	private final PlansMapperInverse plansMapperInverse;
-	private final PlansMoney plansMoney;
 
 
 	@Override
@@ -227,16 +226,56 @@ public class PlansServiceImpl implements PlansService {
 
 
 	@Override
-	public Plans deactivate(final String name, final long desiredVersion) {
-		final Plans plans = repository.findByName_Name(name)
-				.orElseThrow(() -> new IllegalArgumentException("Plan with name " + name + " doesn't exists!"));
+	public Plans deactivate(final String name, final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
+		final Optional<Plans> plans = repository.findByName_Name(name);
+		if(plans.isPresent()){
+			Plans plans1 = plans.get();
+			if(!plans1.getActive().getActive()){
+				throw new IllegalArgumentException("Plan with name " + name + " is already deactivate");
+			}
+			plans1.deactivate(desiredVersion);
+			return repository.save(plans1);
 
-		if (!plans.getActive().getActive()) {
-			throw new IllegalArgumentException("Plan with name " + name + " is already deactivate");
 		}
-		plans.deactivate(desiredVersion);
 
-		return repository.save(plans);
+		URI uri = new URI("http://localhost:8090/api/plans/" + name);
+		HttpRequest request = HttpRequest.newBuilder()
+				.uri(uri)
+				.GET()
+				.build();
+
+		HttpClient client = HttpClient.newHttpClient();
+		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+		if (response.statusCode() == 200) {
+			Gson gson = new Gson();
+			String apiUrl = "http://localhost:8090/api/plans/deactivate/" + name;
+			HttpRequest requestpatch = HttpRequest.newBuilder()
+					.uri(URI.create(apiUrl))
+					.header("Content-Type", "application/json")
+					.header("if-match", Long.toString(desiredVersion))
+					.method("PATCH", HttpRequest.BodyPublishers.noBody()	)  // Send an empty request body
+					.build();
+
+			HttpClient httpClient = HttpClient.newHttpClient();
+			HttpResponse<String> responses = httpClient.send(requestpatch, HttpResponse.BodyHandlers.ofString());
+
+			if (responses.statusCode() == 500){
+				throw new IllegalArgumentException("You must issue a conditional PATCH using 'if-match' (2)!");
+			}else if(responses.statusCode() == 200){
+
+				PlanRequest planRequest = gson.fromJson(responses.body(), PlanRequest.class);
+				return plansMapperInverse.toPlansView(planRequest);
+
+			} else if (responses.statusCode() == 409) {
+				throw new IllegalArgumentException("If match number wrong!");
+			}
+			throw new IllegalArgumentException("Plan with name " + name + " was updated!");
+		}
+		else if(response.statusCode()==401){
+			throw new IllegalArgumentException("Authentication failed. Please check your credentials or login to access this resource.");
+		}
+		throw new IllegalArgumentException("Plan with name " + name + " does not exists on another machine and locally !");
 	}
 
 	@Override

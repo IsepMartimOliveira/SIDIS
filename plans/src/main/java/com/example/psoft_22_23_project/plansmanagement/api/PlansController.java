@@ -152,7 +152,7 @@ public class PlansController {
 	@Operation(summary = "Deactivate a plan")
 	@PatchMapping(value = "/deactivate/{name}")
 	public ResponseEntity<PlansView> deactivate(final WebRequest request,
-												@PathVariable("name") @Parameter(description = "The name of the plan to update") final String name) {
+												@PathVariable("name") @Parameter(description = "The name of the plan to update") final String name) throws URISyntaxException, IOException, InterruptedException {
 		final String ifMatchValue = request.getHeader("If-Match");
 		if (ifMatchValue == null || ifMatchValue.isEmpty()) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,

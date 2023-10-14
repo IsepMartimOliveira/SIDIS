@@ -41,7 +41,7 @@ public interface PlansService {
 
 	Plans moneyUpdate(String name, EditPlanMoneyRequest resource, long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
 
-	Plans deactivate(String name, long desiredVersion);
+	Plans deactivate(String name, long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
 
 	PromotionResult promote(String name, long desiredVersion);
 
