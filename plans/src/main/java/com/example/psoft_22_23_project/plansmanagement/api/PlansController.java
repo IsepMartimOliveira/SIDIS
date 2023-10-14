@@ -135,7 +135,7 @@ public class PlansController {
 	@PatchMapping(value = "/updateMoney/{name}")
 	public ResponseEntity<PlansView> moneyUpdate(final WebRequest request,
 												   @PathVariable("name") @Parameter(description = "The name of the plan to update") final String name,
-												   @Valid @RequestBody final EditPlanMoneyRequest resource) {
+												   @Valid @RequestBody final EditPlanMoneyRequest resource) throws URISyntaxException, IOException, InterruptedException {
 
 		final String ifMatchValue = request.getHeader("If-Match");
 		if (ifMatchValue == null || ifMatchValue.isEmpty()) {

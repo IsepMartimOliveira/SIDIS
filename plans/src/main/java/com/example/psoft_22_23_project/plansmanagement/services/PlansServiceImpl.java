@@ -54,6 +54,7 @@ public class PlansServiceImpl implements PlansService {
 
 	private final CreatePlansMapper createPlansMapper;
 	private final PlansMapperInverse plansMapperInverse;
+	private final PlansMoney plansMoney;
 
 
 	@Override
@@ -161,9 +162,9 @@ public class PlansServiceImpl implements PlansService {
 	}
 
 	@Override
-	public Plans moneyUpdate(final String name, final EditPlanMoneyRequest resource, final long desiredVersion) {
-		final var plans = repository.findByName_Name(name)
-				.orElseThrow(() -> new IllegalArgumentException("Plan with name " + name + " doesn't exists!"));
+	public Plans moneyUpdate(final String name, final EditPlanMoneyRequest resource, final long desiredVersion)throws URISyntaxException, IOException, InterruptedException {
+		final Optional<Plans> plans = repository.findByName_Name(name);
+
 
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		int commaIndex = username.indexOf(",");
@@ -174,12 +175,52 @@ public class PlansServiceImpl implements PlansService {
 		} else {
 			newString = username;
 		}
+		if(plans.isPresent()){
+			Plans plans1 = plans.get();
+			plans1.moneyData(desiredVersion, resource.getAnnualFee(), resource.getMonthlyFee(), newString);
+			return repository.save(plans1);
 
+		}
+		URI uri = new URI("http://localhost:8090/api/plans/" + name);
+		HttpRequest request = HttpRequest.newBuilder()
+				.uri(uri)
+				.GET()
+				.build();
 
-		plans.moneyData(desiredVersion, resource.getAnnualFee(), resource.getMonthlyFee(), newString);
+		HttpClient client = HttpClient.newHttpClient();
+		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-		return repository.save(plans);
+		if(response.statusCode()==200){
+			String apiUrl = "http://localhost:8090/api/plans/updateMoney/" + name;
+			Gson gson = new Gson();
+			String json = gson.toJson(resource);
+			HttpRequest requestpatch = HttpRequest.newBuilder()
+					.uri(URI.create(apiUrl))
+					.header("Content-Type", "application/json")
+					.header("if-match", Long.toString(desiredVersion) )
+					.method("PATCH", HttpRequest.BodyPublishers.ofString(json))
+					.build();
+			HttpClient httpClient = HttpClient.newHttpClient();
+			HttpResponse<String> responses = httpClient.send(requestpatch, HttpResponse.BodyHandlers.ofString());
+			if (responses.statusCode() == 500){
+				throw new IllegalArgumentException("You must issue a conditional PATCH using 'if-match' (2)!");
+			}else if(responses.statusCode() == 200){
+				//error para mapiar
+				//mapear para objeto string e dps fazer mapiar para objeto
+				EditPlanMoneyRequest editPlanMoneyRequest = gson.fromJson(responses.body(), EditPlanMoneyRequest.class);
+				return repository.save(plansMoney.toPlansVieMoney(editPlanMoneyRequest));
+			} else if (responses.statusCode() == 409) {
+				throw new IllegalArgumentException("If match number wrong!");
+			}
+			throw new IllegalArgumentException("Plan with name " + name + " was updated!");
+		}
+		else if(response.statusCode()==401){
+			throw new IllegalArgumentException("Authentication failed. Please check your credentials or login to access this resource.");
+		}
+		throw new IllegalArgumentException("Plan with name " + name + " does not exists on another machine and locally !");
+
 	}
+
 
 	@Override
 	public Plans deactivate(final String name, final long desiredVersion) {
