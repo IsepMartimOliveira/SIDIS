@@ -146,9 +146,9 @@ public class PlansServiceImpl implements PlansService {
 			if (responses.statusCode() == 500){
 				throw new IllegalArgumentException("You must issue a conditional PATCH using 'if-match' (2)!");
 			}else if(responses.statusCode() == 200){
-				//error para mapiar
-				//mapear para objeto string e dps fazer mapiar para objeto
+				//
 				PlanRequest planRequest = gson.fromJson(responses.body(), PlanRequest.class);
+				//
 				return plansMapperInverse.toPlansView(planRequest);
 			} else if (responses.statusCode() == 409) {
 				throw new IllegalArgumentException("If match number wrong!");
@@ -175,6 +175,8 @@ public class PlansServiceImpl implements PlansService {
 		} else {
 			newString = username;
 		}
+
+
 		if(plans.isPresent()){
 			Plans plans1 = plans.get();
 			plans1.moneyData(desiredVersion, resource.getAnnualFee(), resource.getMonthlyFee(), newString);
@@ -205,10 +207,12 @@ public class PlansServiceImpl implements PlansService {
 			if (responses.statusCode() == 500){
 				throw new IllegalArgumentException("You must issue a conditional PATCH using 'if-match' (2)!");
 			}else if(responses.statusCode() == 200){
-				//error para mapiar
-				//mapear para objeto string e dps fazer mapiar para objeto
-				EditPlanMoneyRequest editPlanMoneyRequest = gson.fromJson(responses.body(), EditPlanMoneyRequest.class);
-				return repository.save(plansMoney.toPlansVieMoney(editPlanMoneyRequest));
+
+				PlanRequest planRequest = gson.fromJson(responses.body(), PlanRequest.class);
+
+				return plansMapperInverse.toPlansView(planRequest);
+
+				//return repository.save(plansMoney.toPlansVieMoney(editPlanMoneyRequest));
 			} else if (responses.statusCode() == 409) {
 				throw new IllegalArgumentException("If match number wrong!");
 			}
