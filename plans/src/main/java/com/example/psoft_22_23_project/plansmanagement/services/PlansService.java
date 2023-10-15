@@ -43,7 +43,7 @@ public interface PlansService {
 
 	Plans deactivate(String name, long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
 
-	PromotionResult promote(String name, long desiredVersion);
+	PromotionResult promote(String name, long desiredVersion) throws IOException, InterruptedException, URISyntaxException;
 
 	int cease(String name, final long desiredVersion);
 
@@ -53,4 +53,6 @@ public interface PlansService {
 
 
 	Optional<Plans> getPlanByName(String planName);
+	Optional<Plans>getPlanByActiveAndPromoted(Boolean active,String name,Boolean promoted);
+	Optional<Plans> getPlanByActive(Boolean active,String name);
 }

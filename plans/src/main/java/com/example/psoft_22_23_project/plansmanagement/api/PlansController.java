@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Tag(name = "Plans", description = "Endpoints for managing plans")
@@ -84,8 +85,48 @@ public class PlansController {
 		}
 	}
 
+	@Operation(summary = "Get Plans by active status and promoted")
+	@GetMapping("/byActiveAndPromoted")
+	public ResponseEntity<List<PlansView>> getPlansByActive(
+			@RequestParam Boolean activePlan,
+			@RequestParam String name,@RequestParam Boolean promoted) {
+		if (activePlan == null && name == null) {
+			return ResponseEntity.badRequest().build();
+		}
+
+		Optional<Plans> activePlans=service.getPlanByActiveAndPromoted(activePlan, name,promoted);
 
 
+		if (activePlans.isPresent()) {
+			List<PlansView> plansViews = activePlans.stream()
+					.map(plansViewMapper::toPlansView)
+					.collect(Collectors.toList());
+			return ResponseEntity.ok(plansViews);
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+	}
+	/*@Operation(summary = "Get Plans by active status and promoted")
+	@GetMapping("/byActive")
+	public ResponseEntity<List<PlansView>> getPlansByActive(
+			@RequestParam Boolean activePlan,
+			@RequestParam String name) {
+		if (activePlan == null && name == null) {
+			return ResponseEntity.badRequest().build();
+		}
+
+		Optional<Plans> activePlans=service.getPlanByActive(activePlan, name);
+
+
+		if (activePlans.isPresent()) {
+			List<PlansView> plansViews = activePlans.stream()
+					.map(plansViewMapper::toPlansView)
+					.collect(Collectors.toList());
+			return ResponseEntity.ok(plansViews);
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+	}*/
 	@Operation(summary = "Creates a new Plan")
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED) public ResponseEntity<PlansView>
@@ -166,7 +207,7 @@ public class PlansController {
 	@Operation(summary = "Promote a plan")
 	@PatchMapping(value = "/promote")
 	public ResponseEntity<PromotionResultView> promote(final WebRequest request,
-													   @RequestParam("name") @Parameter(description = "The name of the plan to promote") final String name) {
+													   @RequestParam("name") @Parameter(description = "The name of the plan to promote") final String name) throws IOException, URISyntaxException, InterruptedException {
 		final String ifMatchValue = request.getHeader("If-Match");
 		if (ifMatchValue == null || ifMatchValue.isEmpty()) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,

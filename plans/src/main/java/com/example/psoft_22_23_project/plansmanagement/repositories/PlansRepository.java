@@ -45,8 +45,10 @@ public interface PlansRepository extends CrudRepository<Plans, Long> {
 
 	Optional<Plans> findByName_Name(@NotNull String name);
 
+	Optional<Plans> findByActive_ActiveAndName_Name_AndPromoted_Promoted(@NotNull boolean active, @NotNull String name_name,@NotNull boolean promoted);
 	Optional<Plans> findByActive_ActiveAndName_Name(@NotNull boolean active, @NotNull String name_name);
 	Iterable<Plans> findByActive_Active(@NotNull boolean active);
+	Optional<Plans> findByActive_Active_(@NotNull boolean active);
 	Optional<Plans> findByPromoted_Promoted(@NotNull boolean promoted);
 	@Modifying
 	@Query("UPDATE Plans p SET p.deleted = true WHERE p = :plan AND p.version = :desiredVersion")

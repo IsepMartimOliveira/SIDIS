@@ -27,7 +27,9 @@ import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 import com.example.psoft_22_23_project.plansmanagement.model.PromotionResult;
 import com.example.psoft_22_23_project.plansmanagement.repositories.PlansRepository;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
+import org.h2.table.Plan;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -279,39 +281,80 @@ public class PlansServiceImpl implements PlansService {
 	}
 
 	@Override
-	public PromotionResult promote(final String name, final long desiredVersion) {
+	public PromotionResult promote(final String name, final long desiredVersion) throws IOException, InterruptedException, URISyntaxException {
 		// Find the plan
-		final Plans plan = repository.findByName_Name(name)
-				.orElseThrow(() -> new NotFoundException("Plan with name " + name + " doesn't exist!"));
+		final Optional<Plans> plans = repository.findByName_Name(name);
+		if(plans.isPresent()){
+			Plans plans1 = plans.get();
+			if (!plans1.getActive().getActive()) {
+				throw new IllegalArgumentException("Can't promote this plan, " + plans1.getName().getName() + " plan must be active");
+			}
 
-		// Check if plan is inactive
-		if (!plan.getActive().getActive()) {
-			throw new IllegalArgumentException("Can't promote this plan, " + plan.getName().getName() + " plan must be active");
+			// Check if plan is already promoted
+			if (plans1.getPromoted().getPromoted()) {
+				throw new IllegalArgumentException("Can't promote this plan, " + plans1.getName().getName() + " plan is already promoted");
+			}
+
+			PromotionResult result = new PromotionResult();
+			final Optional<Plans> existingPlan = repository.findByPromoted_Promoted(true);
+			existingPlan.ifPresent(existingPromotedPlan -> {
+				existingPromotedPlan.getPromoted().setPromoted(false);
+				result.setPreviousPromotedPlan(existingPromotedPlan);
+			});
+
+			plans1.promote(desiredVersion);
+			result.setNewPromotedPlan(repository.save(plans1));
+			existingPlan.ifPresent(repository::save);
+			return result;
 		}
+		URI uri = new URI("http://localhost:8090/api/plans/byActiveAndPromoted?activePlan=true&name=" + name +"&promoted=false");
+		HttpRequest request = HttpRequest.newBuilder()
+				.uri(uri)
+				.GET()
+				.build();
 
-		// Check if plan is already promoted
-		if (plan.getPromoted().getPromoted()) {
-			throw new IllegalArgumentException("Can't promote this plan, " + plan.getName().getName() + " plan is already promoted");
+		HttpClient client = HttpClient.newHttpClient();
+		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+		if (response.statusCode() == 200) {
+			URI uriPromoted = new URI("http://localhost:8090/api/plans/byActiveAndPromoted?activePlan=true&name=" + name +"&promoted=true");
+			HttpRequest requestPromoted = HttpRequest.newBuilder()
+					.uri(uri)
+					.GET()
+					.build();
+
+			HttpClient clientPromoted = HttpClient.newHttpClient();
+			HttpResponse<String> responsePromoted = client.send(request, HttpResponse.BodyHandlers.ofString());
+			Gson gson = new Gson();
+			String apiUrl = "http://localhost:8090/api/plans/promote?name=" + name;
+			HttpRequest requestpatch = HttpRequest.newBuilder()
+					.uri(URI.create(apiUrl))
+					.header("Content-Type", "application/json")
+					.header("if-match", Long.toString(desiredVersion))
+					.method("PATCH", HttpRequest.BodyPublishers.noBody()	)  // Send an empty request body
+					.build();
+
+			HttpClient httpClient = HttpClient.newHttpClient();
+			HttpResponse<String> responses = httpClient.send(requestpatch, HttpResponse.BodyHandlers.ofString());
+
+			if (responses.statusCode() == 500){
+				throw new IllegalArgumentException("You must issue a conditional PATCH using 'if-match' (2)!");
+			}else if(responses.statusCode() == 200){
+				PlanRequestPromoted newplanRequest = gson.fromJson(responses.body(), PlanRequestPromoted.class);
+
+				return plansMapperInverse.toPlansViewsPromote(newplanRequest);
+
+
+			} else if (responses.statusCode() == 409) {
+				throw new IllegalArgumentException("If match number wrong!");
+			}
+			throw new IllegalArgumentException("Plan with name " + name + " was updated!");
 		}
+		else if(response.statusCode()==401){
+			throw new IllegalArgumentException("Authentication failed. Please check your credentials or login to access this resource.");
+		}
+		throw new IllegalArgumentException("Plan with name " + name + " does not exists on another machine and locally !");
 
-		PromotionResult result = new PromotionResult();
 
-		// Check if another plan is already promoted
-		final Optional<Plans> existingPlan = repository.findByPromoted_Promoted(true);
-		existingPlan.ifPresent(existingPromotedPlan -> {
-			existingPromotedPlan.getPromoted().setPromoted(false);
-			result.setPreviousPromotedPlan(existingPromotedPlan);
-		});
-
-		// Update the plan and set it as promoted
-		plan.promote(desiredVersion);
-		result.setNewPromotedPlan(repository.save(plan));
-
-		// Save the changes to the existing promoted plan if it exists
-		existingPlan.ifPresent(repository::save);
-
-		// returns object with two variables (new promoted plan, previous promoted plan)
-		return result;
 	}
 
 
@@ -341,7 +384,8 @@ public class PlansServiceImpl implements PlansService {
 	public Optional<Plans> getPlanByName(String planName) {
 		return repository.findByName_Name(planName);
 	}
-
+	public Optional<Plans>getPlanByActiveAndPromoted(Boolean active,String name,Boolean promoted){return repository.findByActive_ActiveAndName_Name_AndPromoted_Promoted(active,name,promoted);}
+	public Optional<Plans> getPlanByActive(Boolean active,String name){return  repository.findByActive_ActiveAndName_Name(active,name);}
 	/*public Optional<Plans> checkRepository(String name) throws URISyntaxException, IOException, InterruptedException {
 
 		Optional<Plans> plans = repository.findByName_Name(name);
