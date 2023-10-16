@@ -30,6 +30,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
 import org.h2.table.Plan;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,6 +57,8 @@ public class PlansServiceImpl implements PlansService {
 
 	private final CreatePlansMapper createPlansMapper;
 	private final PlansMapperInverse plansMapperInverse;
+	@Value("${server.port}")
+	private int currentPort;
 
 
 	@Override
@@ -81,31 +84,31 @@ public class PlansServiceImpl implements PlansService {
 	public Plans create(CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException {
 		Optional<Plans> plans = repository.findByName_Name(resource.getName());
 		if (plans.isPresent()) {
-			throw new IllegalArgumentException("Plan with name " + resource.getName()+ " already exists locally!");
+			throw new IllegalArgumentException("Plan with name " + resource.getName() + " already exists locally!");
 		}
 
-			URI uri = new URI("http://localhost:8090/api/plans/" + resource.getName());
+		int otherPort = (currentPort == 8081) ? 8090 : 8081;
+		URI uri = new URI("http://localhost:" + otherPort + "/api/plans/" + resource.getName());
 
-			HttpRequest request = HttpRequest.newBuilder()
-					.uri(uri)
-					.GET()
-					.build();
+		HttpRequest request = HttpRequest.newBuilder()
+				.uri(uri)
+				.GET()
+				.build();
 
-			HttpClient client = HttpClient.newHttpClient();
+		HttpClient client = HttpClient.newHttpClient();
 
-			HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-			if (response.statusCode() == 200) {
-				throw new IllegalArgumentException("Plan with name " + resource.getName() + " already exists on another machine!");
-			}
-			else if(response.statusCode()==401){
-				throw new IllegalArgumentException("Authentication failed. Please check your credentials or login to access this resource.");
-			}
+		if (response.statusCode() == 200) {
+			throw new IllegalArgumentException("Plan with name " + resource.getName() + " already exists on another machine!");
+		} else if (response.statusCode() == 401) {
+			throw new IllegalArgumentException("Authentication failed. Please check your credentials or login to access this resource.");
+		}
 
-			Plans obj = createPlansMapper.create(resource);
-			return repository.save(obj);
-
+		Plans obj = createPlansMapper.create(resource);
+		return repository.save(obj);
 	}
+
 
 
 
@@ -122,7 +125,10 @@ public class PlansServiceImpl implements PlansService {
 					resource.getMusicCollection(), resource.getMusicSuggestion(), resource.getActive(), resource.getPromoted());
 			return repository.save(plans1);
 		}
-		URI uri = new URI("http://localhost:8090/api/plans/" + name);
+
+		int otherPort = (currentPort == 8081) ? 8090 : 8081;
+
+		URI uri = new URI("http://localhost:" + otherPort + "/api/plans/" + name);
 		HttpRequest request = HttpRequest.newBuilder()
 				.uri(uri)
 				.GET()
@@ -132,7 +138,8 @@ public class PlansServiceImpl implements PlansService {
 		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
 		if (response.statusCode() == 200) {
-			String apiUrl = "http://localhost:8090/api/plans/update/" + name;
+			String apiUrl = "http://localhost:" + otherPort + "/api/plans/update/" + name;
+
 			Gson gson = new Gson();
 			String json = gson.toJson(resource);
 			HttpRequest requestpatch = HttpRequest.newBuilder()
@@ -184,7 +191,9 @@ public class PlansServiceImpl implements PlansService {
 			return repository.save(plans1);
 
 		}
-		URI uri = new URI("http://localhost:8090/api/plans/" + name);
+		int otherPort = (currentPort == 8081) ? 8090 : 8081;
+
+		URI uri = new URI("http://localhost:" + otherPort + "/api/plans/" +name);
 		HttpRequest request = HttpRequest.newBuilder()
 				.uri(uri)
 				.GET()
@@ -194,7 +203,7 @@ public class PlansServiceImpl implements PlansService {
 		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
 		if(response.statusCode()==200){
-			String apiUrl = "http://localhost:8090/api/plans/updateMoney/" + name;
+			String apiUrl = "http://localhost:" + otherPort+"/api/plans/updateMoney/" + name;
 			Gson gson = new Gson();
 			String json = gson.toJson(resource);
 			HttpRequest requestpatch = HttpRequest.newBuilder()
@@ -240,7 +249,9 @@ public class PlansServiceImpl implements PlansService {
 
 		}
 
-		URI uri = new URI("http://localhost:8090/api/plans/" + name);
+		int otherPort = (currentPort == 8081) ? 8090 : 8081;
+
+		URI uri = new URI("http://localhost:" + otherPort + "/api/plans/" + name);
 		HttpRequest request = HttpRequest.newBuilder()
 				.uri(uri)
 				.GET()
@@ -251,7 +262,8 @@ public class PlansServiceImpl implements PlansService {
 
 		if (response.statusCode() == 200) {
 			Gson gson = new Gson();
-			String apiUrl = "http://localhost:8090/api/plans/deactivate/" + name;
+			String apiUrl = "http://localhost:" + otherPort + "/api/plans/deactivate/" + name;
+
 			HttpRequest requestpatch = HttpRequest.newBuilder()
 					.uri(URI.create(apiUrl))
 					.header("Content-Type", "application/json")
@@ -307,7 +319,9 @@ public class PlansServiceImpl implements PlansService {
 			existingPlan.ifPresent(repository::save);
 			return result;
 		}
-		URI uri = new URI("http://localhost:8090/api/plans/byActiveAndPromoted?activePlan=true&name=" + name +"&promoted=false");
+		int otherPort = (currentPort == 8081) ? 8090 : 8081;
+		URI uri = new URI("http://localhost:" + otherPort + "/api/plans//byActiveAndPromoted?activePlan=true&name=" + name+"&promoted=false");
+
 		HttpRequest request = HttpRequest.newBuilder()
 				.uri(uri)
 				.GET()
@@ -316,7 +330,7 @@ public class PlansServiceImpl implements PlansService {
 		HttpClient client = HttpClient.newHttpClient();
 		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 		if (response.statusCode() == 200) {
-			URI uriPromoted = new URI("http://localhost:8090/api/plans/byActiveAndPromoted?activePlan=true&name=" + name +"&promoted=true");
+			URI uriPromoted = new URI("http://localhost:"+otherPort+"/api/plans/byActiveAndPromoted?activePlan=true&name=" + name +"&promoted=true");
 			HttpRequest requestPromoted = HttpRequest.newBuilder()
 					.uri(uri)
 					.GET()
@@ -325,7 +339,7 @@ public class PlansServiceImpl implements PlansService {
 			HttpClient clientPromoted = HttpClient.newHttpClient();
 			HttpResponse<String> responsePromoted = client.send(request, HttpResponse.BodyHandlers.ofString());
 			Gson gson = new Gson();
-			String apiUrl = "http://localhost:8090/api/plans/promote?name=" + name;
+			String apiUrl = "http://localhost:"+otherPort+"/api/plans/promote?name=" + name;
 			HttpRequest requestpatch = HttpRequest.newBuilder()
 					.uri(URI.create(apiUrl))
 					.header("Content-Type", "application/json")
@@ -386,30 +400,5 @@ public class PlansServiceImpl implements PlansService {
 	}
 	public Optional<Plans>getPlanByActiveAndPromoted(Boolean active,String name,Boolean promoted){return repository.findByActive_ActiveAndName_Name_AndPromoted_Promoted(active,name,promoted);}
 	public Optional<Plans> getPlanByActive(Boolean active,String name){return  repository.findByActive_ActiveAndName_Name(active,name);}
-	/*public Optional<Plans> checkRepository(String name) throws URISyntaxException, IOException, InterruptedException {
 
-		Optional<Plans> plans = repository.findByName_Name(name);
-		if (plans.isPresent()) {
-			throw new IllegalArgumentException("Plan with name " + name+ " already exists locally!");
-		}
-
-		URI uri = new URI("http://localhost:8090/api/plans/" + name);
-
-		HttpRequest request = HttpRequest.newBuilder()
-				.uri(uri)
-				.GET()
-				.build();
-
-		HttpClient client = HttpClient.newHttpClient();
-
-		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-		if (response.statusCode() == 200) {
-			throw new IllegalArgumentException("Plan with name " + name + " already exists on another machine!");
-		}
-		else if(response.statusCode()==401){
-			throw new IllegalArgumentException("Authentication failed. Please check your credentials or login to access this resource.");
-		}
-		return plans;
-	}*/
 }
