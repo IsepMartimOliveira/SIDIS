@@ -20,20 +20,40 @@
  */
 package com.example.psoft_22_23_project.plansmanagement.repositories;
 
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+
 @Repository
-@Configuration
-@CacheConfig(cacheNames = "plans")
-@Primary
-public interface PlansRepository{
+public class PlansRepositoryImpl implements PlansRepository {
 
-	HttpResponse<String> getPlansFromOtherAPI(String name) throws URISyntaxException, IOException, InterruptedException;
 
+	@Value("${server.port}")
+	private int currentPort;
+
+
+	@Override
+	public HttpResponse<String> getPlansFromOtherAPI(String name) throws URISyntaxException, IOException, InterruptedException {
+
+		int otherPort = (currentPort == 8081) ? 8090 : 8081;
+		URI uri = new URI("http://localhost:" + otherPort + "/api/plans/" + name);
+
+		HttpRequest request = HttpRequest.newBuilder()
+				.uri(uri)
+				.GET()
+				.build();
+
+		HttpClient client = HttpClient.newHttpClient();
+
+		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+		return response;
+
+	}
 }

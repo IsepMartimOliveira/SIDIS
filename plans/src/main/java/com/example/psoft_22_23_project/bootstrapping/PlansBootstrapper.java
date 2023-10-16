@@ -21,7 +21,7 @@
 package com.example.psoft_22_23_project.bootstrapping;
 
 import com.example.psoft_22_23_project.plansmanagement.model.*;
-import com.example.psoft_22_23_project.plansmanagement.repositories.PlansRepository;
+import com.example.psoft_22_23_project.plansmanagement.repositories.PlansRepository2;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
@@ -33,7 +33,7 @@ import org.springframework.stereotype.Component;
 @Profile("bootstrap")
 public class PlansBootstrapper implements CommandLineRunner {
 
-	private final PlansRepository plansRepo;
+	private final PlansRepository2 plansRepo;
 
 	@Override
 	public void run(final String... args) throws Exception {

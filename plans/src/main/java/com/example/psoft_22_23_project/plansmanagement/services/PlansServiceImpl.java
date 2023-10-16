@@ -20,16 +20,14 @@
  */
 package com.example.psoft_22_23_project.plansmanagement.services;
 
-import com.example.psoft_22_23_project.exceptions.NotFoundException;
 import com.example.psoft_22_23_project.plansmanagement.api.*;
 import com.example.psoft_22_23_project.plansmanagement.model.FeeRevision;
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 import com.example.psoft_22_23_project.plansmanagement.model.PromotionResult;
 import com.example.psoft_22_23_project.plansmanagement.repositories.PlansRepository;
+import com.example.psoft_22_23_project.plansmanagement.repositories.PlansRepository2;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
-import org.h2.table.Plan;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -51,7 +49,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PlansServiceImpl implements PlansService {
 
-	private final PlansRepository repository;
+	private final PlansRepository2 repository;
+	private final PlansRepository repository1;
+
 
 	//private final SubscriptionsRepository subscriptionsRepository;
 
@@ -87,26 +87,17 @@ public class PlansServiceImpl implements PlansService {
 			throw new IllegalArgumentException("Plan with name " + resource.getName() + " already exists locally!");
 		}
 
-		int otherPort = (currentPort == 8081) ? 8090 : 8081;
-		URI uri = new URI("http://localhost:" + otherPort + "/api/plans/" + resource.getName());
+		HttpResponse<String> response = repository1.getPlansFromOtherAPI(resource.getName());
 
-		HttpRequest request = HttpRequest.newBuilder()
-				.uri(uri)
-				.GET()
-				.build();
+		if(response.statusCode() == 404){
+			Plans obj = createPlansMapper.create(resource);
+			return repository.save(obj);
 
-		HttpClient client = HttpClient.newHttpClient();
-
-		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-		if (response.statusCode() == 200) {
+		}else {
 			throw new IllegalArgumentException("Plan with name " + resource.getName() + " already exists on another machine!");
-		} else if (response.statusCode() == 401) {
-			throw new IllegalArgumentException("Authentication failed. Please check your credentials or login to access this resource.");
+
 		}
 
-		Plans obj = createPlansMapper.create(resource);
-		return repository.save(obj);
 	}
 
 
@@ -393,12 +384,12 @@ public class PlansServiceImpl implements PlansService {
 		return repository.ceaseByPlan(plans, desiredVersion);
 	}
 
-	
-
 	public Optional<Plans> getPlanByName(String planName) {
 		return repository.findByName_Name(planName);
 	}
 	public Optional<Plans>getPlanByActiveAndPromoted(Boolean active,String name,Boolean promoted){return repository.findByActive_ActiveAndName_Name_AndPromoted_Promoted(active,name,promoted);}
 	public Optional<Plans> getPlanByActive(Boolean active,String name){return  repository.findByActive_ActiveAndName_Name(active,name);}
+
+
 
 }

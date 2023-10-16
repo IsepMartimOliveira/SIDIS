@@ -72,7 +72,6 @@ public class PlansController {
 
 	@Operation(summary = "Get Plan by name")
 	@GetMapping("/{planName}")
-
 	public ResponseEntity<PlansView> getPlanByName(@PathVariable String planName) {
 		Optional<Plans> planOptional = service.getPlanByName(planName);
 
