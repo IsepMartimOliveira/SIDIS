@@ -27,6 +27,7 @@ import com.example.psoft_22_23_project.usermanagement.api.UserViewMapper;
 import com.example.psoft_22_23_project.usermanagement.model.User;
 import com.example.psoft_22_23_project.usermanagement.repositories.UserImageRepository;
 import com.example.psoft_22_23_project.usermanagement.repositories.UserRepository;
+import com.example.psoft_22_23_project.usermanagement.repositories.UserRepositoryAPI;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -58,6 +59,7 @@ public class UserService implements UserDetailsService {
 	private final UserEditMapper userEditMapper;
 
 	private final UserRepository userRepository;
+	private final UserRepositoryAPI userRepositoryAPI;
 
 	private final UserImageRepository userImageRepository;
 	private final FileStorageService fileStorageService;
@@ -71,16 +73,7 @@ public class UserService implements UserDetailsService {
 			throw new ConflictException("Username already exists locally!");
 		}
 
-		URI uri = new URI("http://localhost:8092/api/user/" + request.getUsername());
-
-		HttpRequest requestAPI = HttpRequest.newBuilder()
-				.uri(uri)
-				.GET()
-				.build();
-
-		HttpClient client = HttpClient.newHttpClient();
-
-		HttpResponse<String> response = client.send(requestAPI, HttpResponse.BodyHandlers.ofString());
+		HttpResponse<String> response = userRepositoryAPI.getUserFromOtherAPI(request.getUsername());
 
 		if (response.statusCode() == 200) {
 			throw new IllegalArgumentException("Username with name " + request.getUsername() + " already exists on another machine!");
