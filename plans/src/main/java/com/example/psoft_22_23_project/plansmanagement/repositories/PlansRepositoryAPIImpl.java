@@ -31,7 +31,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 @Repository
-public class PlansRepositoryImpl implements PlansRepository {
+public class PlansRepositoryAPIImpl implements PlansRepositoryAPI {
 
 
 	@Value("${server.port}")

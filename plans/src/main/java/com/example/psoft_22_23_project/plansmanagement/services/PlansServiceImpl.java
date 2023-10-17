@@ -24,8 +24,8 @@ import com.example.psoft_22_23_project.plansmanagement.api.*;
 import com.example.psoft_22_23_project.plansmanagement.model.FeeRevision;
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 import com.example.psoft_22_23_project.plansmanagement.model.PromotionResult;
+import com.example.psoft_22_23_project.plansmanagement.repositories.PlansRepositoryAPI;
 import com.example.psoft_22_23_project.plansmanagement.repositories.PlansRepository;
-import com.example.psoft_22_23_project.plansmanagement.repositories.PlansRepository2;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,8 +49,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PlansServiceImpl implements PlansService {
 
-	private final PlansRepository2 repository;
-	private final PlansRepository repository1;
+	private final PlansRepository repository;
+	private final PlansRepositoryAPI repositoryAPI;
 
 
 	//private final SubscriptionsRepository subscriptionsRepository;
@@ -87,7 +87,7 @@ public class PlansServiceImpl implements PlansService {
 			throw new IllegalArgumentException("Plan with name " + resource.getName() + " already exists locally!");
 		}
 
-		HttpResponse<String> response = repository1.getPlansFromOtherAPI(resource.getName());
+		HttpResponse<String> response = repositoryAPI.getPlansFromOtherAPI(resource.getName());
 
 		if(response.statusCode() == 404){
 			Plans obj = createPlansMapper.create(resource);

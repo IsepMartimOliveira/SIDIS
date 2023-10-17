@@ -20,32 +20,20 @@
  */
 package com.example.psoft_22_23_project.plansmanagement.repositories;
 
-import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import javax.validation.constraints.NotNull;
-import java.util.Optional;
-
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.http.HttpResponse;
 @Repository
 @Configuration
 @CacheConfig(cacheNames = "plans")
 @Primary
-public interface PlansRepository2 extends CrudRepository<Plans, Long> {
-	Optional<Plans> findByName_Name(@NotNull String name);
-	Optional<Plans> findByActive_ActiveAndName_Name_AndPromoted_Promoted(@NotNull boolean active, @NotNull String name_name,@NotNull boolean promoted);
-	Optional<Plans> findByActive_ActiveAndName_Name(@NotNull boolean active, @NotNull String name_name);
-	Iterable<Plans> findByActive_Active(@NotNull boolean active);
-	Optional<Plans> findByActive_Active_(@NotNull boolean active);
-	Optional<Plans> findByPromoted_Promoted(@NotNull boolean promoted);
-	@Modifying
-	@Query("UPDATE Plans p SET p.deleted = true WHERE p = :plan AND p.version = :desiredVersion")
-	int ceaseByPlan(@Param("plan") Plans plan, @Param("desiredVersion") long desiredVersion);
+public interface PlansRepositoryAPI {
+
+	HttpResponse<String> getPlansFromOtherAPI(String name) throws URISyntaxException, IOException, InterruptedException;
 
 }
