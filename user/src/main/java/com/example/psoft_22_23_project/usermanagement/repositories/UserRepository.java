@@ -24,11 +24,17 @@ package com.example.psoft_22_23_project.usermanagement.repositories;
 import com.example.psoft_22_23_project.exceptions.NotFoundException;
 import com.example.psoft_22_23_project.usermanagement.model.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
@@ -38,12 +44,20 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.validation.constraints.NotNull;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 @CacheConfig(cacheNames = "users")
+@Primary
 public interface UserRepository extends UserRepoCustom, CrudRepository<User, Long> {
 
 	@Override
@@ -68,11 +82,36 @@ public interface UserRepository extends UserRepoCustom, CrudRepository<User, Lon
 
 
 interface UserRepoCustom {
+	HttpResponse<String> getUserFromOtherAPI(String name) throws URISyntaxException, IOException, InterruptedException;
+
 
 }
 
 
+
 @RequiredArgsConstructor
 class UserRepoCustomImpl implements UserRepoCustom {
+	@Value("${server.port}")
+	private int currentPort;
+	@Override
+	public HttpResponse<String> getUserFromOtherAPI(String name) throws URISyntaxException, IOException, InterruptedException {
+
+		int otherPort = (currentPort == 8083) ? 8092 : 8083;
+		URI uri = new URI("http://localhost:" + otherPort + "/api/user/" + name);
+
+		HttpRequest request = HttpRequest.newBuilder()
+				.uri(uri)
+				.GET()
+				.build();
+
+		HttpClient client = HttpClient.newHttpClient();
+
+		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+		return response;
+
+	}
+
+
 
 }

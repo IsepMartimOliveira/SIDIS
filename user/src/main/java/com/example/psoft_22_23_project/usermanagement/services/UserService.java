@@ -27,25 +27,17 @@ import com.example.psoft_22_23_project.usermanagement.api.UserViewMapper;
 import com.example.psoft_22_23_project.usermanagement.model.User;
 import com.example.psoft_22_23_project.usermanagement.repositories.UserImageRepository;
 import com.example.psoft_22_23_project.usermanagement.repositories.UserRepository;
-import com.example.psoft_22_23_project.usermanagement.repositories.UserRepositoryAPI;
-import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.transaction.Transactional;
 import javax.validation.ValidationException;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Optional;
 
@@ -59,7 +51,6 @@ public class UserService implements UserDetailsService {
 	private final UserEditMapper userEditMapper;
 
 	private final UserRepository userRepository;
-	private final UserRepositoryAPI userRepositoryAPI;
 
 	private final UserImageRepository userImageRepository;
 	private final FileStorageService fileStorageService;
@@ -73,7 +64,7 @@ public class UserService implements UserDetailsService {
 			throw new ConflictException("Username already exists locally!");
 		}
 
-		HttpResponse<String> response = userRepositoryAPI.getUserFromOtherAPI(request.getUsername());
+		HttpResponse<String> response = userRepository.getUserFromOtherAPI(request.getUsername());
 
 		if (response.statusCode() == 200) {
 			throw new IllegalArgumentException("Username with name " + request.getUsername() + " already exists on another machine!");
