@@ -28,6 +28,7 @@ import com.example.psoft_22_23_project.plansmanagement.repositories.PlansReposit
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -108,22 +109,49 @@ public class PlansServiceImpl implements PlansService {
 
 	}
 
+	public Optional<Plans> getPlanByName(String planName) throws URISyntaxException, IOException, InterruptedException {
+
+		Optional<Plans> plans = repository.findByName_Name(planName);
+
+		if (plans.isPresent()) {
+			return plans;
+		}
+		HttpResponse<String> plan = repository.findPlanFromOtherAPI(planName);
+		if (plan.statusCode() == 200) {
+			JSONObject jsonArray = new JSONObject(plan.body());
+
+			PlanRequest newPlan = new PlanRequest(
+					jsonArray.getString("name"),
+					jsonArray.getString("description"),
+					jsonArray.getString("numberOfMinutes"),
+					jsonArray.getString("maximumNumberOfUsers"),
+					jsonArray.getString("musicCollection"),
+					jsonArray.getString("musicSuggestion"),
+					jsonArray.getString("annualFee"),
+					jsonArray.getString("monthlyFee"),
+					jsonArray.getString("active"),
+					jsonArray.getString("promoted")
+			);
+			Plans obj = plansMapperInverse.toPlansView(newPlan);
+			return Optional.ofNullable(obj);
+		}else {
+			throw new IllegalArgumentException("Plan with name " + planName + " already exists locally!");
+		}
+
+    }
 	@Override
 	public Plans create(CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException {
 		Optional<Plans> plans = repository.findByName_Name(resource.getName());
 		if (plans.isPresent()) {
 			throw new IllegalArgumentException("Plan with name " + resource.getName() + " already exists locally!");
 		}
-
 		HttpResponse<String> response = repository.getPlansFromOtherAPI(resource.getName());
-
 		if(response.statusCode() == 404){
 			Plans obj = createPlansMapper.create(resource);
 			return repository.save(obj);
 
 		}else {
 			throw new IllegalArgumentException("Plan with name " + resource.getName() + " already exists on another machine!");
-
 		}
 
 	}
@@ -364,9 +392,6 @@ public class PlansServiceImpl implements PlansService {
 		return repository.ceaseByPlan(plans, desiredVersion);
 	}
 
-	public Optional<Plans> getPlanByName(String planName) {
-		return repository.findByName_Name(planName);
-	}
 	public Optional<Plans>getPlanByActiveAndPromoted(Boolean active,String name,Boolean promoted){return repository.findByActive_ActiveAndName_Name_AndPromoted_Promoted(active,name,promoted);}
 	public Optional<Plans> getPlanByActive(Boolean active,String name){return  repository.findByActive_ActiveAndName_Name(active,name);}
 

@@ -31,7 +31,6 @@ import com.nimbusds.jose.proc.SecurityContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -123,41 +122,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 						//all public endpoints
 						.antMatchers("/api/public/**").permitAll()
 						.antMatchers("/api/user/**").permitAll()
-
-						// Plans management
-						.antMatchers(HttpMethod.POST,"/api/plans").permitAll()
-
-						// get a device image management
-						.antMatchers(HttpMethod.GET, "/api/device/photo/**").permitAll()
-
-						.antMatchers(HttpMethod.GET,"/api/subscriptions/list").hasRole(Role.User_Admin)
-						.antMatchers(HttpMethod.POST,"/api/subscriptions/create/").permitAll()
-						.antMatchers(HttpMethod.GET,"/api/subscriptions/").hasRole(Role.Subscriber)
-						.antMatchers(HttpMethod.PATCH,"/api/subscriptions/").hasRole(Role.Subscriber)
-						.antMatchers(HttpMethod.PATCH,"/api/subscriptions/renew").hasRole(Role.Subscriber)
-						.antMatchers(HttpMethod.PATCH,"/api/subscriptions/change/{name}").hasRole(Role.Subscriber)
-						.antMatchers(HttpMethod.PATCH,"/api/subscriptions/change/{actualPlan}/{newPlan}").hasRole(Role.Marketing_Director)
-						.antMatchers("/api/public/subscriptions/**").permitAll()
-
-						//private endpoints
-
-						// device management
-						.antMatchers("/api/device/**").hasRole(Role.Subscriber)
-
-						//plans management
-						.antMatchers(HttpMethod.POST,"/api/plans").hasRole(Role.Marketing_Director)
-						.antMatchers(HttpMethod.PATCH,"/api/plans/update/**").hasRole(Role.Marketing_Director)
-						.antMatchers(HttpMethod.PATCH,"/api/plans/updateMoney/**").hasRole(Role.Marketing_Director)
-						.antMatchers(HttpMethod.PATCH,"/api/plans/deactivate/**").hasRole(Role.Marketing_Director)
-						.antMatchers(HttpMethod.PATCH,"/api/plans/promote/**").hasRole(Role.Marketing_Director)
-						.antMatchers(HttpMethod.GET,"/api/plans/history/**").hasRole(Role.Marketing_Director)
-						.antMatchers(HttpMethod.DELETE,"/api/plans/**").hasRole(Role.Marketing_Director)
-
-						//Dashboard Endpoints management
-						.antMatchers(HttpMethod.GET,"/api/dashboard/**").hasRole(Role.Project_Manager)
-						.antMatchers(HttpMethod.GET,"/api/dashboard/revenuePlan").hasRole(Role.Financial_director)
-						.antMatchers(HttpMethod.GET,"/api/dashboard/currentRevenue").hasRole(Role.Financial_director)
-
+						.antMatchers("/api/user2/**").permitAll()
+						
 						//.antMatchers("/api/admin/user/**").hasRole(Role.User_Admin) // user management no
 						.antMatchers("api/user/photo/**").hasRole(Role.Subscriber)// photo for user upload and see it
 

@@ -72,7 +72,7 @@ public class PlansController {
 
 	@Operation(summary = "Get Plan by name")
 	@GetMapping("/{planName}")
-	public ResponseEntity<PlansView> getPlanByName(@PathVariable String planName) {
+	public ResponseEntity<PlansView> getPlanByName(@PathVariable String planName) throws URISyntaxException, IOException, InterruptedException {
 		Optional<Plans> planOptional = service.getPlanByName(planName);
 
 		if (planOptional.isPresent()) {
@@ -131,14 +131,6 @@ public class PlansController {
 	@ResponseStatus(HttpStatus.CREATED) public ResponseEntity<PlansView>
 	create(@Valid @RequestBody final CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException {
 
-
-		//String username = SecurityContextHolder.getContext().getAuthentication().getName();
-		/*
-		HttpRequest request = HttpRequest.newBuilder()
-				.uri(new URI("http://localhost:8083/api/user/findAll"))
-				.GET()
-				.build();
-		 */
 		final Plans plan = service.create(resource);
 		final var newPlanUri =
 				ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(plan.getName().getName()).build() .toUri();

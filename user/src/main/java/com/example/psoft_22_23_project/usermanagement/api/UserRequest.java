@@ -18,30 +18,16 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.example.psoft_22_23_project.plansmanagement.services;
+package com.example.psoft_22_23_project.usermanagement.api;
 
-import com.example.psoft_22_23_project.plansmanagement.api.PlansMapperInverse;
-import com.example.psoft_22_23_project.plansmanagement.model.Plans;
-import com.example.psoft_22_23_project.plansmanagement.repositories.PlansRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import lombok.Data;
 
-import java.util.Optional;
+@Data
+public class UserRequest {
+	private String username;
 
+	public UserRequest(String username) {
 
-@Service
-@RequiredArgsConstructor
-public class PlansServiceImpl2 implements PlansService2 {
-	private final PlansRepository repository;
-	private final CreatePlansMapper createPlansMapper;
-	private final PlansMapperInverse plansMapperInverse;
-	@Override
-	public Iterable<Plans> findAtive(){
-		return repository.findByActive_Active(true);
+		this.username = username;
 	}
-
-	public Optional<Plans> getPlanByName(String planName) {
-		return repository.findByName_Name(planName);
-	}
-
 }

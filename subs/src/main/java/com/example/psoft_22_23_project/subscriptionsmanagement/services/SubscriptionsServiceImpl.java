@@ -3,8 +3,14 @@ package com.example.psoft_22_23_project.subscriptionsmanagement.services;
 import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreateSubscriptionsRequest;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.PlansDetails;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptions;
+import com.example.psoft_22_23_project.subscriptionsmanagement.repositories.SubscriptionsRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.http.HttpResponse;
 
 @Service
 @RequiredArgsConstructor
@@ -14,10 +20,6 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         return null;
     }
 
-    @Override
-    public Subscriptions create(CreateSubscriptionsRequest resource) {
-        return null;
-    }
 
     @Override
     public Subscriptions cancelSubscription(long desiredVersion) {
@@ -43,19 +45,35 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
     public PlansDetails planDetails() {
         return null;
     }
-    /*
-
 
     private final SubscriptionsRepository repository;
-
-    private final PlansRepository plansRepository;
-
-    private final DeviceRepository deviceRepository;
-
-    private final UserRepository userRepository;
     private final CreateSubscriptionsMapper createSubscriptionsMapper;
 
+    @Override
+    public Subscriptions create(final CreateSubscriptionsRequest resource) throws URISyntaxException, IOException, InterruptedException {
 
+        HttpResponse<String> plan = repository.getPlansFromOtherAPI(resource.getName());
+
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        int commaIndex = username.indexOf(",");
+
+        String newString;
+        if (commaIndex != -1) {
+            newString = username.substring(0, commaIndex);
+        } else {
+            newString = username;
+        }
+
+        HttpResponse<String> user = repository.getUserFromOtherAPI(resource.getName());
+
+
+
+
+        return null;
+
+    }
+
+/*
     @Override
     public Iterable<Subscriptions> findAll() {
         return repository.findAll();

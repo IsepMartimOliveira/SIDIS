@@ -6,6 +6,7 @@ package com.example.psoft_22_23_project.subscriptionsmanagement.model;
 //import com.example.psoft_22_23_project.usermanagement.model.User;
 
 import lombok.Getter;
+import org.hibernate.StaleObjectStateException;
 
 import javax.persistence.*;
 
@@ -14,15 +15,11 @@ import javax.persistence.*;
 @Getter
 @Table(name = "Subscriptions")
 public class Subscriptions {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
     protected Subscriptions(){
 
     }
-/*
 
-    public Subscriptions(Plans plan, PaymentType paymentType, User user) {
+    public Subscriptions(String plan, PaymentType paymentType, String user) {
         this.startDate = new StartDate();
         this.endDate = new EndDate(paymentType.getPaymentType());
         this.activeStatus = new ActiveStatus(true);
@@ -30,7 +27,6 @@ public class Subscriptions {
         this.paymentType = paymentType;
         this.user = user;
     }
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,8 +47,9 @@ public class Subscriptions {
     @Embedded
     private PaymentType paymentType;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    private Plans plan;
+    private String plan;
+    private String user;
+    private String description;
 
 
 
@@ -76,7 +73,7 @@ public class Subscriptions {
         }
     }
 
-    public void changePlan(final long desiredVersion, final Plans plan) {
+    public void changePlan(final long desiredVersion, final String plan) {
         // check current version
         if (this.version != desiredVersion) {
             throw new StaleObjectStateException("Object was already modified by another user", this.id);
@@ -87,12 +84,6 @@ public class Subscriptions {
 
     }
 
- */
-/*
-    @OneToOne(fetch = FetchType.EAGER)
-    private User user;
 
-
- */
 
 }

@@ -149,7 +149,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		return new CorsFilter(source);
 	}
 
-	// Expose authentication manager bean
-
 }
 

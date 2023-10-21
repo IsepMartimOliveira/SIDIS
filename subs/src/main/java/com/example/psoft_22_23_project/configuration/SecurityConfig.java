@@ -23,26 +23,41 @@ package com.example.psoft_22_23_project.configuration;
 //import com.example.psoft_22_23_project.usermanagement.model.Role;
 //import com.example.psoft_22_23_project.usermanagement.repositories.UserRepository;
 
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.proc.SecurityContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
+import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
-/**
- * Check https://www.baeldung.com/security-spring and
- * https://www.toptal.com/spring/spring-security-tutorial
- * <p>
- * Based on https://github.com/Yoh0xFF/java-spring-security-example/
- *
- * @author pagsousa
- *
- */
+import static java.lang.String.format;
+
+
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true, jsr250Enabled = true, prePostEnabled = true)
 @RequiredArgsConstructor
@@ -62,15 +77,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Value("${springdoc.swagger-ui.path}")
 	private String swaggerPath;
 
-	@Override
-	protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
-		//auth.userDetailsService(username -> userRepo.findByUsername(username)
-		//		.orElseThrow(() -> new UsernameNotFoundException(format("User: %s, not found", username))));
-	}
+
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		/*
+
 		// Enable CORS and disable CSRF
 		http = http.cors().and().csrf().disable();
 
@@ -94,16 +105,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 				// Our public endpoints
 				http.authorizeRequests()
-
-						//all public endpoints
-						.antMatchers("/api/public/**").permitAll()
-
-						// Plans management
-						.antMatchers(HttpMethod.GET,"/api/plans").permitAll()
-
-						// get a device image management
-						.antMatchers(HttpMethod.GET, "/api/device/photo/**").permitAll()
-
+/*
 						.antMatchers(HttpMethod.GET,"/api/subscriptions/list").hasRole(Role.User_Admin)
 						.antMatchers(HttpMethod.POST,"/api/subscriptions/create/").permitAll()
 						.antMatchers(HttpMethod.GET,"/api/subscriptions/").hasRole(Role.Subscriber)
@@ -111,29 +113,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 						.antMatchers(HttpMethod.PATCH,"/api/subscriptions/renew").hasRole(Role.Subscriber)
 						.antMatchers(HttpMethod.PATCH,"/api/subscriptions/change/{name}").hasRole(Role.Subscriber)
 						.antMatchers(HttpMethod.PATCH,"/api/subscriptions/change/{actualPlan}/{newPlan}").hasRole(Role.Marketing_Director)
+
+ */
 						.antMatchers("/api/public/subscriptions/**").permitAll()
-
-						//private endpoints
-
-						// device management
-						.antMatchers("/api/device/**").hasRole(Role.Subscriber)
-
-						//plans management
-						.antMatchers(HttpMethod.POST,"/api/plans").hasRole(Role.Marketing_Director)
-						.antMatchers(HttpMethod.PATCH,"/api/plans/update/**").hasRole(Role.Marketing_Director)
-						.antMatchers(HttpMethod.PATCH,"/api/plans/updateMoney/**").hasRole(Role.Marketing_Director)
-						.antMatchers(HttpMethod.PATCH,"/api/plans/deactivate/**").hasRole(Role.Marketing_Director)
-						.antMatchers(HttpMethod.PATCH,"/api/plans/promote/**").hasRole(Role.Marketing_Director)
-						.antMatchers(HttpMethod.GET,"/api/plans/history/**").hasRole(Role.Marketing_Director)
-						.antMatchers(HttpMethod.DELETE,"/api/plans/**").hasRole(Role.Marketing_Director)
-
-						//Dashboard Endpoints management
-						.antMatchers(HttpMethod.GET,"/api/dashboard/**").hasRole(Role.Project_Manager)
-						.antMatchers(HttpMethod.GET,"/api/dashboard/revenuePlan").hasRole(Role.Financial_director)
-						.antMatchers(HttpMethod.GET,"/api/dashboard/currentRevenue").hasRole(Role.Financial_director)
-
-						//.antMatchers("/api/admin/user/**").hasRole(Role.User_Admin) // user management no
-						.antMatchers("api/user/photo/**").hasRole(Role.Subscriber)// photo for user upload and see it
 
 						.anyRequest().authenticated()
 
@@ -146,7 +128,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	// Used by JwtAuthenticationProvider to generate JWT tokens
 	@Bean
-
 	public JwtEncoder jwtEncoder() {
 		final JWK jwk = new RSAKey.Builder(this.rsaPublicKey).privateKey(this.rsaPrivateKey).build();
 		final JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
@@ -188,15 +169,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		config.addAllowedMethod("*");
 		source.registerCorsConfiguration("/**", config);
 		return new CorsFilter(source);
-	}
-
-	// Expose authentication manager bean
-	@Override
-	@Bean
-	public AuthenticationManager authenticationManagerBean() throws Exception {
-		return super.authenticationManagerBean();
-
- */
 	}
 
 

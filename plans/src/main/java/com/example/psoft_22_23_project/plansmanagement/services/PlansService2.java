@@ -25,9 +25,13 @@ import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Optional;
 
 public interface PlansService2 {
 
 	Iterable<Plans> findAtive() throws URISyntaxException, IOException, InterruptedException;
+	Optional<Plans> getPlanByName(String planName);
+
+
 
 }

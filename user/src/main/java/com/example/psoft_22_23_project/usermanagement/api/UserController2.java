@@ -18,15 +18,12 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.example.psoft_22_23_project.plansmanagement.api;
+package com.example.psoft_22_23_project.usermanagement.api;
 
-import com.example.psoft_22_23_project.plansmanagement.model.Plans;
-import com.example.psoft_22_23_project.plansmanagement.services.PlansService2;
+import com.example.psoft_22_23_project.usermanagement.model.User;
+import com.example.psoft_22_23_project.usermanagement.services.UserService2;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,50 +34,28 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Optional;
 
-
-@Tag(name = "Plans2", description = "Endpoints for managing plans2")
 @RestController
+@RequestMapping(path = "/api/user2")
 @RequiredArgsConstructor
-@RequestMapping("/api/plans2")
-public class PlansController2 {
+public class UserController2 {
+    private final UserViewMapper userViewMapper;
 
-	private static final Logger logger = LoggerFactory.getLogger(PlansController2.class);
+    private final UserService2 userService;
 
-	private final PlansService2 service;
+    @Operation(summary = "Get User by name")
+    @GetMapping("/{username}")
+    public ResponseEntity<User> getUserByName(@PathVariable String username) throws URISyntaxException, IOException, InterruptedException {
+        Optional<User> userOptional = userService.getUserByName(username);
 
-	private final PlansViewMapper plansViewMapper;
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            return ResponseEntity.ok(user);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
-	private final FeeRevisionViewMapper feeRevisionViewMapper;
-
-	private Long getVersionFromIfMatchHeader(final String ifMatchHeader) {
-		if (ifMatchHeader.startsWith("\"")) {
-			return Long.parseLong(ifMatchHeader.substring(1, ifMatchHeader.length() - 1));
-		}
-		return Long.parseLong(ifMatchHeader);
-	}
-
-	@Operation(summary = "Gets all plans")
-	@GetMapping
-	public Iterable<PlansView> findActive() throws URISyntaxException, IOException, InterruptedException {
-		return plansViewMapper.toPlansView(service.findAtive());
-	}
-
-	@Operation(summary = "Get Plan by name")
-	@GetMapping("/{planName}")
-	public ResponseEntity<PlansView> getPlanByName(@PathVariable String planName){
-		Optional<Plans> planOptional = service.getPlanByName(planName);
-
-		if (planOptional.isPresent()) {
-			Plans plan = planOptional.get();
-			PlansView plansView = plansViewMapper.toPlansView(plan);
-			return ResponseEntity.ok(plansView);
-		} else {
-			return ResponseEntity.notFound().build();
-		}
-	}
 
 
 
 }
-
-

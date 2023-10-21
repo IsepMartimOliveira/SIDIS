@@ -52,7 +52,7 @@ public interface PlansService {
 	List<FeeRevision> history(String name);
 
 
-	Optional<Plans> getPlanByName(String planName);
+	Optional<Plans> getPlanByName(String planName) throws URISyntaxException, IOException, InterruptedException;
 	Optional<Plans>getPlanByActiveAndPromoted(Boolean active,String name,Boolean promoted);
 	Optional<Plans> getPlanByActive(Boolean active,String name);
 }
