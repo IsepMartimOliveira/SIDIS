@@ -145,30 +145,14 @@ public class PlansServiceImpl implements PlansService {
 			return repository.save(plans1);
 		}
 
-		int otherPort = (currentPort == 8081) ? 8090 : 8081;
-
-		URI uri = new URI("http://localhost:" + otherPort + "/api/plans/" + name);
-		HttpRequest request = HttpRequest.newBuilder()
-				.uri(uri)
-				.GET()
-				.build();
-
-		HttpClient client = HttpClient.newHttpClient();
-		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+		HttpResponse<String> response = repository.getPlansFromOtherAPI(name);
 
 		if (response.statusCode() == 200) {
-			String apiUrl = "http://localhost:" + otherPort + "/api/plans/update/" + name;
 
 			Gson gson = new Gson();
 			String json = gson.toJson(resource);
-			HttpRequest requestpatch = HttpRequest.newBuilder()
-					.uri(URI.create(apiUrl))
-					.header("Content-Type", "application/json")
-					.header("if-match", Long.toString(desiredVersion) )
-					.method("PATCH", HttpRequest.BodyPublishers.ofString(json))
-					.build();
-			HttpClient httpClient = HttpClient.newHttpClient();
-			HttpResponse<String> responses = httpClient.send(requestpatch, HttpResponse.BodyHandlers.ofString());
+			HttpResponse<String> responses = repository.doPlansPatchAPI(name,desiredVersion,json);
+
 
 			if (responses.statusCode() == 500){
 				throw new IllegalArgumentException("You must issue a conditional PATCH using 'if-match' (2)!");
@@ -210,29 +194,14 @@ public class PlansServiceImpl implements PlansService {
 			return repository.save(plans1);
 
 		}
-		int otherPort = (currentPort == 8081) ? 8090 : 8081;
-
-		URI uri = new URI("http://localhost:" + otherPort + "/api/plans/" +name);
-		HttpRequest request = HttpRequest.newBuilder()
-				.uri(uri)
-				.GET()
-				.build();
-
-		HttpClient client = HttpClient.newHttpClient();
-		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+		HttpResponse<String> response = repository.getPlansFromOtherAPI(name);
 
 		if(response.statusCode()==200){
-			String apiUrl = "http://localhost:" + otherPort+"/api/plans/updateMoney/" + name;
 			Gson gson = new Gson();
 			String json = gson.toJson(resource);
-			HttpRequest requestpatch = HttpRequest.newBuilder()
-					.uri(URI.create(apiUrl))
-					.header("Content-Type", "application/json")
-					.header("if-match", Long.toString(desiredVersion) )
-					.method("PATCH", HttpRequest.BodyPublishers.ofString(json))
-					.build();
-			HttpClient httpClient = HttpClient.newHttpClient();
-			HttpResponse<String> responses = httpClient.send(requestpatch, HttpResponse.BodyHandlers.ofString());
+			HttpResponse<String> responses = repository.doPlansPatchMoneyAPI(name,desiredVersion,json);
+
+
 			if (responses.statusCode() == 500){
 				throw new IllegalArgumentException("You must issue a conditional PATCH using 'if-match' (2)!");
 			}else if(responses.statusCode() == 200){
@@ -268,30 +237,13 @@ public class PlansServiceImpl implements PlansService {
 
 		}
 
-		int otherPort = (currentPort == 8081) ? 8090 : 8081;
+		HttpResponse<String> response = repository.getPlansFromOtherAPI(name);
 
-		URI uri = new URI("http://localhost:" + otherPort + "/api/plans/" + name);
-		HttpRequest request = HttpRequest.newBuilder()
-				.uri(uri)
-				.GET()
-				.build();
-
-		HttpClient client = HttpClient.newHttpClient();
-		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
 		if (response.statusCode() == 200) {
 			Gson gson = new Gson();
-			String apiUrl = "http://localhost:" + otherPort + "/api/plans/deactivate/" + name;
+			HttpResponse<String> responses=repository.doPlansPatchDeactivate(name,desiredVersion);
 
-			HttpRequest requestpatch = HttpRequest.newBuilder()
-					.uri(URI.create(apiUrl))
-					.header("Content-Type", "application/json")
-					.header("if-match", Long.toString(desiredVersion))
-					.method("PATCH", HttpRequest.BodyPublishers.noBody()	)  // Send an empty request body
-					.build();
-
-			HttpClient httpClient = HttpClient.newHttpClient();
-			HttpResponse<String> responses = httpClient.send(requestpatch, HttpResponse.BodyHandlers.ofString());
 
 			if (responses.statusCode() == 500){
 				throw new IllegalArgumentException("You must issue a conditional PATCH using 'if-match' (2)!");

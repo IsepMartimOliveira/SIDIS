@@ -62,6 +62,10 @@ interface PlansRepoCustom {
 	HttpResponse<String> getPlansFromOtherAPI(String name) throws URISyntaxException, IOException, InterruptedException;
 	HttpResponse<String> getPlansFromOtherAPI() throws URISyntaxException, IOException, InterruptedException;
 
+	HttpResponse<String> doPlansPatchAPI(String name, final long desiredVersion, String json) throws URISyntaxException, IOException, InterruptedException;
+	HttpResponse<String> doPlansPatchMoneyAPI(String name, final long desiredVersion, String json)throws URISyntaxException, IOException, InterruptedException;
+	HttpResponse<String>doPlansPatchDeactivate(String name, final long desiredVersion)throws URISyntaxException, IOException, InterruptedException;
+
 }
 
 
@@ -88,6 +92,7 @@ class PlansRepoCustomImpl implements PlansRepoCustom {
 
 	}
 
+
 	@Override
 	public HttpResponse<String> getPlansFromOtherAPI() throws URISyntaxException, IOException, InterruptedException {
 
@@ -106,6 +111,59 @@ class PlansRepoCustomImpl implements PlansRepoCustom {
 		return response;
 
 	}
+	@Override
+	public HttpResponse<String> doPlansPatchMoneyAPI(String name, final long desiredVersion, String json) throws URISyntaxException, IOException, InterruptedException {
+		int otherPort = (currentPort == 8081) ? 8090 : 8081;
+		String apiUrl = "http://localhost:" + otherPort + "/api/plans/updateMoney/" + name;
+		HttpRequest requestpatch = HttpRequest.newBuilder()
+				.uri(URI.create(apiUrl))
+				.header("Content-Type", "application/json")
+				.header("if-match", Long.toString(desiredVersion))
+				.method("PATCH", HttpRequest.BodyPublishers.ofString(json))
+				.build();
+		HttpClient httpClient = HttpClient.newHttpClient();
+		HttpResponse<String> responses = httpClient.send(requestpatch, HttpResponse.BodyHandlers.ofString());
+
+		return responses;
+
+	}
+
+		@Override
+	public HttpResponse<String> doPlansPatchAPI(String name, final long desiredVersion, String json) throws URISyntaxException, IOException, InterruptedException {
+		int otherPort = (currentPort == 8081) ? 8090 : 8081;
+		String apiUrl = "http://localhost:" + otherPort + "/api/plans/update/" + name;
+
+		HttpRequest requestpatch = HttpRequest.newBuilder()
+				.uri(URI.create(apiUrl))
+				.header("Content-Type", "application/json")
+				.header("if-match", Long.toString(desiredVersion) )
+				.method("PATCH", HttpRequest.BodyPublishers.ofString(json))
+				.build();
+		HttpClient httpClient = HttpClient.newHttpClient();
+		HttpResponse<String> responses = httpClient.send(requestpatch, HttpResponse.BodyHandlers.ofString());
+
+		return responses;
+
+	}
+
+	@Override
+	public HttpResponse<String> doPlansPatchDeactivate(String name, long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
+		int otherPort = (currentPort == 8081) ? 8090 : 8081;
+		String apiUrl = "http://localhost:" + otherPort + "/api/plans/deactivate/" + name;
+
+		HttpRequest requestpatch = HttpRequest.newBuilder()
+				.uri(URI.create(apiUrl))
+				.header("Content-Type", "application/json")
+				.header("if-match", Long.toString(desiredVersion))
+				.method("PATCH", HttpRequest.BodyPublishers.noBody())
+				.build();
+		HttpClient httpClient = HttpClient.newHttpClient();
+		HttpResponse<String> responses = httpClient.send(requestpatch, HttpResponse.BodyHandlers.ofString());
+
+		return responses;
+	}
+
+
 
 }
 
