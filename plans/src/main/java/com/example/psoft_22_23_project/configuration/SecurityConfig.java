@@ -94,6 +94,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers(HttpMethod.POST,"/api/plans").hasRole("Marketing_Director")
 				.antMatchers(HttpMethod.GET,"/api/plans/**").permitAll()
 				.antMatchers(HttpMethod.PATCH,"/api/plans/**").permitAll()
+				.antMatchers(HttpMethod.GET,"/api/plans2/**").permitAll()
 
 
 				.anyRequest().authenticated()

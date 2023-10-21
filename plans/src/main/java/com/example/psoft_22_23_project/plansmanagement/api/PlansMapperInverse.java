@@ -60,7 +60,6 @@ public abstract class PlansMapperInverse {
 	@Mapping(source = "newplans.previousPromotedPlan.monthlyFee", target = "previousPromotedPlan.monthlyFee.monthlyFee")
 	@Mapping(source = "newplans.previousPromotedPlan.active", target = "previousPromotedPlan.active.active")
 	@Mapping(source = "newplans.previousPromotedPlan.promoted", target = "previousPromotedPlan.promoted.promoted")
-
 	public abstract PromotionResult toPlansViewsPromote(PlanRequestPromoted newplans);
 
 

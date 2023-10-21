@@ -47,7 +47,7 @@ public interface PlansService {
 
 	int cease(String name, final long desiredVersion);
 
-	Iterable<Plans> findAtive();
+	Iterable<Plans> findAtive() throws URISyntaxException, IOException, InterruptedException;
 
 	List<FeeRevision> history(String name);
 

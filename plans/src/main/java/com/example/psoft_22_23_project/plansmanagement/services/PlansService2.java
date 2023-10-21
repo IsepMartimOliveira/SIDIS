@@ -18,48 +18,16 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.example.psoft_22_23_project.plansmanagement.api;
-
-import lombok.Data;
-import org.springframework.lang.Nullable;
-
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
-
-@Data
-public class CreatePlanRequest {
-	@Size(min = 1)
-	@NotNull
-	private String name;
-	@Size(min = 1)
-	@NotNull
-	private String description;
-	@Size(min = 1)
-	@NotNull
-	private String numberOfMinutes;
-	@Pattern(regexp = "(automatic|personalized)")
-	@NotNull
-	private String musicSuggestion;
-	@Min(0)
-	@NotNull
-	private Integer maximumNumberOfUsers;
-	@Min(0)
-	@NotNull
-	private Integer musicCollection;
-	@Min(0)
-	@NotNull
-	private double annualFee;
-	@Min(0)
-	@NotNull
-	private double monthlyFee;
-	@Nullable
-	private boolean active;
-	@Nullable
-	private boolean promoted;
+package com.example.psoft_22_23_project.plansmanagement.services;
 
 
+import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+
+public interface PlansService2 {
+
+	Iterable<Plans> findAtive() throws URISyntaxException, IOException, InterruptedException;
 
 }

@@ -45,4 +45,17 @@ public class PlanRequest {
 
 		return numericPart;
 	}
+
+	public PlanRequest(String name, String description, String numberOfMinutes, String maximumNumberOfUsers, String musicCollection, String musicSuggestion, String annualFee, String monthlyFee, String active, String promoted) {
+		this.name = name;
+		this.description = description;
+		this.numberOfMinutes = numberOfMinutes;
+		this.maximumNumberOfUsers = maximumNumberOfUsers;
+		this.musicCollection = musicCollection;
+		this.musicSuggestion = musicSuggestion;
+		this.annualFee = annualFee;
+		this.monthlyFee = monthlyFee;
+		this.active = active;
+		this.promoted = promoted;
+	}
 }

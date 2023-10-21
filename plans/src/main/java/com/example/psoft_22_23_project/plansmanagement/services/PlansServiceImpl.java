@@ -27,6 +27,7 @@ import com.example.psoft_22_23_project.plansmanagement.model.PromotionResult;
 import com.example.psoft_22_23_project.plansmanagement.repositories.PlansRepository;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
+import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -39,19 +40,15 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 
 
 @Service
 @RequiredArgsConstructor
 public class PlansServiceImpl implements PlansService {
-
 	private final PlansRepository repository;
-
-
-
 	//private final SubscriptionsRepository subscriptionsRepository;
 
 	private final CreatePlansMapper createPlansMapper;
@@ -61,11 +58,43 @@ public class PlansServiceImpl implements PlansService {
 
 
 	@Override
-	public Iterable<Plans> findAtive() {
-		return repository.findByActive_Active(true);
+	public Iterable<Plans> findAtive() throws URISyntaxException, IOException, InterruptedException {
+		Iterable<Plans> planslocal = repository.findByActive_Active(true);
+
+		HttpResponse<String> plansfora = repository.getPlansFromOtherAPI();
+
+		JSONArray jsonArray = new JSONArray(plansfora.body());
+
+		for (int i = 0; i < jsonArray.length(); i++) {
+			if (repository.findByName_Name(jsonArray.getJSONObject(i).getString("name")).isEmpty()){
+				PlanRequest newPlan = new PlanRequest(
+						jsonArray.getJSONObject(i).getString("name"),
+						jsonArray.getJSONObject(i).getString("description"),
+						jsonArray.getJSONObject(i).getString("numberOfMinutes"),
+						jsonArray.getJSONObject(i).getString("maximumNumberOfUsers"),
+						jsonArray.getJSONObject(i).getString("musicCollection"),
+						jsonArray.getJSONObject(i).getString("musicSuggestion"),
+						jsonArray.getJSONObject(i).getString("annualFee"),
+						jsonArray.getJSONObject(i).getString("monthlyFee"),
+						jsonArray.getJSONObject(i).getString("active"),
+						jsonArray.getJSONObject(i).getString("promoted")
+				);
+				Plans obj = plansMapperInverse.toPlansView(newPlan);
+				planslocal = addPlanToIterable(planslocal, obj);
+			}
+		}
+		return planslocal;
 	}
 
-
+	private Iterable<Plans> addPlanToIterable(Iterable<Plans> plans, Plans newPlan) {
+		if (plans instanceof List) {
+			List<Plans> planList = new ArrayList<>((List<Plans>) plans);
+			planList.add(newPlan);
+			return planList;
+		}
+		// Handle other types of Iterables if necessary
+		return plans;
+	}
 	@Override
 	public List<FeeRevision> history(final String name) {
 		Optional<Plans> plans = repository.findByName_Name(name);

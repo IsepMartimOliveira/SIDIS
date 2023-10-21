@@ -66,7 +66,7 @@ public class PlansController {
 
 	@Operation(summary = "Gets all plans")
 	@GetMapping
-	public Iterable<PlansView> findActive() {
+	public Iterable<PlansView> findActive() throws URISyntaxException, IOException, InterruptedException {
 		return plansViewMapper.toPlansView(service.findAtive());
 	}
 
