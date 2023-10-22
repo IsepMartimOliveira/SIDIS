@@ -35,7 +35,6 @@ public class SubscriptionsController2 {
 
     @GetMapping("/{user}")
     public ResponseEntity<SubscriptionsView> getSubsByPlanAndUser(@PathVariable String user){
-        user = user + "@mail.com";
         Optional<Subscriptions> subsOptional = service.findSubByUserAndPlan(user);
         if (subsOptional.isPresent()) {
             Subscriptions subs = subsOptional.get();

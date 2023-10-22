@@ -69,7 +69,7 @@ class SubscriptionsRepoCustomImpl implements SubscriptionsRepoCustom {
         // 82 91 subs
         // 81 90 plans
         // 83 92 users
-        int otherPort = (currentPort == 8082) ? 8083 : 8093;
+        int otherPort = (currentPort == 8082) ? 8083 : 8092;
         URI uri = new URI("http://localhost:" + otherPort + "/api/user/" + name);
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -96,7 +96,7 @@ class SubscriptionsRepoCustomImpl implements SubscriptionsRepoCustom {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
                 .GET()
-                //.header("Authorization", "Bearer eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJleGFtcGxlLmlvIiwic3ViIjoiNCxhbGV4QG1haWwuY29tIiwiZXhwIjoxNjk4MDA5OTc1LCJpYXQiOjE2OTc5NzM5NzUsInJvbGVzIjoiU3Vic2NyaWJlciJ9.X27Z8gvixiP1R7iqNSAXn1bSeTdS5HmxK0ZNIo7negqA_WXun_9VVjex06E_oW2qlMEKINsmXd4L0Ycjr4O88RpKo9gTLy0bQxOwTAIbALfeZ7K3uaCSFfT0d_2ngxeLKwvRTxYqhQddcUYqW9N347PNHQP9XcR7_pwBPTQH0CpFHb8ue39mlg_ynPKnU7GbhLQ1uZXg9XhIBqB0DlZiBm1HLta3exCTPfTCAvPi2UVWJ-OqotbTKT3fj8v5DEBkXfFAmP4DZUTGpdV4cpuNEHimf5j4esUWHrR1qWh1GaH6zgPOvV5Y04DgSpJvmXIv05Cdrsduqgz3kTriu2Ze5kdA75OJN83g-Wl3LNzAkU4lL4lEnZnaHECeByPoAmrBl3VqN3Ww7RBhUMUwM9CZD45R5-kC0S6Na-NXOgYPhuI9eAWv937ikXzxsBzTYFUwuWd06-JBoZbwAf0bYG_7x8ccF_9kpkEbJhccuihgjFvHsbxoTrZZOFUdVzqvkdrwnLOqqJzK323-U0zvHwqQ3iKAbA-elyl2KDYkDC4HPZX1zUtm5jvO2AhoMbp8gFJFLT3R534Nh41iJ1_YZyP-n1ud0SbUJKnXf8tQgiRi1dH3ZMWTQqVwlNBfOSf6SLzsvK1o9R26U7gBFTVtdfgNNiwEXaHewfwAzZr-UllX5RA") // Add the token to the Authorization header
+                //.header("Authorization", "Bearer eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJleGFtcGxlLmlvIiwic3ViIjoiNCxhbGV4QG1haWwuY29tIiwiZXhwIjoxNjk4MDQzMjU4LCJpYXQiOjE2OTgwMDcyNTgsInJvbGVzIjoiU3Vic2NyaWJlciJ9.DoaA-_sJI9FLZUm8PmgAzGhuaHU-Scjl0uQlFuOZ3H8nl1fxMaSeW9hNqPO66ok5bdAITKCQDDgfv-YHgfq5vPqKGhLDaX1Ec98ATckibnJW08Xojh8FWEdyEw-YXOHAjLLDJ5OYK7CebF7NQDC8W8s_DQHuNYMZeISi-MPTsm9NGd6Qwcbo6Ic42JfgMu8Kt_0AlyaR6AtLLubFK3M0xm4P3bSwiDNW-jTTHM9mmNUJv46dHph-ZmQSaxowPIotR9x3pkKCLFHnx1U1Ob8Cf63qGqWMBV-3xSQ_j75SgK7oG0dslaCiqfbsl-GwMlatMJjH1931ktaOiCKrLnALDA75FR1tXADmQVjigpBPFvuKVcX3PvMGRteuapcNd3xo58Fss7x-fOvujmJSRJ-MbHvnoH5wRUI7WoiugqcDPF9QuNDBPEQUaE70xvDUtBnPpDE9crQDObDw6NRn-C1WUlYDw0aNdAMWGMP74Bx-gCeIE-dZsZchMifYVhgsqsO68uM_xk4G_gRWkHgL67vMNGlrj09JLHkJcKbrNLL2Ey9tyFTBsvVrYfWu8-pgqV-l004I3rulCjtcMX7TR9lwwzgAhH_IKXTZIFWyS0xhWPRMfnftCsxG8oli4Pd55nUCV7CBT2fls_M7tHRoyqnGTnPaqVXjD2Cplc5wh2uMoT8")
                 .build();
 
         HttpClient client = HttpClient.newHttpClient();

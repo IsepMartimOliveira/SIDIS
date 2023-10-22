@@ -5,6 +5,7 @@ import com.example.psoft_22_23_project.subscriptionsmanagement.model.PlansDetail
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptions;
 import com.example.psoft_22_23_project.subscriptionsmanagement.repositories.SubscriptionsRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.json.JSONObject;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -44,11 +45,6 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
 
     }
 
-    @Override
-    public PlansDetails planDetails() {
-        return null;
-    }
-
     private final SubscriptionsRepository repository;
     private final CreateSubscriptionsMapper createSubscriptionsMapper;
 
@@ -57,17 +53,18 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
     public Optional<Subscriptions> findSubByUserAndPlan(String planName, String user) {
         return repository.findByActiveStatus_ActiveAndUser(true, user);
     }
+
     @Override
     public Subscriptions create(final CreateSubscriptionsRequest resource) throws URISyntaxException, IOException, InterruptedException {
 
         HttpResponse<String> plan = repository.getPlansFromOtherAPI(resource.getName());
 
-        if (plan.statusCode() == 200){
+        if (plan.statusCode() == 200) {
             JSONObject jsonArray = new JSONObject(plan.body());
 
             String username = SecurityContextHolder.getContext().getAuthentication().getName();
             Authentication principal = SecurityContextHolder.getContext().getAuthentication();
-           //token in principal
+            //token in principal
 
             int commaIndex = username.indexOf(",");
             String newString;
@@ -79,39 +76,89 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
 
             HttpResponse<String> user = repository.getUserFromOtherAPI(newString);
 
-            if (user.statusCode() == 200){
+            if (user.statusCode() == 200) {
                 Optional<Subscriptions> existingSubscription = repository.findByActiveStatus_ActiveAndUser(true, newString);
 
-                if (existingSubscription.isPresent()){
+                if (existingSubscription.isPresent()) {
                     if (existingSubscription.get().getActiveStatus().isActive()) {
                         throw new IllegalArgumentException("You need to let your active subscription end in order to subscribe, locally ");
                     }
-                }else{
-                    HttpResponse<String> existingSubscription2 = repository.getSubsFromOtherApi(extractUsername(newString));
-                    if (existingSubscription2.statusCode() == 404){
+                } else {
+                    HttpResponse<String> existingSubscription2 = repository.getSubsFromOtherApi(newString);
+                    if (existingSubscription2.statusCode() == 404) {
                         Subscriptions obj = createSubscriptionsMapper.create(newString, jsonArray.getString("name"), resource);
                         return repository.save(obj);
-                    }else throw new IllegalArgumentException("You need to let your active subscription end in order to subscribe, not locally ");
+                    } else
+                        throw new IllegalArgumentException("You need to let your active subscription end in order to subscribe, not locally ");
                 }
-            }else throw new IllegalArgumentException("sub name user");
-        }else throw new IllegalArgumentException("sub name plan");
+            } else throw new IllegalArgumentException("sub name user");
+        } else throw new IllegalArgumentException("sub name plan");
 
         throw new IllegalArgumentException("problem with sub");
     }
 
-    public static String extractUsername(String input) {
-        int atIndex = input.indexOf('@'); // Encontra a posição do caractere "@"
+    @SneakyThrows
+    @Override
+    public PlansDetails planDetails() {
 
-        if (atIndex != -1) {
-            // Se o "@" for encontrado, extrai a parte antes do "@"
-            return input.substring(0, atIndex);
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        int commaIndex = username.indexOf(",");
+        String newString;
+        if (commaIndex != -1) {
+            newString = username.substring(commaIndex + 1);
         } else {
-            // Se não houver um "@" na string, retorna a string original
-            return input;
+            newString = username;
         }
+        //buscar user
+        HttpResponse<String> user = repository.getUserFromOtherAPI(newString);
+
+
+        JSONObject jsonArray = new JSONObject(user.body());
+        //ver se user existe
+        if (user.statusCode() == 200) {
+            // buscar subs do user localmente
+            Optional<Subscriptions> subscription = repository.findByActiveStatus_ActiveAndUser(true, jsonArray.getString("username"));
+
+            if (subscription.isPresent()) {
+                HttpResponse<String> plan = repository.getPlansFromOtherAPI(subscription.get().getPlan());
+                JSONObject planjsonArray = new JSONObject(plan.body());
+                if (plan.statusCode() == 200) {
+                    return new PlansDetails(planjsonArray.getString("name"),
+                            planjsonArray.getString("description"),
+                            planjsonArray.getString("numberOfMinutes"),
+                            planjsonArray.getString("maximumNumberOfUsers"),
+                            planjsonArray.getString("musicCollection"),
+                            planjsonArray.getString("musicSuggestion"),
+                            planjsonArray.getString("annualFee"),
+                            planjsonArray.getString("monthlyFee"),
+                            planjsonArray.getString("active"),
+                            planjsonArray.getString("promoted"));
+
+                }
+            } else {
+                HttpResponse<String> existingSubscription2 = repository.getSubsFromOtherApi(jsonArray.getString("username"));
+                JSONObject planjsonArray2 = new JSONObject(existingSubscription2.body());
+
+                if (existingSubscription2.statusCode() == 200) {
+                    HttpResponse<String> plan = repository.getPlansFromOtherAPI(planjsonArray2.getString("planName"));
+                    JSONObject planjsonArray = new JSONObject(plan.body());
+                    return new PlansDetails(planjsonArray.getString("name"),
+                            planjsonArray.getString("description"),
+                            planjsonArray.getString("numberOfMinutes"),
+                            planjsonArray.getString("maximumNumberOfUsers"),
+                            planjsonArray.getString("musicCollection"),
+                            planjsonArray.getString("musicSuggestion"),
+                            planjsonArray.getString("annualFee"),
+                            planjsonArray.getString("monthlyFee"),
+                            planjsonArray.getString("active"),
+                            planjsonArray.getString("promoted"));
+                }
+            }
+        }
+        throw new IllegalArgumentException("adasd");
     }
-
-
+}
 /*
     @Override
     public Iterable<Subscriptions> findAll() {
@@ -443,7 +490,7 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
 
      */
 
-}
+
 
 
 

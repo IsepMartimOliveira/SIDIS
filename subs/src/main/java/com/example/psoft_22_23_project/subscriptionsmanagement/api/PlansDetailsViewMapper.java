@@ -24,25 +24,22 @@ package com.example.psoft_22_23_project.subscriptionsmanagement.api;
 
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.PlansDetails;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 
 @Mapper(componentModel = "spring")
 public abstract class PlansDetailsViewMapper {
-	/*
-	@Mapping(source = "plans.name.name", target = "name")
-	@Mapping(source = "plans.description.description", target = "description")
-	@Mapping(source = "plans.numberOfMinutes.numberOfMinutes", target = "numberOfMinutes")
-	@Mapping(source = "plans.maximumNumberOfUsers.maximumNumberOfUsers", target = "maximumNumberOfUsers")
-	@Mapping(source = "plans.musicCollection.musicCollection", target = "musicCollection")
-	@Mapping(source = "plans.musicSuggestion.musicSuggestion", target = "musicSuggestion")
-	@Mapping(source = "plans.annualFee.annualFee", target = "annualFee")
-	@Mapping(source = "plans.monthlyFee.monthlyFee", target = "monthlyFee")
-	@Mapping(source = "plans.active.active", target = "active")
-	@Mapping(source = "plans.promoted.promoted", target = "promoted")
-	@Mapping(source = "plans.fact", target = "fact")
-	@Mapping(source = "plans.weather", target = "weather")
 
-	 */
+	@Mapping(source = "plans.name", target = "name")
+	@Mapping(source = "plans.description", target = "description")
+	@Mapping(source = "plans.numberOfMinutes", target = "numberOfMinutes")
+	@Mapping(source = "plans.maximumNumberOfUsers", target = "maximumNumberOfUsers")
+	@Mapping(source = "plans.musicCollection", target = "musicCollection")
+	@Mapping(source = "plans.musicSuggestion", target = "musicSuggestion")
+	@Mapping(source = "plans.annualFee", target = "annualFee")
+	@Mapping(source = "plans.monthlyFee", target = "monthlyFee")
+	@Mapping(source = "plans.active", target = "active")
+	@Mapping(source = "plans.promoted", target = "promoted")
 	public abstract PlansDetailsView toPlansDetailsView(PlansDetails plans);
 
 }
