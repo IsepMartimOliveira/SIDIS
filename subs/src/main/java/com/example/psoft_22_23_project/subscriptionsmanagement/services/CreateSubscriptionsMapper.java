@@ -20,11 +20,14 @@
  */
 package com.example.psoft_22_23_project.subscriptionsmanagement.services;
 
+import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreateSubscriptionsRequest;
+import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptions;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public abstract class CreateSubscriptionsMapper {
-	//@Mapping(source = "request.paymentType", target = "paymentType.paymentType")
-	//public abstract Subscriptions create(User user, Plans plan, CreateSubscriptionsRequest request);
+	@Mapping(source = "request.paymentType", target = "paymentType.paymentType")
+	public abstract Subscriptions create(String user, String plan, CreateSubscriptionsRequest request);
 
 }

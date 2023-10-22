@@ -10,7 +10,6 @@ public class SubscriptionsView {
 
     private String username;
     private String planName;
-    private String planDescription;
     private String paymentType;
     private String startDate;
     private String endDate;

@@ -10,7 +10,6 @@ import java.util.Optional;
 public abstract class SubscriptionsViewMapper {
 
     @Mapping(source="plan", target= "planName")
-    @Mapping(source="description", target= "planDescription")
     @Mapping(source="user", target= "username")
     @Mapping(source="subscriptions.startDate.startDate", target= "startDate")
     @Mapping(source="subscriptions.endDate.endDate", target= "endDate")

@@ -36,15 +36,7 @@ import java.security.interfaces.RSAPublicKey;
 
 import static java.lang.String.format;
 
-/**
- * Check https://www.baeldung.com/security-spring and
- * https://www.toptal.com/spring/spring-security-tutorial
- * <p>
- * Based on https://github.com/Yoh0xFF/java-spring-security-example/
- *
- * @author pagsousa
- *
- */
+
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true, jsr250Enabled = true, prePostEnabled = true)
 @RequiredArgsConstructor
@@ -84,18 +76,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers(format("%s/**", swaggerPath)).permitAll()
 				.antMatchers("/api-docs/**").permitAll()
 				.antMatchers("/swagger-ui/**").permitAll()
-				.antMatchers("/h2/**").permitAll();
+				.antMatchers("/h2/**").permitAll()
 
 
-		// Our public endpoints
-		http.authorizeRequests()
-
-				// Plans management
 				.antMatchers(HttpMethod.POST,"/api/plans").hasRole("Marketing_Director")
-				.antMatchers(HttpMethod.GET,"/api/plans/**").permitAll()
-				.antMatchers(HttpMethod.PATCH,"/api/plans/**").permitAll()
 				.antMatchers(HttpMethod.GET,"/api/plans2/**").permitAll()
 
+				.antMatchers(HttpMethod.GET,"/api/plans/**").permitAll()
+				.antMatchers(HttpMethod.PATCH,"/api/plans/**").permitAll()
 
 				.anyRequest().authenticated()
 

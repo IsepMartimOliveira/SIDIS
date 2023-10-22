@@ -93,7 +93,6 @@ public class PlansServiceImpl implements PlansService {
 			planList.add(newPlan);
 			return planList;
 		}
-		// Handle other types of Iterables if necessary
 		return plans;
 	}
 	@Override
@@ -116,6 +115,7 @@ public class PlansServiceImpl implements PlansService {
 		if (plans.isPresent()) {
 			return plans;
 		}
+
 		HttpResponse<String> plan = repository.findPlanFromOtherAPI(planName);
 		if (plan.statusCode() == 200) {
 			JSONObject jsonArray = new JSONObject(plan.body());

@@ -49,12 +49,6 @@ public class Subscriptions {
 
     private String plan;
     private String user;
-    private String description;
-
-
-
-
-
     public void deactivate(final long desiredVersion) {
         // check current version
         if (this.version != desiredVersion) {

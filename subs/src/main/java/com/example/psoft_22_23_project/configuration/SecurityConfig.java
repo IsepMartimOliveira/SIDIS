@@ -1,27 +1,5 @@
-/*
- * Copyright (c) 2022-2022 the original author or authors.
- *
- * MIT License
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-package com.example.psoft_22_23_project.configuration;
 
-//import com.example.psoft_22_23_project.usermanagement.model.Role;
-//import com.example.psoft_22_23_project.usermanagement.repositories.UserRepository;
+package com.example.psoft_22_23_project.configuration;
 
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -32,6 +10,7 @@ import com.nimbusds.jose.proc.SecurityContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -63,7 +42,6 @@ import static java.lang.String.format;
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-	//private final UserRepository userRepo;
 
 	@Value("${jwt.public.key}")
 	private RSAPublicKey rsaPublicKey;
@@ -78,10 +56,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	private String swaggerPath;
 
 
-
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-
 		// Enable CORS and disable CSRF
 		http = http.cors().and().csrf().disable();
 
@@ -100,29 +76,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers(format("%s/**", swaggerPath)).permitAll()
 				.antMatchers("/api-docs/**").permitAll()
 				.antMatchers("/swagger-ui/**").permitAll()
-				.antMatchers("/h2/**").permitAll();
+				.antMatchers("/h2/**").permitAll()
 
+				.antMatchers(HttpMethod.GET,"/api/subscriptions/**").hasRole("Subscriber")
+				.antMatchers(HttpMethod.GET,"/api/subscriptions2/**").hasRole("Subscriber")
 
-				// Our public endpoints
-				http.authorizeRequests()
-/*
-						.antMatchers(HttpMethod.GET,"/api/subscriptions/list").hasRole(Role.User_Admin)
-						.antMatchers(HttpMethod.POST,"/api/subscriptions/create/").permitAll()
-						.antMatchers(HttpMethod.GET,"/api/subscriptions/").hasRole(Role.Subscriber)
-						.antMatchers(HttpMethod.PATCH,"/api/subscriptions/").hasRole(Role.Subscriber)
-						.antMatchers(HttpMethod.PATCH,"/api/subscriptions/renew").hasRole(Role.Subscriber)
-						.antMatchers(HttpMethod.PATCH,"/api/subscriptions/change/{name}").hasRole(Role.Subscriber)
-						.antMatchers(HttpMethod.PATCH,"/api/subscriptions/change/{actualPlan}/{newPlan}").hasRole(Role.Marketing_Director)
+				.anyRequest().authenticated()
 
- */
-						.antMatchers("/api/public/subscriptions/**").permitAll()
-
-						.anyRequest().authenticated()
-
-						.and().httpBasic(Customizer.withDefaults()).oauth2ResourceServer().jwt();
-				http.headers().frameOptions().sameOrigin().and().authorizeRequests();
-
-
+				.and().httpBasic(Customizer.withDefaults()).oauth2ResourceServer().jwt();
+		http.headers().frameOptions().sameOrigin().and().authorizeRequests();
 
 	}
 
@@ -171,5 +133,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		return new CorsFilter(source);
 	}
 
-
 }
+
+

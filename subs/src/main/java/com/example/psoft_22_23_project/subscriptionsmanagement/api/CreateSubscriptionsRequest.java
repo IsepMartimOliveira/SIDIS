@@ -12,8 +12,6 @@ import javax.validation.constraints.Pattern;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateSubscriptionsRequest {
-
-
         private String name;
         @Pattern(regexp = "(annually|monthly)")
         private String paymentType;

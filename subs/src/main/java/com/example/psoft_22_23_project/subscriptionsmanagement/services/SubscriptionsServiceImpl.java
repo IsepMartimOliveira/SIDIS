@@ -5,12 +5,15 @@ import com.example.psoft_22_23_project.subscriptionsmanagement.model.PlansDetail
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptions;
 import com.example.psoft_22_23_project.subscriptionsmanagement.repositories.SubscriptionsRepository;
 import lombok.RequiredArgsConstructor;
+import org.json.JSONObject;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.http.HttpResponse;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -49,29 +52,65 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
     private final SubscriptionsRepository repository;
     private final CreateSubscriptionsMapper createSubscriptionsMapper;
 
+
+    @Override
+    public Optional<Subscriptions> findSubByUserAndPlan(String planName, String user) {
+        return repository.findByActiveStatus_ActiveAndUser(true, user);
+    }
     @Override
     public Subscriptions create(final CreateSubscriptionsRequest resource) throws URISyntaxException, IOException, InterruptedException {
 
         HttpResponse<String> plan = repository.getPlansFromOtherAPI(resource.getName());
 
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        int commaIndex = username.indexOf(",");
+        if (plan.statusCode() == 200){
+            JSONObject jsonArray = new JSONObject(plan.body());
 
-        String newString;
-        if (commaIndex != -1) {
-            newString = username.substring(0, commaIndex);
-        } else {
-            newString = username;
-        }
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            Authentication principal = SecurityContextHolder.getContext().getAuthentication();
+           //token in principal
 
-        HttpResponse<String> user = repository.getUserFromOtherAPI(resource.getName());
+            int commaIndex = username.indexOf(",");
+            String newString;
+            if (commaIndex != -1) {
+                newString = username.substring(commaIndex + 1);
+            } else {
+                newString = username;
+            }
 
+            HttpResponse<String> user = repository.getUserFromOtherAPI(newString);
 
+            if (user.statusCode() == 200){
+                Optional<Subscriptions> existingSubscription = repository.findByActiveStatus_ActiveAndUser(true, newString);
 
+                if (existingSubscription.isPresent()){
+                    if (existingSubscription.get().getActiveStatus().isActive()) {
+                        throw new IllegalArgumentException("You need to let your active subscription end in order to subscribe, locally ");
+                    }
+                }else{
+                    HttpResponse<String> existingSubscription2 = repository.getSubsFromOtherApi(extractUsername(newString));
+                    if (existingSubscription2.statusCode() == 404){
+                        Subscriptions obj = createSubscriptionsMapper.create(newString, jsonArray.getString("name"), resource);
+                        return repository.save(obj);
+                    }else throw new IllegalArgumentException("You need to let your active subscription end in order to subscribe, not locally ");
+                }
+            }else throw new IllegalArgumentException("sub name user");
+        }else throw new IllegalArgumentException("sub name plan");
 
-        return null;
-
+        throw new IllegalArgumentException("problem with sub");
     }
+
+    public static String extractUsername(String input) {
+        int atIndex = input.indexOf('@'); // Encontra a posição do caractere "@"
+
+        if (atIndex != -1) {
+            // Se o "@" for encontrado, extrai a parte antes do "@"
+            return input.substring(0, atIndex);
+        } else {
+            // Se não houver um "@" na string, retorna a string original
+            return input;
+        }
+    }
+
 
 /*
     @Override
