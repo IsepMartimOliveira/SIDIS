@@ -87,7 +87,7 @@ public class SubscriptionsController {
 
     @Operation(summary = "Renew annual subscription")
     @PatchMapping(value = "/renew")
-    public ResponseEntity<SubscriptionsView> renewAnualSubscription(final WebRequest request) {
+    public ResponseEntity<SubscriptionsView> renewAnualSubscription(final WebRequest request) throws URISyntaxException, IOException, InterruptedException {
         final String ifMatchValue = request.getHeader("If-Match");
         if (ifMatchValue == null || ifMatchValue.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,

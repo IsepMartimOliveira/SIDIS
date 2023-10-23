@@ -20,7 +20,7 @@ public interface SubscriptionsService {
 
     Subscriptions cancelSubscription(long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
 
-    Subscriptions renewAnualSubscription(long desiredVersion);
+    Subscriptions renewAnualSubscription(long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
 
     Subscriptions changePlan(long desiredVersion, String name);
 

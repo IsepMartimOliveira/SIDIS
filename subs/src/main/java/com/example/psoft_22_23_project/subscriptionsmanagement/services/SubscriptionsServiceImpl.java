@@ -31,11 +31,6 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
 
 
     @Override
-    public Subscriptions renewAnualSubscription(long desiredVersion) {
-        return null;
-    }
-
-    @Override
     public Subscriptions changePlan(long desiredVersion, String name) {
         return null;
     }
@@ -158,6 +153,7 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         }
         throw new IllegalArgumentException("adasd");
     }
+
     @Override
     public Subscriptions cancelSubscription(final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
 
@@ -173,44 +169,44 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         }
 
         HttpResponse<String> user = repository.getUserFromOtherAPI(newString);
-        if (user.statusCode() == 200){
+        if (user.statusCode() == 200) {
             Optional<Subscriptions> existingSubscription = repository.findByActiveStatus_ActiveAndUser(true, newString);
-            if(existingSubscription.isPresent()){
+            if (existingSubscription.isPresent()) {
                 Subscriptions subscription = existingSubscription.get();
                 subscription.deactivate(desiredVersion);
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                 LocalDate startDate = LocalDate.parse(subscription.getStartDate().getStartDate(), formatter);
 
 
-                if(Objects.equals(subscription.getPaymentType().getPaymentType(), "monthly")){
-                    if (startDate.getMonthValue() == LocalDate.now().getMonthValue()){
+                if (Objects.equals(subscription.getPaymentType().getPaymentType(), "monthly")) {
+                    if (startDate.getMonthValue() == LocalDate.now().getMonthValue()) {
                         if (startDate.getYear() != LocalDate.now().getYear()) {
                             subscription.getEndDate().setEndDate(String.valueOf(startDate.plusMonths(1).plusYears(LocalDate.now().getYear() - startDate.getYear())));
-                        }else{
+                        } else {
                             subscription.getEndDate().setEndDate(String.valueOf(startDate.plusMonths(1)));
                         }
 
-                    }else if (startDate.getDayOfMonth() >= LocalDate.now().getDayOfMonth()){
-                        if (startDate.getYear() != LocalDate.now().getYear()){
+                    } else if (startDate.getDayOfMonth() >= LocalDate.now().getDayOfMonth()) {
+                        if (startDate.getYear() != LocalDate.now().getYear()) {
                             subscription.getEndDate().setEndDate(String.valueOf(startDate.plusMonths(1).plusYears(LocalDate.now().getYear() - startDate.getYear())));
-                        }else {
+                        } else {
                             subscription.getEndDate().setEndDate(String.valueOf(startDate.plusMonths(1)));
                         }
 
                     } else {
                         if (startDate.getYear() != LocalDate.now().getYear()) {
-                            subscription.getEndDate().setEndDate(String.valueOf(startDate.plusMonths((LocalDate.now().getMonthValue() - startDate.getMonthValue())+1).plusYears(LocalDate.now().getYear() - startDate.getYear())));
+                            subscription.getEndDate().setEndDate(String.valueOf(startDate.plusMonths((LocalDate.now().getMonthValue() - startDate.getMonthValue()) + 1).plusYears(LocalDate.now().getYear() - startDate.getYear())));
                         } else {
-                            subscription.getEndDate().setEndDate(String.valueOf(startDate.plusMonths((LocalDate.now().getMonthValue() - startDate.getMonthValue())+1)));
+                            subscription.getEndDate().setEndDate(String.valueOf(startDate.plusMonths((LocalDate.now().getMonthValue() - startDate.getMonthValue()) + 1)));
                         }
                     }
                 }
                 return repository.save(subscription);
 
-            }else{
+            } else {
                 HttpResponse<String> existingSubscription2 = repository.getSubsFromOtherApi(newString);
-                if(existingSubscription2.statusCode()==200){
-                    throw new IllegalArgumentException("The subscribption you want to cancel exists on another machine");
+                if (existingSubscription2.statusCode() == 200) {
+                    throw new IllegalArgumentException("The subscription you want to cancel exists on another machine");
 
                 }
 
@@ -218,9 +214,59 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         }
 
 
-        return null;
+        throw new IllegalArgumentException("Something is really bad :(");
 
 
+    }
+
+    @Override
+    public Subscriptions renewAnualSubscription(final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
+
+        // Check if the current user is authorized to cancel the subscription
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        int commaIndex = username.indexOf(",");
+
+        String newString;
+        if (commaIndex != -1) {
+            newString = username.substring(commaIndex + 1);
+        } else {
+            newString = username;
+        }
+
+        HttpResponse<String> user = repository.getUserFromOtherAPI(newString);
+        if (user.statusCode() == 200) {
+            Optional<Subscriptions> existingSubscription = repository.findByActiveStatus_ActiveAndUser(true, newString);
+            if (existingSubscription.isPresent()) {
+                Subscriptions subscription = existingSubscription.get();
+                if (Objects.equals(subscription.getPaymentType().getPaymentType(), "monthly")) {
+
+                    throw new IllegalArgumentException("You can not renew a monthly subscription");
+                } else {
+
+                    subscription.checkChange(desiredVersion);
+
+
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                    LocalDate endDate = LocalDate.parse(subscription.getEndDate().getEndDate(), formatter);
+
+                    subscription.getEndDate().setEndDate(String.valueOf(endDate.plusYears(1)));
+                }
+                return repository.save(subscription);
+
+            } else {
+                HttpResponse<String> existingSubscription2 = repository.getSubsFromOtherApi(newString);
+                if (existingSubscription2.statusCode() == 200) {
+                    throw new IllegalArgumentException("The subscription you want to renew exists on another machine");
+
+                }
+            }
+
+
+
+        }
+
+
+        throw new IllegalArgumentException("Something is really bad :(");
     }
 }
 /*
