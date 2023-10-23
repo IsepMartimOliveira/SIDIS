@@ -14,6 +14,9 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.http.HttpResponse;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -25,20 +28,9 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
     }
 
 
-    @Override
-    public Subscriptions cancelSubscription(long desiredVersion) {
-        return null;
-    }
 
-    @Override
-    public Subscriptions renewAnualSubscription(long desiredVersion) {
-        return null;
-    }
 
-    @Override
-    public Subscriptions changePlan(long desiredVersion, String name) {
-        return null;
-    }
+
 
     @Override
     public void migrateAllToPlan(long desiredVersion, String actualPlan, String newPlan) {
@@ -161,6 +153,171 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         }
         throw new IllegalArgumentException("adasd");
     }
+
+    @Override
+    public Subscriptions cancelSubscription(final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
+
+        // Check if the current user is authorized to cancel the subscription
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        int commaIndex = username.indexOf(",");
+        String newString;
+        if (commaIndex != -1) {
+            newString = username.substring(commaIndex + 1);
+        } else {
+            newString = username;
+        }
+
+        HttpResponse<String> user = repository.getUserFromOtherAPI(newString);
+        if (user.statusCode() == 200) {
+            Optional<Subscriptions> existingSubscription = repository.findByActiveStatus_ActiveAndUser(true, newString);
+            if (existingSubscription.isPresent()) {
+                Subscriptions subscription = existingSubscription.get();
+                subscription.deactivate(desiredVersion);
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                LocalDate startDate = LocalDate.parse(subscription.getStartDate().getStartDate(), formatter);
+
+
+                if (Objects.equals(subscription.getPaymentType().getPaymentType(), "monthly")) {
+                    if (startDate.getMonthValue() == LocalDate.now().getMonthValue()) {
+                        if (startDate.getYear() != LocalDate.now().getYear()) {
+                            subscription.getEndDate().setEndDate(String.valueOf(startDate.plusMonths(1).plusYears(LocalDate.now().getYear() - startDate.getYear())));
+                        } else {
+                            subscription.getEndDate().setEndDate(String.valueOf(startDate.plusMonths(1)));
+                        }
+
+                    } else if (startDate.getDayOfMonth() >= LocalDate.now().getDayOfMonth()) {
+                        if (startDate.getYear() != LocalDate.now().getYear()) {
+                            subscription.getEndDate().setEndDate(String.valueOf(startDate.plusMonths(1).plusYears(LocalDate.now().getYear() - startDate.getYear())));
+                        } else {
+                            subscription.getEndDate().setEndDate(String.valueOf(startDate.plusMonths(1)));
+                        }
+
+                    } else {
+                        if (startDate.getYear() != LocalDate.now().getYear()) {
+                            subscription.getEndDate().setEndDate(String.valueOf(startDate.plusMonths((LocalDate.now().getMonthValue() - startDate.getMonthValue()) + 1).plusYears(LocalDate.now().getYear() - startDate.getYear())));
+                        } else {
+                            subscription.getEndDate().setEndDate(String.valueOf(startDate.plusMonths((LocalDate.now().getMonthValue() - startDate.getMonthValue()) + 1)));
+                        }
+                    }
+                }
+                return repository.save(subscription);
+
+            } else {
+                HttpResponse<String> existingSubscription2 = repository.getSubsFromOtherApi(newString);
+                if (existingSubscription2.statusCode() == 200) {
+                    throw new IllegalArgumentException("The subscription you want to cancel exists on another machine");
+
+                }
+
+            }
+        }
+
+
+        throw new IllegalArgumentException("Something is really bad :(");
+
+
+    }
+
+    @Override
+    public Subscriptions renewAnualSubscription(final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
+
+        // Check if the current user is authorized to cancel the subscription
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        int commaIndex = username.indexOf(",");
+
+        String newString;
+        if (commaIndex != -1) {
+            newString = username.substring(commaIndex + 1);
+        } else {
+            newString = username;
+        }
+
+        HttpResponse<String> user = repository.getUserFromOtherAPI(newString);
+        if (user.statusCode() == 200) {
+            Optional<Subscriptions> existingSubscription = repository.findByActiveStatus_ActiveAndUser(true, newString);
+            if (existingSubscription.isPresent()) {
+                Subscriptions subscription = existingSubscription.get();
+                if (Objects.equals(subscription.getPaymentType().getPaymentType(), "monthly")) {
+
+                    throw new IllegalArgumentException("You can not renew a monthly subscription");
+                } else {
+
+                    subscription.checkChange(desiredVersion);
+
+
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                    LocalDate endDate = LocalDate.parse(subscription.getEndDate().getEndDate(), formatter);
+
+                    subscription.getEndDate().setEndDate(String.valueOf(endDate.plusYears(1)));
+                }
+                return repository.save(subscription);
+
+            } else {
+                HttpResponse<String> existingSubscription2 = repository.getSubsFromOtherApi(newString);
+                if (existingSubscription2.statusCode() == 200) {
+                    throw new IllegalArgumentException("The subscription you want to renew exists on another machine");
+
+                }
+            }
+
+
+
+        }
+
+
+        throw new IllegalArgumentException("Something is really bad :(");
+    }
+    @Override
+    public Subscriptions changePlan(final long desiredVersion, final String name) throws URISyntaxException, IOException, InterruptedException {
+
+
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        int commaIndex = username.indexOf(",");
+
+        String newString;
+        if (commaIndex != -1) {
+            newString = username.substring(commaIndex + 1);
+        } else {
+            newString = username;
+        }
+
+
+        HttpResponse<String> user = repository.getUserFromOtherAPI(newString);
+        if(user.statusCode()==200){
+            Optional<Subscriptions> existingSubscription = repository.findByActiveStatus_ActiveAndUser(true, newString);
+            if (existingSubscription.isPresent()) {
+                Subscriptions subscription = existingSubscription.get();
+                HttpResponse<String> plan = repository.getPlansFromOtherAPI(name);
+                HttpResponse<String> plan2 = repository.getPlansFromOtherAPI(subscription.getPlan());
+                JSONObject initialPlan=new JSONObject(plan2.body());
+                JSONObject jsonArray = new JSONObject(plan.body());
+                if(Objects.equals(initialPlan.getString("name"), jsonArray.getString("name"))){
+                    throw new IllegalArgumentException("The user is already subscribed to this plan!");
+                }
+                if (plan.statusCode() == 200 ) {
+
+                    subscription.changePlan(desiredVersion, jsonArray.getString("name"));
+                    return repository.save(subscription);
+                }
+
+
+            }else{
+                HttpResponse<String> existingSubscription2 = repository.getSubsFromOtherApi(newString);
+                if (existingSubscription2.statusCode() == 200) {
+                    throw new IllegalArgumentException("The subscription you want to change exists on another machine");
+
+                }
+
+            }
+
+
+        }
+        throw new IllegalArgumentException("No subscriptions associated with the user");
+
+    }
+
+
 }
 /*
     @Override

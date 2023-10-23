@@ -18,11 +18,11 @@ public interface SubscriptionsService {
     //void delete(Long id);
     Optional<Subscriptions> findSubByUser( String user);
 
-    Subscriptions cancelSubscription(long desiredVersion);
+    Subscriptions cancelSubscription(long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
 
-    Subscriptions renewAnualSubscription(long desiredVersion);
+    Subscriptions renewAnualSubscription(long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
 
-    Subscriptions changePlan(long desiredVersion, String name);
+    Subscriptions changePlan(long desiredVersion, String name) throws URISyntaxException, IOException, InterruptedException;
 
     void migrateAllToPlan(long desiredVersion,String actualPlan, String newPlan);
     PlansDetails planDetails();
