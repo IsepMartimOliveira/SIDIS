@@ -22,7 +22,7 @@ public interface SubscriptionsService {
 
     Subscriptions renewAnualSubscription(long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
 
-    Subscriptions changePlan(long desiredVersion, String name);
+    Subscriptions changePlan(long desiredVersion, String name) throws URISyntaxException, IOException, InterruptedException;
 
     void migrateAllToPlan(long desiredVersion,String actualPlan, String newPlan);
     PlansDetails planDetails();

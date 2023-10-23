@@ -30,10 +30,7 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
 
 
 
-    @Override
-    public Subscriptions changePlan(long desiredVersion, String name) {
-        return null;
-    }
+
 
     @Override
     public void migrateAllToPlan(long desiredVersion, String actualPlan, String newPlan) {
@@ -268,6 +265,56 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
 
         throw new IllegalArgumentException("Something is really bad :(");
     }
+    @Override
+    public Subscriptions changePlan(final long desiredVersion, final String name) throws URISyntaxException, IOException, InterruptedException {
+
+
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        int commaIndex = username.indexOf(",");
+
+        String newString;
+        if (commaIndex != -1) {
+            newString = username.substring(commaIndex + 1);
+        } else {
+            newString = username;
+        }
+
+
+        HttpResponse<String> user = repository.getUserFromOtherAPI(newString);
+        if(user.statusCode()==200){
+            Optional<Subscriptions> existingSubscription = repository.findByActiveStatus_ActiveAndUser(true, newString);
+            if (existingSubscription.isPresent()) {
+                Subscriptions subscription = existingSubscription.get();
+                HttpResponse<String> plan = repository.getPlansFromOtherAPI(name);
+                HttpResponse<String> plan2 = repository.getPlansFromOtherAPI(subscription.getPlan());
+                JSONObject initialPlan=new JSONObject(plan2.body());
+                JSONObject jsonArray = new JSONObject(plan.body());
+                if(Objects.equals(initialPlan.getString("name"), jsonArray.getString("name"))){
+                    throw new IllegalArgumentException("The user is already subscribed to this plan!");
+                }
+                if (plan.statusCode() == 200 ) {
+
+                    subscription.changePlan(desiredVersion, jsonArray.getString("name"));
+                    return repository.save(subscription);
+                }
+
+
+            }else{
+                HttpResponse<String> existingSubscription2 = repository.getSubsFromOtherApi(newString);
+                if (existingSubscription2.statusCode() == 200) {
+                    throw new IllegalArgumentException("The subscription you want to change exists on another machine");
+
+                }
+
+            }
+
+
+        }
+        throw new IllegalArgumentException("No subscriptions associated with the user");
+
+    }
+
+
 }
 /*
     @Override

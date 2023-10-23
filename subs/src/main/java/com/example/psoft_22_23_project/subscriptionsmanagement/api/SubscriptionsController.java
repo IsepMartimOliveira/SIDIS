@@ -101,7 +101,7 @@ public class SubscriptionsController {
 
     @Operation(summary = "Change plan of my subscription")
     @PatchMapping(value = "/change/{name}")
-    public ResponseEntity<SubscriptionsView> changePlan(final WebRequest request, @Valid @PathVariable final String name) {
+    public ResponseEntity<SubscriptionsView> changePlan(final WebRequest request, @Valid @PathVariable final String name) throws URISyntaxException, IOException, InterruptedException {
         final String ifMatchValue = request.getHeader("If-Match");
         if (ifMatchValue == null || ifMatchValue.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
