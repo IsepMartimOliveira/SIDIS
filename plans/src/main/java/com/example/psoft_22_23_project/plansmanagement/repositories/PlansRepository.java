@@ -60,8 +60,6 @@ public interface PlansRepository extends PlansRepoCustom,CrudRepository<Plans, L
 
 interface PlansRepoCustom {
 	HttpResponse<String> getPlansFromOtherAPI(String name) throws URISyntaxException, IOException, InterruptedException;
-	HttpResponse<String> findPlanFromOtherAPI(String name) throws URISyntaxException, IOException, InterruptedException;
-
 	HttpResponse<String> getPlansFromOtherAPI() throws URISyntaxException, IOException, InterruptedException;
 
 	HttpResponse<String> doPlansPatchAPI(String name, final long desiredVersion, String json) throws URISyntaxException, IOException, InterruptedException;
@@ -79,7 +77,7 @@ class PlansRepoCustomImpl implements PlansRepoCustom {
 	public HttpResponse<String> getPlansFromOtherAPI(String name) throws URISyntaxException, IOException, InterruptedException {
 
 		int otherPort = (currentPort == 8081) ? 8090 : 8081;
-		URI uri = new URI("http://localhost:" + otherPort + "/api/plans2/" + name);
+		URI uri = new URI("http://localhost:" + otherPort + "/api/plans/external/" + name);
 
 		HttpRequest request = HttpRequest.newBuilder()
 				.uri(uri)
@@ -99,7 +97,7 @@ class PlansRepoCustomImpl implements PlansRepoCustom {
 	public HttpResponse<String> getPlansFromOtherAPI() throws URISyntaxException, IOException, InterruptedException {
 
 		int otherPort = (currentPort == 8081) ? 8090 : 8081;
-		URI uri = new URI("http://localhost:" + otherPort + "/api/plans2");
+		URI uri = new URI("http://localhost:" + otherPort + "/api/plans/external");
 
 		HttpRequest request = HttpRequest.newBuilder()
 				.uri(uri)
@@ -114,25 +112,6 @@ class PlansRepoCustomImpl implements PlansRepoCustom {
 
 	}
 
-	@Override
-	public HttpResponse<String> findPlanFromOtherAPI(String name) throws URISyntaxException, IOException, InterruptedException {
-		// 82 91 subs
-		// 81 90 plans
-		int otherPort = (currentPort == 8081) ? 8090 : 8081;
-		URI uri = new URI("http://localhost:" + otherPort + "/api/plans2/"+name);
-
-		HttpRequest request = HttpRequest.newBuilder()
-				.uri(uri)
-				.GET()
-				.build();
-
-		HttpClient client = HttpClient.newHttpClient();
-
-		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-		return response;
-
-	}
 	@Override
 	public HttpResponse<String> doPlansPatchMoneyAPI(String name, final long desiredVersion, String json) throws URISyntaxException, IOException, InterruptedException {
 		int otherPort = (currentPort == 8081) ? 8090 : 8081;

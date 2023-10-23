@@ -16,7 +16,7 @@ public interface SubscriptionsService {
     Subscriptions create(CreateSubscriptionsRequest resource) throws URISyntaxException, IOException, InterruptedException;
 
     //void delete(Long id);
-    Optional<Subscriptions> findSubByUserAndPlan(String planName, String user);
+    Optional<Subscriptions> findSubByUser( String user);
 
     Subscriptions cancelSubscription(long desiredVersion);
 
@@ -27,4 +27,5 @@ public interface SubscriptionsService {
     void migrateAllToPlan(long desiredVersion,String actualPlan, String newPlan);
     PlansDetails planDetails();
 
+    Optional<Subscriptions> findSubByUserExternal(String user);
 }

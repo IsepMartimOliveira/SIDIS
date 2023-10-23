@@ -48,11 +48,14 @@ public interface PlansService {
 	int cease(String name, final long desiredVersion);
 
 	Iterable<Plans> findAtive() throws URISyntaxException, IOException, InterruptedException;
+	Iterable<Plans> findAtiveExternal();
 
 	List<FeeRevision> history(String name);
 
 
 	Optional<Plans> getPlanByName(String planName) throws URISyntaxException, IOException, InterruptedException;
+	Optional<Plans> getPlanByNameExternal(String planName);
+
 	Optional<Plans>getPlanByActiveAndPromoted(Boolean active,String name,Boolean promoted);
 	Optional<Plans> getPlanByActive(Boolean active,String name);
 }

@@ -60,6 +60,19 @@ public class UserController {
         }
     }
 
+    @Operation(summary = "Get User by name")
+    @GetMapping("/external/{username}")
+    public ResponseEntity<User> getUserByNameExternal(@PathVariable String username) {
+        Optional<User> userOptional = userService.getUserByNameExternal(username);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            return ResponseEntity.ok(user);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 
 
 

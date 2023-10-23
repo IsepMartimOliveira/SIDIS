@@ -70,6 +70,12 @@ public class PlansController {
 		return plansViewMapper.toPlansView(service.findAtive());
 	}
 
+	@Operation(summary = "Gets all plans")
+	@GetMapping("/external")
+	public Iterable<PlansView> findActiveExternal(){
+		return plansViewMapper.toPlansView(service.findAtiveExternal());
+	}
+
 	@Operation(summary = "Get Plan by name")
 	@GetMapping("/{planName}")
 	public ResponseEntity<PlansView> getPlanByName(@PathVariable String planName) throws URISyntaxException, IOException, InterruptedException {
@@ -83,6 +89,21 @@ public class PlansController {
 			return ResponseEntity.notFound().build();
 		}
 	}
+
+	@Operation(summary = "Get Plan by name")
+	@GetMapping("/external/{planName}")
+	public ResponseEntity<PlansView> getPlanByNameExternal(@PathVariable String planName){
+		Optional<Plans> planOptional = service.getPlanByNameExternal(planName);
+
+		if (planOptional.isPresent()) {
+			Plans plan = planOptional.get();
+			PlansView plansView = plansViewMapper.toPlansView(plan);
+			return ResponseEntity.ok(plansView);
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+	}
+
 
 	@Operation(summary = "Get Plans by active status and promoted")
 	@GetMapping("/byActiveAndPromoted")

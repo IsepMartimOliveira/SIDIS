@@ -80,8 +80,6 @@ public class UserService implements UserDetailsService {
 			throw new ValidationException("Passwords don't match!");
 		}
 
-
-
 		final User user = userEditMapper.create(request);
 		user.setPassword(passwordEncoder.encode(request.getPassword()));
 
@@ -99,9 +97,9 @@ public class UserService implements UserDetailsService {
 	}
 	public Optional<User> getUserByName(String username) throws URISyntaxException, IOException, InterruptedException {
 
-		Optional<User> plans = userRepository.findByUsername(username);
-		if (plans.isPresent()) {
-			return plans;
+		Optional<User> user = userRepository.findByUsername(username);
+		if (user.isPresent()) {
+			return user;
 		}else {
 			HttpResponse<String> plan = userRepository.getUserFromOtherAPI(username);
 			if (plan.statusCode() == 200){
@@ -112,8 +110,13 @@ public class UserService implements UserDetailsService {
 				return Optional.ofNullable(obj);
 			}
 		}
+		throw new IllegalArgumentException("Username with name " + username + " does not exist!");
+	}
 
-		throw new IllegalArgumentException("Plan with name " + username + " does not exist!");
+	public Optional<User> getUserByNameExternal(String username){
+		Optional<User> user = userRepository.findByUsername(username);
+		return user;
+
 	}
 
 }

@@ -92,7 +92,7 @@ class SubscriptionsRepoCustomImpl implements SubscriptionsRepoCustom {
         // 83 92 users
         int otherPort = (currentPort == 8082) ? 8091 : 8082;
 
-        URI uri = new URI("http://localhost:" + otherPort + "/api/subscriptions2/" + userName);
+        URI uri = new URI("http://localhost:" + otherPort + "/api/subscriptions/external/" + userName);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
                 .GET()

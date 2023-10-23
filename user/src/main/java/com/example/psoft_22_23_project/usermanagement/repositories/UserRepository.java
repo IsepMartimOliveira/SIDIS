@@ -84,7 +84,7 @@ class UserRepoCustomImpl implements UserRepoCustom {
 	public HttpResponse<String> getUserFromOtherAPI(String name) throws URISyntaxException, IOException, InterruptedException {
 
 		int otherPort = (currentPort == 8083) ? 8092 : 8083;
-		URI uri = new URI("http://localhost:" + otherPort + "/api/user2/" + name);
+		URI uri = new URI("http://localhost:" + otherPort + "/api/user/external/" + name);
 
 		HttpRequest request = HttpRequest.newBuilder()
 				.uri(uri)

@@ -2,6 +2,7 @@ package com.example.psoft_22_23_project.subscriptionsmanagement.api;
 
 
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.PlansDetails;
+import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptions;
 import com.example.psoft_22_23_project.subscriptionsmanagement.services.SubscriptionsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,6 +19,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Optional;
 
 @Tag(name = "Subscriptions", description = "Endpoints for managing subscriptions")
 @RestController
@@ -83,6 +85,17 @@ public class SubscriptionsController {
         final PlansDetails plan = service.planDetails();
 
         return ResponseEntity.ok(plansDetailsViewMapper.toPlansDetailsView(plan));
+    }
+    @GetMapping("/external/{user}")
+    public ResponseEntity<SubscriptionsView> getSubsByUserExternal(@PathVariable String user){
+        Optional<Subscriptions> subsOptional = service.findSubByUserExternal(user);
+        if (subsOptional.isPresent()) {
+            Subscriptions subs = subsOptional.get();
+            SubscriptionsView plansView = subscriptionsViewMapper.toSubscriptionView(subs);
+            return ResponseEntity.ok(plansView);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @Operation(summary = "Renew annual subscription")

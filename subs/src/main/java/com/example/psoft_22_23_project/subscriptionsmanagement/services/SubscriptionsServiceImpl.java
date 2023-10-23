@@ -48,9 +48,12 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
     private final SubscriptionsRepository repository;
     private final CreateSubscriptionsMapper createSubscriptionsMapper;
 
-
     @Override
-    public Optional<Subscriptions> findSubByUserAndPlan(String planName, String user) {
+    public Optional<Subscriptions> findSubByUserExternal(String user) {
+        return repository.findByActiveStatus_ActiveAndUser(true, user);
+    }
+    @Override
+    public Optional<Subscriptions> findSubByUser( String user) {
         return repository.findByActiveStatus_ActiveAndUser(true, user);
     }
 

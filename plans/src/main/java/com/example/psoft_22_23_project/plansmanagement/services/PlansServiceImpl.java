@@ -87,6 +87,12 @@ public class PlansServiceImpl implements PlansService {
 		return planslocal;
 	}
 
+	@Override
+	public Iterable<Plans> findAtiveExternal(){
+		Iterable<Plans> planslocal = repository.findByActive_Active(true);
+		return planslocal;
+	}
+
 	private Iterable<Plans> addPlanToIterable(Iterable<Plans> plans, Plans newPlan) {
 		if (plans instanceof List) {
 			List<Plans> planList = new ArrayList<>((List<Plans>) plans);
@@ -116,7 +122,7 @@ public class PlansServiceImpl implements PlansService {
 			return plans;
 		}
 
-		HttpResponse<String> plan = repository.findPlanFromOtherAPI(planName);
+		HttpResponse<String> plan = repository.getPlansFromOtherAPI(planName);
 		if (plan.statusCode() == 200) {
 			JSONObject jsonArray = new JSONObject(plan.body());
 
@@ -139,6 +145,10 @@ public class PlansServiceImpl implements PlansService {
 		}
 
     }
+
+	public Optional<Plans> getPlanByNameExternal(String planName) {
+		return repository.findByName_Name(planName);
+	}
 	@Override
 	public Plans create(CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException {
 		Optional<Plans> plans = repository.findByName_Name(resource.getName());
