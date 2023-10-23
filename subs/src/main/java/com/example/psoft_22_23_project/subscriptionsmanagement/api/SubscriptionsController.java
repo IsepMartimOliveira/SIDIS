@@ -64,7 +64,7 @@ public class SubscriptionsController {
 
     @Operation(summary = "Cancel a subscription")
     @PatchMapping
-    public ResponseEntity<SubscriptionsView> cancelSubscription(final WebRequest request) {
+    public ResponseEntity<SubscriptionsView> cancelSubscription(final WebRequest request) throws URISyntaxException, IOException, InterruptedException {
         final String ifMatchValue = request.getHeader("If-Match");
         if (ifMatchValue == null || ifMatchValue.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,

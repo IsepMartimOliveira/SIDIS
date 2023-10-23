@@ -18,7 +18,7 @@ public interface SubscriptionsService {
     //void delete(Long id);
     Optional<Subscriptions> findSubByUserAndPlan(String planName, String user);
 
-    Subscriptions cancelSubscription(long desiredVersion);
+    Subscriptions cancelSubscription(long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
 
     Subscriptions renewAnualSubscription(long desiredVersion);
 
