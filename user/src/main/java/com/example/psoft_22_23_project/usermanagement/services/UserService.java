@@ -21,14 +21,10 @@
 package com.example.psoft_22_23_project.usermanagement.services;
 
 import com.example.psoft_22_23_project.exceptions.ConflictException;
-import com.example.psoft_22_23_project.filestoragemanagement.service.FileStorageService;
 import com.example.psoft_22_23_project.usermanagement.api.UserEditMapper;
 import com.example.psoft_22_23_project.usermanagement.api.UserMapperInverse;
 import com.example.psoft_22_23_project.usermanagement.api.UserRequest;
-import com.example.psoft_22_23_project.usermanagement.api.UserViewMapper;
 import com.example.psoft_22_23_project.usermanagement.model.User;
-import com.example.psoft_22_23_project.usermanagement.repositories.UserImageRepository;
-import com.example.psoft_22_23_project.usermanagement.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -48,26 +44,21 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 
-	private final UserRepository userRepo;
-	private final UserViewMapper userViewMapper;
 	private final PasswordEncoder passwordEncoder;
 	private final UserEditMapper userEditMapper;
-	private UserMapperInverse userMapperInverse;
-	private final UserRepository userRepository;
-
-	private final UserImageRepository userImageRepository;
-	private final FileStorageService fileStorageService;
+	private final RepoManager repoManager;
+	private final UserMapperInverse userMapperInverse;
 
 	@Transactional
-	public User create(final CreateUserRequest request) throws IOException, InterruptedException, URISyntaxException {
+	public User create(final CreateUserRequest request) throws URISyntaxException, IOException, InterruptedException {
 
-		Optional<User> user2 = userRepository.findByUsername(request.getUsername());
+		Optional<User> user2 = repoManager.findByUsername(request.getUsername());
 
 		if (user2.isPresent()) {
 			throw new ConflictException("Username already exists locally!");
 		}
 
-		HttpResponse<String> response = userRepository.getUserFromOtherAPI(request.getUsername());
+		HttpResponse<String> response = repoManager.getUserFromOtherAPI(request.getUsername());
 
 		if (response.statusCode() == 200) {
 			throw new IllegalArgumentException("Username with name " + request.getUsername() + " already exists on another machine!");
@@ -83,7 +74,7 @@ public class UserService implements UserDetailsService {
 		final User user = userEditMapper.create(request);
 		user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-		return userRepo.save(user);
+		return repoManager.save(user);
 	}
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -92,16 +83,16 @@ public class UserService implements UserDetailsService {
 
 	public Iterable<User> findAll() {
 
-		return userRepository.findAll();
+		return repoManager.findAll();
 
 	}
 	public Optional<User> getUserByName(String username) throws URISyntaxException, IOException, InterruptedException {
 
-		Optional<User> user = userRepository.findByUsername(username);
+		Optional<User> user = repoManager.findByUsername(username);
 		if (user.isPresent()) {
 			return user;
 		}else {
-			HttpResponse<String> plan = userRepository.getUserFromOtherAPI(username);
+			HttpResponse<String> plan = repoManager.getUserFromOtherAPI(username);
 			if (plan.statusCode() == 200){
 				JSONObject jsonArray = new JSONObject(plan.body());
 
@@ -114,7 +105,7 @@ public class UserService implements UserDetailsService {
 	}
 
 	public Optional<User> getUserByNameExternal(String username){
-		Optional<User> user = userRepository.findByUsername(username);
+		Optional<User> user = repoManager.findByUsername(username);
 		return user;
 
 	}

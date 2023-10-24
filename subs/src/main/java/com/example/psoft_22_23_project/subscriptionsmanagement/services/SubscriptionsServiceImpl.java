@@ -3,7 +3,6 @@ package com.example.psoft_22_23_project.subscriptionsmanagement.services;
 import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreateSubscriptionsRequest;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.PlansDetails;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptions;
-import com.example.psoft_22_23_project.subscriptionsmanagement.repositories.SubscriptionsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.json.JSONObject;
@@ -22,37 +21,32 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class SubscriptionsServiceImpl implements SubscriptionsService {
+
+    private final RepoManager repoManager;
+    private final CreateSubscriptionsMapper createSubscriptionsMapper;
     @Override
     public Iterable<Subscriptions> findAll() {
         return null;
     }
-
-
-
-
-
 
     @Override
     public void migrateAllToPlan(long desiredVersion, String actualPlan, String newPlan) {
 
     }
 
-    private final SubscriptionsRepository repository;
-    private final CreateSubscriptionsMapper createSubscriptionsMapper;
-
     @Override
     public Optional<Subscriptions> findSubByUserExternal(String user) {
-        return repository.findByActiveStatus_ActiveAndUser(true, user);
+        return repoManager.findByActiveStatus_ActiveAndUser(true, user);
     }
     @Override
     public Optional<Subscriptions> findSubByUser( String user) {
-        return repository.findByActiveStatus_ActiveAndUser(true, user);
+        return repoManager.findByActiveStatus_ActiveAndUser(true, user);
     }
 
     @Override
     public Subscriptions create(final CreateSubscriptionsRequest resource) throws URISyntaxException, IOException, InterruptedException {
 
-        HttpResponse<String> plan = repository.getPlansFromOtherAPI(resource.getName());
+        HttpResponse<String> plan = repoManager.getPlansFromOtherAPI(resource.getName());
 
         if (plan.statusCode() == 200) {
             JSONObject jsonArray = new JSONObject(plan.body());
@@ -69,20 +63,20 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
                 newString = username;
             }
 
-            HttpResponse<String> user = repository.getUserFromOtherAPI(newString);
+            HttpResponse<String> user = repoManager.getUserFromOtherAPI(newString);
 
             if (user.statusCode() == 200) {
-                Optional<Subscriptions> existingSubscription = repository.findByActiveStatus_ActiveAndUser(true, newString);
+                Optional<Subscriptions> existingSubscription = repoManager.findByActiveStatus_ActiveAndUser(true, newString);
 
                 if (existingSubscription.isPresent()) {
                     if (existingSubscription.get().getActiveStatus().isActive()) {
                         throw new IllegalArgumentException("You need to let your active subscription end in order to subscribe, locally ");
                     }
                 } else {
-                    HttpResponse<String> existingSubscription2 = repository.getSubsFromOtherApi(newString);
+                    HttpResponse<String> existingSubscription2 = repoManager.getSubsFromOtherApi(newString);
                     if (existingSubscription2.statusCode() == 404) {
                         Subscriptions obj = createSubscriptionsMapper.create(newString, jsonArray.getString("name"), resource);
-                        return repository.save(obj);
+                        return repoManager.save(obj);
                     } else
                         throw new IllegalArgumentException("You need to let your active subscription end in order to subscribe, not locally ");
                 }
@@ -106,17 +100,17 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
             newString = username;
         }
         //buscar user
-        HttpResponse<String> user = repository.getUserFromOtherAPI(newString);
+        HttpResponse<String> user = repoManager.getUserFromOtherAPI(newString);
 
 
         JSONObject jsonArray = new JSONObject(user.body());
         //ver se user existe
         if (user.statusCode() == 200) {
             // buscar subs do user localmente
-            Optional<Subscriptions> subscription = repository.findByActiveStatus_ActiveAndUser(true, jsonArray.getString("username"));
+            Optional<Subscriptions> subscription = repoManager.findByActiveStatus_ActiveAndUser(true, jsonArray.getString("username"));
 
             if (subscription.isPresent()) {
-                HttpResponse<String> plan = repository.getPlansFromOtherAPI(subscription.get().getPlan());
+                HttpResponse<String> plan = repoManager.getPlansFromOtherAPI(subscription.get().getPlan());
                 JSONObject planjsonArray = new JSONObject(plan.body());
                 if (plan.statusCode() == 200) {
                     return new PlansDetails(planjsonArray.getString("name"),
@@ -132,11 +126,11 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
 
                 }
             } else {
-                HttpResponse<String> existingSubscription2 = repository.getSubsFromOtherApi(jsonArray.getString("username"));
+                HttpResponse<String> existingSubscription2 = repoManager.getSubsFromOtherApi(jsonArray.getString("username"));
                 JSONObject planjsonArray2 = new JSONObject(existingSubscription2.body());
 
                 if (existingSubscription2.statusCode() == 200) {
-                    HttpResponse<String> plan = repository.getPlansFromOtherAPI(planjsonArray2.getString("planName"));
+                    HttpResponse<String> plan = repoManager.getPlansFromOtherAPI(planjsonArray2.getString("planName"));
                     JSONObject planjsonArray = new JSONObject(plan.body());
                     return new PlansDetails(planjsonArray.getString("name"),
                             planjsonArray.getString("description"),
@@ -168,9 +162,9 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
             newString = username;
         }
 
-        HttpResponse<String> user = repository.getUserFromOtherAPI(newString);
+        HttpResponse<String> user = repoManager.getUserFromOtherAPI(newString);
         if (user.statusCode() == 200) {
-            Optional<Subscriptions> existingSubscription = repository.findByActiveStatus_ActiveAndUser(true, newString);
+            Optional<Subscriptions> existingSubscription = repoManager.findByActiveStatus_ActiveAndUser(true, newString);
             if (existingSubscription.isPresent()) {
                 Subscriptions subscription = existingSubscription.get();
                 subscription.deactivate(desiredVersion);
@@ -201,10 +195,10 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
                         }
                     }
                 }
-                return repository.save(subscription);
+                return repoManager.save(subscription);
 
             } else {
-                HttpResponse<String> existingSubscription2 = repository.getSubsFromOtherApi(newString);
+                HttpResponse<String> existingSubscription2 = repoManager.getSubsFromOtherApi(newString);
                 if (existingSubscription2.statusCode() == 200) {
                     throw new IllegalArgumentException("The subscription you want to cancel exists on another machine");
 
@@ -233,9 +227,9 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
             newString = username;
         }
 
-        HttpResponse<String> user = repository.getUserFromOtherAPI(newString);
+        HttpResponse<String> user = repoManager.getUserFromOtherAPI(newString);
         if (user.statusCode() == 200) {
-            Optional<Subscriptions> existingSubscription = repository.findByActiveStatus_ActiveAndUser(true, newString);
+            Optional<Subscriptions> existingSubscription = repoManager.findByActiveStatus_ActiveAndUser(true, newString);
             if (existingSubscription.isPresent()) {
                 Subscriptions subscription = existingSubscription.get();
                 if (Objects.equals(subscription.getPaymentType().getPaymentType(), "monthly")) {
@@ -251,10 +245,10 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
 
                     subscription.getEndDate().setEndDate(String.valueOf(endDate.plusYears(1)));
                 }
-                return repository.save(subscription);
+                return repoManager.save(subscription);
 
             } else {
-                HttpResponse<String> existingSubscription2 = repository.getSubsFromOtherApi(newString);
+                HttpResponse<String> existingSubscription2 = repoManager.getSubsFromOtherApi(newString);
                 if (existingSubscription2.statusCode() == 200) {
                     throw new IllegalArgumentException("The subscription you want to renew exists on another machine");
 
@@ -283,13 +277,13 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         }
 
 
-        HttpResponse<String> user = repository.getUserFromOtherAPI(newString);
+        HttpResponse<String> user = repoManager.getUserFromOtherAPI(newString);
         if(user.statusCode()==200){
-            Optional<Subscriptions> existingSubscription = repository.findByActiveStatus_ActiveAndUser(true, newString);
+            Optional<Subscriptions> existingSubscription = repoManager.findByActiveStatus_ActiveAndUser(true, newString);
             if (existingSubscription.isPresent()) {
                 Subscriptions subscription = existingSubscription.get();
-                HttpResponse<String> plan = repository.getPlansFromOtherAPI(name);
-                HttpResponse<String> plan2 = repository.getPlansFromOtherAPI(subscription.getPlan());
+                HttpResponse<String> plan = repoManager.getPlansFromOtherAPI(name);
+                HttpResponse<String> plan2 = repoManager.getPlansFromOtherAPI(subscription.getPlan());
                 JSONObject initialPlan=new JSONObject(plan2.body());
                 JSONObject jsonArray = new JSONObject(plan.body());
                 if(Objects.equals(initialPlan.getString("name"), jsonArray.getString("name"))){
@@ -298,12 +292,12 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
                 if (plan.statusCode() == 200 ) {
 
                     subscription.changePlan(desiredVersion, jsonArray.getString("name"));
-                    return repository.save(subscription);
+                    return repoManager.save(subscription);
                 }
 
 
             }else{
-                HttpResponse<String> existingSubscription2 = repository.getSubsFromOtherApi(newString);
+                HttpResponse<String> existingSubscription2 = repoManager.getSubsFromOtherApi(newString);
                 if (existingSubscription2.statusCode() == 200) {
                     throw new IllegalArgumentException("The subscription you want to change exists on another machine");
 

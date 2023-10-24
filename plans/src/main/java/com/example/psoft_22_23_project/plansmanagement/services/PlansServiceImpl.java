@@ -24,7 +24,6 @@ import com.example.psoft_22_23_project.plansmanagement.api.*;
 import com.example.psoft_22_23_project.plansmanagement.model.FeeRevision;
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 import com.example.psoft_22_23_project.plansmanagement.model.PromotionResult;
-import com.example.psoft_22_23_project.plansmanagement.repositories.PlansRepository;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
@@ -49,25 +48,21 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class PlansServiceImpl implements PlansService {
-	private final PlansRepository repository;
-	//private final SubscriptionsRepository subscriptionsRepository;
-
+	private final RepoManager repoManager;
 	private final CreatePlansMapper createPlansMapper;
 	private final PlansMapperInverse plansMapperInverse;
 	@Value("${server.port}")
 	private int currentPort;
-
-
 	@Override
 	public Iterable<Plans> findAtive() throws URISyntaxException, IOException, InterruptedException {
-		Iterable<Plans> planslocal = repository.findByActive_Active(true);
+		Iterable<Plans> planslocal = repoManager.findByActive_Active();
 
-		HttpResponse<String> plansfora = repository.getPlansFromOtherAPI();
+		HttpResponse<String> plansfora = repoManager.getPlansFromOtherAPI();
 
 		JSONArray jsonArray = new JSONArray(plansfora.body());
 
 		for (int i = 0; i < jsonArray.length(); i++) {
-			if (repository.findByName_Name(jsonArray.getJSONObject(i).getString("name")).isEmpty()){
+			if (repoManager.findByName_Name(jsonArray.getJSONObject(i).getString("name")).isEmpty()){
 				PlanRequest newPlan = new PlanRequest(
 						jsonArray.getJSONObject(i).getString("name"),
 						jsonArray.getJSONObject(i).getString("description"),
@@ -89,7 +84,7 @@ public class PlansServiceImpl implements PlansService {
 
 	@Override
 	public Iterable<Plans> findAtiveExternal(){
-		Iterable<Plans> planslocal = repository.findByActive_Active(true);
+		Iterable<Plans> planslocal = repoManager.findByActive_Active();
 		return planslocal;
 	}
 
@@ -103,7 +98,7 @@ public class PlansServiceImpl implements PlansService {
 	}
 	@Override
 	public List<FeeRevision> history(final String name) {
-		Optional<Plans> plans = repository.findByName_Name(name);
+		Optional<Plans> plans = repoManager.findByName_Name(name);
 
 		if (plans.isPresent()) {
 			Plans plans1 = plans.get();
@@ -116,13 +111,13 @@ public class PlansServiceImpl implements PlansService {
 
 	public Optional<Plans> getPlanByName(String planName) throws URISyntaxException, IOException, InterruptedException {
 
-		Optional<Plans> plans = repository.findByName_Name(planName);
+		Optional<Plans> plans = repoManager.findByName_Name(planName);
 
 		if (plans.isPresent()) {
 			return plans;
 		}
 
-		HttpResponse<String> plan = repository.getPlansFromOtherAPI(planName);
+		HttpResponse<String> plan = repoManager.getPlansFromOtherAPI(planName);
 		if (plan.statusCode() == 200) {
 			JSONObject jsonArray = new JSONObject(plan.body());
 
@@ -147,18 +142,18 @@ public class PlansServiceImpl implements PlansService {
     }
 
 	public Optional<Plans> getPlanByNameExternal(String planName) {
-		return repository.findByName_Name(planName);
+		return repoManager.findByName_Name(planName);
 	}
 	@Override
 	public Plans create(CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException {
-		Optional<Plans> plans = repository.findByName_Name(resource.getName());
+		Optional<Plans> plans = repoManager.findByName_Name(resource.getName());
 		if (plans.isPresent()) {
 			throw new IllegalArgumentException("Plan with name " + resource.getName() + " already exists locally!");
 		}
-		HttpResponse<String> response = repository.getPlansFromOtherAPI(resource.getName());
+		HttpResponse<String> response = repoManager.getPlansFromOtherAPI(resource.getName());
 		if(response.statusCode() == 404){
 			Plans obj = createPlansMapper.create(resource);
-			return repository.save(obj);
+			return repoManager.save(obj);
 
 		}else {
 			throw new IllegalArgumentException("Plan with name " + resource.getName() + " already exists on another machine!");
@@ -173,23 +168,23 @@ public class PlansServiceImpl implements PlansService {
 	public Plans partialUpdate(final String name, final EditPlansRequest resource, final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
 
 		//encontrar plano localmente
-		final Optional<Plans> plans = repository.findByName_Name(name);
+		final Optional<Plans> plans = repoManager.findByName_Name(name);
 				//.orElseThrow(() -> new IllegalArgumentException("Plan with name " + name + " doesn't exists locally!"));
 		if (plans.isPresent()){
 			Plans plans1 = plans.get();
 			plans1.updateData(desiredVersion, resource.getDescription(),
 					resource.getMaximumNumberOfUsers(), resource.getNumberOfMinutes(),
 					resource.getMusicCollection(), resource.getMusicSuggestion(), resource.getActive(), resource.getPromoted());
-			return repository.save(plans1);
+			return repoManager.save(plans1);
 		}
 
-		HttpResponse<String> response = repository.getPlansFromOtherAPI(name);
+		HttpResponse<String> response = repoManager.getPlansFromOtherAPI(name);
 
 		if (response.statusCode() == 200) {
 
 			Gson gson = new Gson();
 			String json = gson.toJson(resource);
-			HttpResponse<String> responses = repository.doPlansPatchAPI(name,desiredVersion,json);
+			HttpResponse<String> responses = repoManager.doPlansPatchAPI(name,desiredVersion,json);
 
 
 			if (responses.statusCode() == 500){
@@ -212,7 +207,7 @@ public class PlansServiceImpl implements PlansService {
 
 	@Override
 	public Plans moneyUpdate(final String name, final EditPlanMoneyRequest resource, final long desiredVersion)throws URISyntaxException, IOException, InterruptedException {
-		final Optional<Plans> plans = repository.findByName_Name(name);
+		final Optional<Plans> plans = repoManager.findByName_Name(name);
 
 
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -229,15 +224,15 @@ public class PlansServiceImpl implements PlansService {
 		if(plans.isPresent()){
 			Plans plans1 = plans.get();
 			plans1.moneyData(desiredVersion, resource.getAnnualFee(), resource.getMonthlyFee(), newString);
-			return repository.save(plans1);
+			return repoManager.save(plans1);
 
 		}
-		HttpResponse<String> response = repository.getPlansFromOtherAPI(name);
+		HttpResponse<String> response = repoManager.getPlansFromOtherAPI(name);
 
 		if(response.statusCode()==200){
 			Gson gson = new Gson();
 			String json = gson.toJson(resource);
-			HttpResponse<String> responses = repository.doPlansPatchMoneyAPI(name,desiredVersion,json);
+			HttpResponse<String> responses = repoManager.doPlansPatchMoneyAPI(name,desiredVersion,json);
 
 
 			if (responses.statusCode() == 500){
@@ -264,23 +259,23 @@ public class PlansServiceImpl implements PlansService {
 
 	@Override
 	public Plans deactivate(final String name, final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
-		final Optional<Plans> plans = repository.findByName_Name(name);
+		final Optional<Plans> plans = repoManager.findByName_Name(name);
 		if(plans.isPresent()){
 			Plans plans1 = plans.get();
 			if(!plans1.getActive().getActive()){
 				throw new IllegalArgumentException("Plan with name " + name + " is already deactivate");
 			}
 			plans1.deactivate(desiredVersion);
-			return repository.save(plans1);
+			return repoManager.save(plans1);
 
 		}
 
-		HttpResponse<String> response = repository.getPlansFromOtherAPI(name);
+		HttpResponse<String> response = repoManager.getPlansFromOtherAPI(name);
 
 
 		if (response.statusCode() == 200) {
 			Gson gson = new Gson();
-			HttpResponse<String> responses=repository.doPlansPatchDeactivate(name,desiredVersion);
+			HttpResponse<String> responses=repoManager.doPlansPatchDeactivate(name,desiredVersion);
 
 
 			if (responses.statusCode() == 500){
@@ -304,7 +299,7 @@ public class PlansServiceImpl implements PlansService {
 	@Override
 	public PromotionResult promote(final String name, final long desiredVersion) throws IOException, InterruptedException, URISyntaxException {
 		// Find the plan
-		final Optional<Plans> plans = repository.findByName_Name(name);
+		final Optional<Plans> plans = repoManager.findByName_Name(name);
 		if(plans.isPresent()){
 			Plans plans1 = plans.get();
 			if (!plans1.getActive().getActive()) {
@@ -317,15 +312,15 @@ public class PlansServiceImpl implements PlansService {
 			}
 
 			PromotionResult result = new PromotionResult();
-			final Optional<Plans> existingPlan = repository.findByPromoted_Promoted(true);
+			final Optional<Plans> existingPlan = repoManager.findByPromoted_Promoted(true);
 			existingPlan.ifPresent(existingPromotedPlan -> {
 				existingPromotedPlan.getPromoted().setPromoted(false);
 				result.setPreviousPromotedPlan(existingPromotedPlan);
 			});
 
 			plans1.promote(desiredVersion);
-			result.setNewPromotedPlan(repository.save(plans1));
-			existingPlan.ifPresent(repository::save);
+			result.setNewPromotedPlan(repoManager.save(plans1));
+			existingPlan.ifPresent(repoManager::save);
 			return result;
 		}
 		int otherPort = (currentPort == 8081) ? 8090 : 8081;
@@ -385,7 +380,7 @@ public class PlansServiceImpl implements PlansService {
 	@Transactional
 	public int cease(String name, final long desiredVersion) {
 		// Retrieve the plan by name
-		Plans plans = repository.findByName_Name(name)
+		Plans plans = repoManager.findByName_Name(name)
 				.orElseThrow(() -> new EntityNotFoundException("Plan not found with name " + name));
 
 		// Check if it's inactive and not promoted
@@ -399,11 +394,11 @@ public class PlansServiceImpl implements PlansService {
 		//}
 
 		// Perform the soft deletion if the version matches
-		return repository.ceaseByPlan(plans, desiredVersion);
+		return repoManager.ceaseByPlan(plans, desiredVersion);
 	}
 
-	public Optional<Plans>getPlanByActiveAndPromoted(Boolean active,String name,Boolean promoted){return repository.findByActive_ActiveAndName_Name_AndPromoted_Promoted(active,name,promoted);}
-	public Optional<Plans> getPlanByActive(Boolean active,String name){return  repository.findByActive_ActiveAndName_Name(active,name);}
+	public Optional<Plans>getPlanByActiveAndPromoted(Boolean active,String name,Boolean promoted){return repoManager.findByActive_ActiveAndName_Name_AndPromoted_Promoted(active,name,promoted);}
+	public Optional<Plans> getPlanByActive(Boolean active,String name){return  repoManager.findByActive_ActiveAndName_Name(active,name);}
 
 
 
