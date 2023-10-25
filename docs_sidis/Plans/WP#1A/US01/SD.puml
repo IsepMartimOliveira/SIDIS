@@ -17,7 +17,7 @@ participant ":PlansRepositoryCustomImpl" as RepoHTTP
 Ac -> Ctrl : POST /plans
 Ctrl -> Serv :Plans plans = create(CreatePlanRequest resource)
 Serv -> Repo :Optional<Plans> plans = findByName_Name(resource.getName())
-Repo --> Serv : plans
+Repo --> Serv : plans.isEmpty
 Serv->RepoHTTP:getPlansFromOtherAPI(resource.getName())
 RepoHTTP-->Serv: HTTP 404
 note left
@@ -29,7 +29,7 @@ IllegalArgumentException
 
 2)Server does and HTTP call
 to another plan instance
-If it doesn´t exist on other instance
+If it doesn´t exist on the other instance
 Returns 404
 end note
 Serv -> Mapper :Plans plan  = create(resource)
