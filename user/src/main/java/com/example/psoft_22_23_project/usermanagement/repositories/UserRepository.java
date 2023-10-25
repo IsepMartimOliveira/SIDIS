@@ -23,6 +23,8 @@ package com.example.psoft_22_23_project.usermanagement.repositories;
 
 import com.example.psoft_22_23_project.exceptions.NotFoundException;
 import com.example.psoft_22_23_project.usermanagement.model.User;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -31,19 +33,25 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Optional;
 
 @Repository
 @CacheConfig(cacheNames = "users")
 @Configuration
-public interface UserRepository extends  CrudRepository<User, Long> {
+public interface UserRepository extends  UserRepositoryDB,UserRepoHttp{
 
+}
+interface UserRepositoryDB extends CrudRepository<User,Long>{
 	@Override
 	@Caching(evict = { @CacheEvict(key = "#p0.id", condition = "#p0.id != null"),
 			@CacheEvict(key = "#p0.username", condition = "#p0.username != null") })
 	<S extends User> S save(S entity);
-
-
 	@Override
 	@Cacheable
 	Optional<User> findById(Long objectId);
@@ -53,10 +61,39 @@ public interface UserRepository extends  CrudRepository<User, Long> {
 		// throws 404 Not Found if the user does not exist or is not enabled
 		return maybeUser.filter(User::isEnabled).orElseThrow(() -> new NotFoundException(User.class, id));
 	}
-
 	@Cacheable
 	Optional<User> findByUsername(String username);
 }
+interface UserRepoHttp {
+	HttpResponse<String> getUserFromOtherAPI(String name) throws URISyntaxException, IOException, InterruptedException;
+}
+@RequiredArgsConstructor
+class UserRepoHttpImpl implements UserRepoHttp {
+	// 82 91 subs
+	// 81 90 plans
+	// 83 92 users
+	@Value("${server.port}")
+	private int currentPort;
+	@Override
+	public HttpResponse<String> getUserFromOtherAPI(String name) throws URISyntaxException, IOException, InterruptedException {
+
+		int otherPort = (currentPort == 8083) ? 8092 : 8083;
+		URI uri = new URI("http://localhost:" + otherPort + "/api/user/external/" + name);
+
+		HttpRequest request = HttpRequest.newBuilder()
+				.uri(uri)
+				.GET()
+				.build();
+
+		HttpClient client = HttpClient.newHttpClient();
+
+		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+		return response;
+
+	}
+}
+
 
 
 

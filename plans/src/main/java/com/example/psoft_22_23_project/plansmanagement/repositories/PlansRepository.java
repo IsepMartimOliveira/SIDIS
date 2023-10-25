@@ -21,7 +21,8 @@
 package com.example.psoft_22_23_project.plansmanagement.repositories;
 
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
-import org.springframework.cache.annotation.CacheConfig;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -30,24 +31,142 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Optional;
 
 @Repository
 @Configuration
-@CacheConfig(cacheNames = "plans")
-public interface PlansRepository extends CrudRepository<Plans, Long> {
+public interface PlansRepository extends PlansRepositoryDB,PlansRepoHttpCustom{
+
+}
+interface PlansRepositoryDB extends CrudRepository<Plans,Long> {
 	Optional<Plans> findByName_Name(@NotNull String name);
-	Optional<Plans> findByActive_ActiveAndName_Name_AndPromoted_Promoted(@NotNull boolean active, @NotNull String name_name,@NotNull boolean promoted);
+
+	Optional<Plans> findByActive_ActiveAndName_Name_AndPromoted_Promoted(@NotNull boolean active, @NotNull String name_name, @NotNull boolean promoted);
+
 	Optional<Plans> findByActive_ActiveAndName_Name(@NotNull boolean active, @NotNull String name_name);
+
 	Iterable<Plans> findByActive_Active(@NotNull boolean active);
+
 	Optional<Plans> findByActive_Active_(@NotNull boolean active);
+
 	Optional<Plans> findByPromoted_Promoted(@NotNull boolean promoted);
 	@Modifying
 	@Query("UPDATE Plans p SET p.deleted = true WHERE p = :plan AND p.version = :desiredVersion")
 	int ceaseByPlan(@Param("plan") Plans plan, @Param("desiredVersion") long desiredVersion);
-
 }
 
+interface PlansRepoHttpCustom{
+	HttpResponse<String> getPlansFromOtherAPI(String name) throws URISyntaxException, IOException, InterruptedException;
+	HttpResponse<String> getPlansFromOtherAPI() throws URISyntaxException, IOException, InterruptedException;
+
+	HttpResponse<String> doPlansPatchAPI(String name, final long desiredVersion, String json) throws URISyntaxException, IOException, InterruptedException;
+	HttpResponse<String> doPlansPatchMoneyAPI(String name, final long desiredVersion, String json)throws URISyntaxException, IOException, InterruptedException;
+	HttpResponse<String> doPlansPatchDeactivate(String name, final long desiredVersion)throws URISyntaxException, IOException, InterruptedException;
+
+
+}
+@RequiredArgsConstructor
+@Configuration
+class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
+	@Value("${server.port}")
+	private int currentPort;
+	@Override
+	public HttpResponse<String> getPlansFromOtherAPI(String name) throws URISyntaxException, IOException, InterruptedException {
+
+		int otherPort = (currentPort == 8081) ? 8090 : 8081;
+		URI uri = new URI("http://localhost:" + otherPort + "/api/plans/external/" + name);
+
+		HttpRequest request = HttpRequest.newBuilder()
+				.uri(uri)
+				.GET()
+				.build();
+
+		HttpClient client = HttpClient.newHttpClient();
+
+		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+		return response;
+
+	}
+
+
+	@Override
+	public HttpResponse<String> getPlansFromOtherAPI() throws URISyntaxException, IOException, InterruptedException {
+
+		int otherPort = (currentPort == 8081) ? 8090 : 8081;
+		URI uri = new URI("http://localhost:" + otherPort + "/api/plans/external");
+
+		HttpRequest request = HttpRequest.newBuilder()
+				.uri(uri)
+				.GET()
+				.build();
+
+		HttpClient client = HttpClient.newHttpClient();
+
+		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+		return response;
+
+	}
+
+	@Override
+	public HttpResponse<String> doPlansPatchMoneyAPI(String name, final long desiredVersion, String json) throws URISyntaxException, IOException, InterruptedException {
+		int otherPort = (currentPort == 8081) ? 8090 : 8081;
+		String apiUrl = "http://localhost:" + otherPort + "/api/plans/updateMoney/" + name;
+		HttpRequest requestpatch = HttpRequest.newBuilder()
+				.uri(URI.create(apiUrl))
+				.header("Content-Type", "application/json")
+				.header("if-match", Long.toString(desiredVersion))
+				.method("PATCH", HttpRequest.BodyPublishers.ofString(json))
+				.build();
+		HttpClient httpClient = HttpClient.newHttpClient();
+		HttpResponse<String> responses = httpClient.send(requestpatch, HttpResponse.BodyHandlers.ofString());
+
+		return responses;
+
+	}
+
+	@Override
+	public HttpResponse<String> doPlansPatchAPI(String name, final long desiredVersion, String json) throws URISyntaxException, IOException, InterruptedException {
+		int otherPort = (currentPort == 8081) ? 8090 : 8081;
+		String apiUrl = "http://localhost:" + otherPort + "/api/plans/update/" + name;
+
+		HttpRequest requestpatch = HttpRequest.newBuilder()
+				.uri(URI.create(apiUrl))
+				.header("Content-Type", "application/json")
+				.header("if-match", Long.toString(desiredVersion) )
+				.method("PATCH", HttpRequest.BodyPublishers.ofString(json))
+				.build();
+		HttpClient httpClient = HttpClient.newHttpClient();
+		HttpResponse<String> responses = httpClient.send(requestpatch, HttpResponse.BodyHandlers.ofString());
+
+		return responses;
+
+	}
+
+	@Override
+	public HttpResponse<String> doPlansPatchDeactivate(String name, long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
+		int otherPort = (currentPort == 8081) ? 8090 : 8081;
+		String apiUrl = "http://localhost:" + otherPort + "/api/plans/deactivate/" + name;
+
+		HttpRequest requestpatch = HttpRequest.newBuilder()
+				.uri(URI.create(apiUrl))
+				.header("Content-Type", "application/json")
+				.header("if-match", Long.toString(desiredVersion))
+				.method("PATCH", HttpRequest.BodyPublishers.noBody())
+				.build();
+		HttpClient httpClient = HttpClient.newHttpClient();
+		HttpResponse<String> responses = httpClient.send(requestpatch, HttpResponse.BodyHandlers.ofString());
+
+		return responses;
+	}
+}
 
 
 
