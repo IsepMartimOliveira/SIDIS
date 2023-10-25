@@ -2,7 +2,7 @@ package com.example.psoft_22_23_project.usermanagement.repositories;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
 import java.net.URI;
@@ -10,7 +10,7 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-@Configuration
+@Repository
 public interface UserRepoHttp {
     HttpResponse<String> getUserFromOtherAPI(String name) throws URISyntaxException, IOException, InterruptedException;
 }

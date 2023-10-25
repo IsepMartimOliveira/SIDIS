@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.http.HttpResponse;
 import java.util.Optional;
+
 @RequiredArgsConstructor
 @Configuration
 @Getter
@@ -18,6 +19,13 @@ public class RepoManager {
     private final UserRepository userRepository;
 
     private final UserRepoHttp userRepoHttp;
+    public User save(User user) {
+        return userRepository.save(user);
+    }
+
+    public Iterable<User> findAll() {
+        return userRepository.findAll();
+    }
 
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
@@ -25,13 +33,5 @@ public class RepoManager {
 
     public HttpResponse<String> getUserFromOtherAPI(String username) throws URISyntaxException, IOException, InterruptedException {
         return userRepoHttp.getUserFromOtherAPI(username);
-    }
-
-    public User save(User user) {
-        return userRepository.save(user);
-    }
-
-    public Iterable<User> findAll() {
-        return userRepository.findAll();
     }
 }
