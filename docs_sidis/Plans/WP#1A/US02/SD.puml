@@ -1,0 +1,50 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title Sequence Diagram / As marketing director, I want to deactivate a plan
+
+autonumber
+
+actor "Marketing Director" as Ac
+participant ":PlanController" as Ctrl
+participant ":PlansService" as Serv
+participant ":PlansRepository" as Repo
+participant ":Plans" as Plans
+participant ":PlansViewMapper" as View
+participant ":PlansRepositoryCustomImpl" as RepoHTTP
+
+
+Ac -> Ctrl : PATCH /plans/deactivate/{name}
+Ctrl -> Serv :Plans plans = deactivate(String name , long desiredVersion)
+Serv -> Repo :Optional<Plans> plan = findByName_Name(name)
+Repo --> Serv : plan
+alt Check if the Plan exist on other instances
+Serv->RepoHTTP:getPlansFromOtherAPI(resource.getName())
+RepoHTTP-->Serv: HTTP 200
+note left
+1) Service will check if plan exists locally
+2)If it dosen´t exist it will check
+the other instances
+3) If Plan does exist will check if
+it is already deactivate
+
+
+end note
+Serv->RepoHTTP:doPlansPatchDeactivate(name,desiredVersion)
+RepoHTTP-->Serv: HTTP 200
+end
+
+deactivate Plans
+Serv -> Plans: plan.deactivate(desiredVersion)
+
+
+Serv -> Repo: save(plan)
+Repo --> Serv: plan
+Serv --> Ctrl: plan
+Ctrl ->View: toPlansView(plan)
+View -->Ctrl: planView
+
+Ac <-- Ctrl : planView
+
+@enduml

@@ -1,0 +1,49 @@
+@startuml
+'https://plantuml.com/class-diagram
+hide circle
+class PlansRepository <<interface>>
+
+title Class Diagram / As marketing director, I want to deactivate a plan
+
+class Plans{
+    -name
+    - description
+    - numberOfMinutes
+    -maximumNumberOfUsers
+    -musicCollection
+     -musicSuggestion
+     -annualFee
+     -monthlyFee
+     -active
+     -promoted
+     +deactivate(long desiredVersion): void
+}
+class PlansViewMapper{
+    +toPlansView(Plans plans):PlansView
+}
+class PlansController{
+    +deactivate(final WebRequest request,final String name): ResponseEntity<PlansView>
+   }
+class PlansService{
+ +deactivate(String name, long desiredVersion): Plans
+
+}
+interface PlansRepository
+{
++findByName_Name(String name): Optional<Plans>
++save(S entity) : <S extends Plans>
+}
+interface PlansRepositoryCustomImpl
+{
++ getPlansFromOtherAPI(String name)
++ doPlansPatchDeactivate(String name, long desiredVersion)
+}
+
+PlansController ..> PlansService: uses >
+PlansService ..> PlansRepository: uses >
+PlansService ..> PlansRepositoryCustomImpl: uses >
+PlansRepository ..> Plans: < record
+PlansRepositoryCustomImpl ..left>PlansController: HTPP API call >
+PlansService ..> Plans: uses >
+PlansController ..>PlansViewMapper: uses >
+@enduml
