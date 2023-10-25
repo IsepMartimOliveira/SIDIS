@@ -6,12 +6,14 @@ title Software Design Document/ As Marketing director, I want to define a new Pl
 activate MD
 MD -> ":System" : POST /plans
 ":System" --> ":System" : Gets data from Post
+":System" --> ":System" : Validates data
 alt successful case - data is accepted
 activate ":System"
-":System" --> ":System" : Advance to create a Plan
 alt HTPP  API CALL TO ANOTHER PLAN INSTANCE
 ":System" --> ":System" :Returns a  404
 end
+":System" --> ":System" : Advance to create a Plan
+
 ":System" --> MD : Informs operation success
 deactivate ":System"
 
