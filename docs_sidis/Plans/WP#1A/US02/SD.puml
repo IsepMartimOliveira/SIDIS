@@ -19,9 +19,6 @@ Ac -> Ctrl : PATCH /plans/deactivate/{name}
 Ctrl -> Serv :Plans plans = deactivate(String name , long desiredVersion)
 Serv -> Repo :Optional<Plans> plan = findByName_Name(name)
 Repo --> Serv : plan
-alt Check if the Plan exist on other instances
-Serv->RepoHTTP:getPlansFromOtherAPI(resource.getName())
-RepoHTTP-->Serv: HTTP 200
 note left
 1) Service will check if plan exists locally
 2)If it dosen´t exist it will check
@@ -31,6 +28,10 @@ it is already deactivate
 
 
 end note
+alt Check if the Plan exist on other instances if plan==empty
+Serv->RepoHTTP:getPlansFromOtherAPI(resource.getName())
+RepoHTTP-->Serv: HTTP 200
+
 Serv->RepoHTTP:doPlansPatchDeactivate(name,desiredVersion)
 RepoHTTP-->Serv: HTTP 200
 end
