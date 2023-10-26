@@ -5,7 +5,10 @@ title  Software Design Document / As a new customer I want to know all existing 
 
 activate MD
 MD -> ":System" : GET /plans
-":System" -> ":System" : Gets data from databases
+":System" --> ":System" : Gets data from databases
+alt API HTPP call to another instance
+":System"-->":System":Returns all plans in the other machine
+end
 ":System" -> MD: Shows all saved plans
 
 deactivate MD

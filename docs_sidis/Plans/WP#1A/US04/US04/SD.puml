@@ -11,15 +11,29 @@ participant ":PlanController" as Ctrl
 participant ":PlansService" as Serv
 participant ":PlansRepository" as Repo
 participant ":PlansViewMapper" as View
+participant ":PlansMapperInverser" as ViewInverser
+participant ":PlanRequest" as Request
+
 
 Ac -> Ctrl : GET /plans
 Ctrl -> Serv :Iterable<Plans> plans = findActive()
 
 Serv -> Repo :Iterable<Plans> plans = findActive_Active(true)
-Repo --> Serv: plans
-Serv -->Ctrl: plans
+Repo --> Serv: plansLocal
+alt Check other Plan instance
+Serv ->Repo: getPlansFromOtherAPI()
+Repo-->Serv:HTPP 200
+Serv -> Request : Planrequest newPlan
+Request --> Serv: newPlan
+Serv -> ViewInverser : toPlansView(newPlan)
+ViewInverser --> Serv: Plan obj
+end
+Serv->Serv:addPlanToIterable(planLocal,obj)
+Serv -->Ctrl: planslocal
+
 Ctrl ->View: toPlansView(plans)
 View -->Ctrl: plansView
 Ac <-- Ctrl : plansView
+
 
 @enduml
