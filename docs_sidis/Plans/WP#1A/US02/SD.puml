@@ -12,7 +12,9 @@ participant ":PlansService" as Serv
 participant ":PlansRepository" as Repo
 participant ":Plans" as Plans
 participant ":PlansViewMapper" as View
-participant ":PlansRepositoryCustomImpl" as RepoHTTP
+
+participant ":PlansMapperInverser" as ViewInverser
+participant ":PlanRequest" as Request
 
 
 Ac -> Ctrl : PATCH /plans/deactivate/{name}
@@ -29,19 +31,26 @@ it is already deactivate
 
 end note
 alt Check if the Plan exist on other instances if plan==empty
-Serv->RepoHTTP:getPlansFromOtherAPI(resource.getName())
-RepoHTTP-->Serv: HTTP 200
+Serv->Repo:getPlansFromOtherAPI(resource.getName())
+Repo-->Serv: HTTP 200
 
-Serv->RepoHTTP:doPlansPatchDeactivate(name,desiredVersion)
-RepoHTTP-->Serv: HTTP 200
+Serv->Repo:doPlansPatchDeactivate(name,desiredVersion)
+Repo-->Serv: HTTP 200
+Serv -> Request :  gson.fromJson(responses.body(), PlanRequest.class)
+Request-->Serv:PlanRequest planRequest
+Serv -> ViewInverser : toPlansView(planRequest)
+ViewInverser -->Serv: plan
 end
 
 deactivate Plans
+alt If Plan exist in Local Machine
+
 Serv -> Plans: plan.deactivate(desiredVersion)
 
 
 Serv -> Repo: save(plan)
 Repo --> Serv: plan
+end
 Serv --> Ctrl: plan
 Ctrl ->View: toPlansView(plan)
 View -->Ctrl: planView

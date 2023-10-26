@@ -31,7 +31,7 @@ end
 Serv->Serv:addPlanToIterable(planLocal,obj)
 Serv -->Ctrl: planslocal
 
-Ctrl ->View: toPlansView(plans)
+Ctrl ->View: toPlansView(planslocal)
 View -->Ctrl: plansView
 Ac <-- Ctrl : plansView
 

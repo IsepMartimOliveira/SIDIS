@@ -12,6 +12,8 @@ participant ":PlansService" as Serv
 participant ":PlansRepository" as Repo
 participant ":Plans" as Plan
 participant ":PlansViewMapper" as View
+participant ":PlansMapperInverser" as ViewInverser
+participant ":PlanRequest" as Request
 
 
 Ac -> Ctrl : PATCH /plans/update/{name}
@@ -30,13 +32,20 @@ alt Check if the Plan exist on other instances if plan==empty
 Serv->Repo:getPlansFromOtherAPI(resource.getName())
 Repo-->Serv: HTTP 200
 
+
+
 Serv->Repo:doPlansPatchAPI(name,desiredVersion,json)
 Repo-->Serv: HTTP 200
+Serv -> Request :  gson.fromJson(responses.body(), PlanRequest.class)
+Request-->Serv:PlanRequest planRequest
+Serv -> ViewInverser : toPlansView(planRequest)
+ViewInverser -->Serv: plan
 end
-
+alt If Plan exist in Local Machine
 Serv -> Plan :plan.updateData(long desiredVersion, String description,Integer maximumNumberOfUsers,String numberOfMinutes ,Integer musicCollections,String musicSuggestions, Boolean active, Boolean promoted)
 Serv -> Repo: save(plan)
 Repo --> Serv: plan
+end
 Serv --> Ctrl: plan
 Ctrl ->View: toPlansView(plan)
 View -->Ctrl: planView
