@@ -35,13 +35,13 @@ import java.util.Optional;
 
 public interface PlansService {
 
-	Plans create(CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException;
+	Plans create(CreatePlanRequest resource, String auth) throws URISyntaxException, IOException, InterruptedException;
 
-	Plans partialUpdate(String name, EditPlansRequest resource, long parseLong) throws URISyntaxException, IOException, InterruptedException;
+	Plans partialUpdate(String name, EditPlansRequest resource,String auth, long parseLong) throws URISyntaxException, IOException, InterruptedException;
 
-	Plans moneyUpdate(String name, EditPlanMoneyRequest resource, long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
+	Plans moneyUpdate(String name, EditPlanMoneyRequest resource,String auth, long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
 
-	Plans deactivate(String name, long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
+	Plans deactivate(String name, String authorizationToken,long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
 
 	PromotionResult promote(String name, long desiredVersion) throws IOException, InterruptedException, URISyntaxException;
 

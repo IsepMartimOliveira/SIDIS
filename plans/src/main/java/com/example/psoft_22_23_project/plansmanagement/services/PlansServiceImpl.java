@@ -118,7 +118,7 @@ public class PlansServiceImpl implements PlansService {
 			return plans;
 		}
 
-		HttpResponse<String> plan = plansRepository.getPlansFromOtherAPI(planName);
+		HttpResponse<String> plan = plansRepository.getPlansFromOtherAPI(planName,"auth");
 		if (plan.statusCode() == 200) {
 			JSONObject jsonArray = new JSONObject(plan.body());
 
@@ -146,12 +146,12 @@ public class PlansServiceImpl implements PlansService {
 		return plansRepository.findByName_Name(planName);
 	}
 	@Override
-	public Plans create(CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException {
+	public Plans create(CreatePlanRequest resource, String auth) throws URISyntaxException, IOException, InterruptedException {
 		Optional<Plans> plans = plansRepository.findByName_Name(resource.getName());
 		if (plans.isPresent()) {
 			throw new IllegalArgumentException("Plan with name " + resource.getName() + " already exists locally!");
 		}
-		HttpResponse<String> response = plansRepository.getPlansFromOtherAPI(resource.getName());
+		HttpResponse<String> response = plansRepository.getPlansFromOtherAPI(resource.getName(),auth);
 		if(response.statusCode() == 404){
 			Plans obj = createPlansMapper.create(resource);
 			return plansRepository.save(obj);
@@ -166,7 +166,7 @@ public class PlansServiceImpl implements PlansService {
 
 
 	@Override
-	public Plans partialUpdate(final String name, final EditPlansRequest resource, final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
+	public Plans partialUpdate(final String name, final EditPlansRequest resource, String auth ,final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
 
 		//encontrar plano localmente
 		final Optional<Plans> plans = plansRepository.findByName_Name(name);
@@ -179,13 +179,13 @@ public class PlansServiceImpl implements PlansService {
 			return plansRepository.save(plans1);
 		}
 
-		HttpResponse<String> response = plansRepository.getPlansFromOtherAPI(name);
+		HttpResponse<String> response = plansRepository.getPlansFromOtherAPI(name,auth);
 
 		if (response.statusCode() == 200) {
 
 			Gson gson = new Gson();
 			String json = gson.toJson(resource);
-			HttpResponse<String> responses = plansRepository.doPlansPatchAPI(name,desiredVersion,json);
+			HttpResponse<String> responses = plansRepository.doPlansPatchAPI(name,desiredVersion,auth,json);
 
 
 			if (responses.statusCode() == 500){
@@ -207,7 +207,7 @@ public class PlansServiceImpl implements PlansService {
 	}
 
 	@Override
-	public Plans moneyUpdate(final String name, final EditPlanMoneyRequest resource, final long desiredVersion)throws URISyntaxException, IOException, InterruptedException {
+	public Plans moneyUpdate(final String name, final EditPlanMoneyRequest resource,String auth, final long desiredVersion)throws URISyntaxException, IOException, InterruptedException {
 		final Optional<Plans> plans = plansRepository.findByName_Name(name);
 
 
@@ -228,12 +228,12 @@ public class PlansServiceImpl implements PlansService {
 			return plansRepository.save(plans1);
 
 		}
-		HttpResponse<String> response = plansRepository.getPlansFromOtherAPI(name);
+		HttpResponse<String> response = plansRepository.getPlansFromOtherAPI(name,auth);
 
 		if(response.statusCode()==200){
 			Gson gson = new Gson();
 			String json = gson.toJson(resource);
-			HttpResponse<String> responses = plansRepository.doPlansPatchMoneyAPI(name,desiredVersion,json);
+			HttpResponse<String> responses = plansRepository.doPlansPatchMoneyAPI(name,desiredVersion,auth,json);
 
 
 			if (responses.statusCode() == 500){
@@ -259,7 +259,7 @@ public class PlansServiceImpl implements PlansService {
 
 
 	@Override
-	public Plans deactivate(final String name, final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
+	public Plans deactivate(final String name, String authorizationToken,final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
 		final Optional<Plans> plans = plansRepository.findByName_Name(name);
 		if(plans.isPresent()){
 			Plans plans1 = plans.get();
@@ -271,12 +271,12 @@ public class PlansServiceImpl implements PlansService {
 
 		}
 
-		HttpResponse<String> response = plansRepository.getPlansFromOtherAPI(name);
+		HttpResponse<String> response = plansRepository.getPlansFromOtherAPI(name,authorizationToken);
 
 
 		if (response.statusCode() == 200) {
 			Gson gson = new Gson();
-			HttpResponse<String> responses=plansRepository.doPlansPatchDeactivate(name,desiredVersion);
+			HttpResponse<String> responses=plansRepository.doPlansPatchDeactivate(name,authorizationToken,desiredVersion);
 
 
 			if (responses.statusCode() == 500){

@@ -7,7 +7,6 @@ import com.example.psoft_22_23_project.subscriptionsmanagement.repositories.Subs
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.json.JSONObject;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -45,7 +44,7 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
     }
 
     @Override
-    public Subscriptions create(final CreateSubscriptionsRequest resource) throws URISyntaxException, IOException, InterruptedException {
+    public Subscriptions create(final CreateSubscriptionsRequest resource,String auth) throws URISyntaxException, IOException, InterruptedException {
 
         HttpResponse<String> plan = subscriptionsRepository.getPlansFromOtherAPI(resource.getName());
 
@@ -53,9 +52,6 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
             JSONObject jsonArray = new JSONObject(plan.body());
 
             String username = SecurityContextHolder.getContext().getAuthentication().getName();
-            Authentication principal = SecurityContextHolder.getContext().getAuthentication();
-            //token in principal
-
             int commaIndex = username.indexOf(",");
             String newString;
             if (commaIndex != -1) {
@@ -74,7 +70,7 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
                         throw new IllegalArgumentException("You need to let your active subscription end in order to subscribe, locally ");
                     }
                 } else {
-                    HttpResponse<String> existingSubscription2 = subscriptionsRepository.getSubsFromOtherApi(newString);
+                    HttpResponse<String> existingSubscription2 = subscriptionsRepository.getSubsFromOtherApi(newString,auth);
                     if (existingSubscription2.statusCode() == 404) {
                         Subscriptions obj = createSubscriptionsMapper.create(newString, jsonArray.getString("name"), resource);
                         return subscriptionsRepository.save(obj);
@@ -89,7 +85,7 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
 
     @SneakyThrows
     @Override
-    public PlansDetails planDetails() {
+    public PlansDetails planDetails(String auth) {
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -127,7 +123,7 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
 
                 }
             } else {
-                HttpResponse<String> existingSubscription2 = subscriptionsRepository.getSubsFromOtherApi(jsonArray.getString("username"));
+                HttpResponse<String> existingSubscription2 = subscriptionsRepository.getSubsFromOtherApi(jsonArray.getString("username"),auth);
                 JSONObject planjsonArray2 = new JSONObject(existingSubscription2.body());
 
                 if (existingSubscription2.statusCode() == 200) {
@@ -150,7 +146,7 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
     }
 
     @Override
-    public Subscriptions cancelSubscription(final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
+    public Subscriptions cancelSubscription(String auth,final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
 
         // Check if the current user is authorized to cancel the subscription
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -199,7 +195,7 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
                 return subscriptionsRepository.save(subscription);
 
             } else {
-                HttpResponse<String> existingSubscription2 = subscriptionsRepository.getSubsFromOtherApi(newString);
+                HttpResponse<String> existingSubscription2 = subscriptionsRepository.getSubsFromOtherApi(newString,auth);
                 if (existingSubscription2.statusCode() == 200) {
                     throw new IllegalArgumentException("The subscription you want to cancel exists on another machine");
 
@@ -215,7 +211,7 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
     }
 
     @Override
-    public Subscriptions renewAnualSubscription(final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
+    public Subscriptions renewAnualSubscription(String auth,final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
 
         // Check if the current user is authorized to cancel the subscription
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -249,7 +245,7 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
                 return subscriptionsRepository.save(subscription);
 
             } else {
-                HttpResponse<String> existingSubscription2 = subscriptionsRepository.getSubsFromOtherApi(newString);
+                HttpResponse<String> existingSubscription2 = subscriptionsRepository.getSubsFromOtherApi(newString,auth);
                 if (existingSubscription2.statusCode() == 200) {
                     throw new IllegalArgumentException("The subscription you want to renew exists on another machine");
 
@@ -264,7 +260,7 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         throw new IllegalArgumentException("Something is really bad :(");
     }
     @Override
-    public Subscriptions changePlan(final long desiredVersion, final String name) throws URISyntaxException, IOException, InterruptedException {
+    public Subscriptions changePlan(final long desiredVersion, final String name,String auth) throws URISyntaxException, IOException, InterruptedException {
 
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -298,7 +294,7 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
 
 
             }else{
-                HttpResponse<String> existingSubscription2 = subscriptionsRepository.getSubsFromOtherApi(newString);
+                HttpResponse<String> existingSubscription2 = subscriptionsRepository.getSubsFromOtherApi(newString,auth);
                 if (existingSubscription2.statusCode() == 200) {
                     throw new IllegalArgumentException("The subscription you want to change exists on another machine");
 

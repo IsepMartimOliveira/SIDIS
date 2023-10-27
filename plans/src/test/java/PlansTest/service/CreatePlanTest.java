@@ -7,20 +7,17 @@ import com.example.psoft_22_23_project.plansmanagement.services.CreatePlansMappe
 import com.example.psoft_22_23_project.plansmanagement.services.PlansServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 public class CreatePlanTest {
@@ -133,7 +130,7 @@ public class CreatePlanTest {
         when(createPlansMapper.create(Mockito.any(CreatePlanRequest.class))).thenReturn(plan);
 
 
-        Plans plans = plansService.create(request);
+        Plans plans = plansService.create(request,"auth");
 
         assertEquals(plans.getName().getName(), request.getName());
         assertEquals(plans.getDescription().getDescription(), request.getDescription());
@@ -163,7 +160,7 @@ public class CreatePlanTest {
 
         CreatePlanRequest request = new CreatePlanRequest();
         request.setName("Plan");
-        assertThrows(IllegalArgumentException.class, () -> plansService.create(request));
+        assertThrows(IllegalArgumentException.class, () -> plansService.create(request,"auth"));
 
     }
 

@@ -82,7 +82,7 @@ public class DeactivatePlanTest {
     public void deactivateTest(String planName) throws URISyntaxException, IOException, InterruptedException {
         Plans plan = createPlan(planName, true);
         setupMockRepository(planName, plan);
-        Plans plans1 = plansService.deactivate(planName, 0L);
+        Plans plans1 = plansService.deactivate(planName, "auth",0L);
         assertEquals(plan.getActive().getActive(),plans1.getActive().getActive());
     }
 
@@ -91,7 +91,7 @@ public class DeactivatePlanTest {
     public void deactivateTest_InvalidPlan(String planName) {
         when(plansRepository.findByName_Name(planName)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> plansService.deactivate(planName, 0L));
+        assertThrows(IllegalArgumentException.class, () -> plansService.deactivate(planName,"auth", 0L));
     }
 
     @ParameterizedTest
@@ -99,6 +99,6 @@ public class DeactivatePlanTest {
     public void deactivateTest_PlanAlreadyDeac(String planName) {
         Plans plan = createPlan(planName, false);
         setupMockRepository(planName, plan);
-        assertThrows(IllegalArgumentException.class, () -> plansService.deactivate(planName, 0L));
+        assertThrows(IllegalArgumentException.class, () -> plansService.deactivate(planName, "auth",0L));
     }
 }

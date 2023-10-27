@@ -28,6 +28,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -150,9 +151,9 @@ public class PlansController {
 	@Operation(summary = "Creates a new Plan")
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED) public ResponseEntity<PlansView>
-	create(@Valid @RequestBody final CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException {
+	create(@Valid @RequestBody final CreatePlanRequest resource,@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken) throws URISyntaxException, IOException, InterruptedException {
 
-		final Plans plan = service.create(resource);
+		final Plans plan = service.create(resource,authorizationToken);
 		final var newPlanUri =
 				ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(plan.getName().getName()).build() .toUri();
 		return
@@ -171,6 +172,7 @@ public class PlansController {
 	@PatchMapping(value = "/update/{name}")
 	public ResponseEntity<PlansView> partialUpdate(final WebRequest request,
 												 @PathVariable("name") @Parameter(description = "The name of the plan to update") final String name,
+												   @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken,
 												 @Valid @RequestBody final EditPlansRequest resource) throws URISyntaxException, IOException, InterruptedException {
 
 		final String ifMatchValue = request.getHeader("If-Match");
@@ -179,7 +181,7 @@ public class PlansController {
 					"You must issue a conditional PATCH using 'if-match'");
 		}
 
-		final var plans = service.partialUpdate(name, resource, getVersionFromIfMatchHeader(ifMatchValue));
+		final var plans = service.partialUpdate(name, resource, authorizationToken,getVersionFromIfMatchHeader(ifMatchValue));
 		return ResponseEntity.ok().eTag(Long.toString(plans.getVersion())).body(plansViewMapper.toPlansView(plans));
 	}
 
@@ -188,6 +190,7 @@ public class PlansController {
 	@PatchMapping(value = "/updateMoney/{name}")
 	public ResponseEntity<PlansView> moneyUpdate(final WebRequest request,
 												   @PathVariable("name") @Parameter(description = "The name of the plan to update") final String name,
+												 	@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken,
 												   @Valid @RequestBody final EditPlanMoneyRequest resource) throws URISyntaxException, IOException, InterruptedException {
 
 		final String ifMatchValue = request.getHeader("If-Match");
@@ -196,7 +199,7 @@ public class PlansController {
 					"You must issue a conditional PATCH using 'if-match' (1)");
 		}
 
-		final Plans plans = service.moneyUpdate(name, resource, getVersionFromIfMatchHeader(ifMatchValue));
+		final Plans plans = service.moneyUpdate(name, resource, authorizationToken,getVersionFromIfMatchHeader(ifMatchValue));
 		return ResponseEntity.ok().eTag(Long.toString(plans.getVersion())).body(plansViewMapper.toPlansView(plans));
 	}
 
@@ -205,14 +208,15 @@ public class PlansController {
 	@Operation(summary = "Deactivate a plan")
 	@PatchMapping(value = "/deactivate/{name}")
 	public ResponseEntity<PlansView> deactivate(final WebRequest request,
-												@PathVariable("name") @Parameter(description = "The name of the plan to update") final String name) throws URISyntaxException, IOException, InterruptedException {
+												@PathVariable("name") @Parameter(description = "The name of the plan to update") final String name,
+												@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken) throws URISyntaxException, IOException, InterruptedException {
 		final String ifMatchValue = request.getHeader("If-Match");
 		if (ifMatchValue == null || ifMatchValue.isEmpty()) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 					"You must issue a conditional PATCH using 'if-match'");
 		}
 
-		final var plans = service.deactivate(name, getVersionFromIfMatchHeader(ifMatchValue));
+		final var plans = service.deactivate(name, authorizationToken,getVersionFromIfMatchHeader(ifMatchValue));
 		return ResponseEntity.ok().eTag(Long.toString(plans.getVersion())).body(plansViewMapper.toPlansView(plans));
 	}
 

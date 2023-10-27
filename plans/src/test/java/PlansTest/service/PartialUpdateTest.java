@@ -84,7 +84,7 @@ public class PartialUpdateTest {
         when(plansRepository.save(Mockito.any(Plans.class))).thenReturn(plan);
 
 
-        Plans result = plansService.partialUpdate(plan.getName().getName(), request, 0L);
+        Plans result = plansService.partialUpdate(plan.getName().getName(), request,"auth", 0L);
 
 
         when(plansRepository.save(Mockito.any(Plans.class))).thenReturn(plan);
@@ -106,7 +106,7 @@ public class PartialUpdateTest {
     public void promoteTest_PlanDoesNotExist() {
         EditPlansRequest editPlansRequest = new EditPlansRequest();
         String planName = "promoteTest_PlanDoesNotExist";
-        assertThrows(IllegalArgumentException.class, () -> plansService.partialUpdate(planName, editPlansRequest,0L));
+        assertThrows(IllegalArgumentException.class, () -> plansService.partialUpdate(planName, editPlansRequest,"auth",0L));
     }
 
 }

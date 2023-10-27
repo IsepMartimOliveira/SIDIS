@@ -20,7 +20,6 @@
  */
 package com.example.psoft_22_23_project.configuration;
 
-import com.example.psoft_22_23_project.usermanagement.model.Role;
 import com.example.psoft_22_23_project.usermanagement.repositories.UserRepository;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -112,10 +111,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 						//all public endpoints
 						.antMatchers("/api/public/**").permitAll()
 						.antMatchers("/api/user/**").permitAll()
-						.antMatchers("/api/user2/**").permitAll()
-						
+
 						//.antMatchers("/api/admin/user/**").hasRole(Role.User_Admin) // user management no
-						.antMatchers("api/user/photo/**").hasRole(Role.Subscriber)// photo for user upload and see it
+						//.antMatchers("api/user/photo/**").hasRole(Role.Subscriber)// photo for user upload and see it
 
 						.anyRequest().authenticated()
 

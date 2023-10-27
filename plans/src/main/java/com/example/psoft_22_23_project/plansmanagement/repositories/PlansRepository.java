@@ -62,12 +62,12 @@ interface PlansRepositoryDB extends CrudRepository<Plans,Long> {
 }
 
 interface PlansRepoHttpCustom{
-	HttpResponse<String> getPlansFromOtherAPI(String name) throws URISyntaxException, IOException, InterruptedException;
+	HttpResponse<String> getPlansFromOtherAPI(String name, String auth) throws URISyntaxException, IOException, InterruptedException;
 	HttpResponse<String> getPlansFromOtherAPI() throws URISyntaxException, IOException, InterruptedException;
 
-	HttpResponse<String> doPlansPatchAPI(String name, final long desiredVersion, String json) throws URISyntaxException, IOException, InterruptedException;
-	HttpResponse<String> doPlansPatchMoneyAPI(String name, final long desiredVersion, String json)throws URISyntaxException, IOException, InterruptedException;
-	HttpResponse<String> doPlansPatchDeactivate(String name, final long desiredVersion)throws URISyntaxException, IOException, InterruptedException;
+	HttpResponse<String> doPlansPatchAPI(String name, final long desiredVersion, String auth,String json) throws URISyntaxException, IOException, InterruptedException;
+	HttpResponse<String> doPlansPatchMoneyAPI(String name, final long desiredVersion,String auth, String json)throws URISyntaxException, IOException, InterruptedException;
+	HttpResponse<String> doPlansPatchDeactivate(String name, String auth,final long desiredVersion)throws URISyntaxException, IOException, InterruptedException;
 
 
 }
@@ -77,7 +77,7 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
 	@Value("${server.port}")
 	private int currentPort;
 	@Override
-	public HttpResponse<String> getPlansFromOtherAPI(String name) throws URISyntaxException, IOException, InterruptedException {
+	public HttpResponse<String> getPlansFromOtherAPI(String name, String auth) throws URISyntaxException, IOException, InterruptedException {
 
 		int otherPort = (currentPort == 8081) ? 8090 : 8081;
 		URI uri = new URI("http://localhost:" + otherPort + "/api/plans/external/" + name);
@@ -85,6 +85,7 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
 		HttpRequest request = HttpRequest.newBuilder()
 				.uri(uri)
 				.GET()
+				.header("Authorization",auth)
 				.build();
 
 		HttpClient client = HttpClient.newHttpClient();
@@ -116,13 +117,14 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
 	}
 
 	@Override
-	public HttpResponse<String> doPlansPatchMoneyAPI(String name, final long desiredVersion, String json) throws URISyntaxException, IOException, InterruptedException {
+	public HttpResponse<String> doPlansPatchMoneyAPI(String name, final long desiredVersion, String auth,String json) throws URISyntaxException, IOException, InterruptedException {
 		int otherPort = (currentPort == 8081) ? 8090 : 8081;
 		String apiUrl = "http://localhost:" + otherPort + "/api/plans/updateMoney/" + name;
 		HttpRequest requestpatch = HttpRequest.newBuilder()
 				.uri(URI.create(apiUrl))
 				.header("Content-Type", "application/json")
 				.header("if-match", Long.toString(desiredVersion))
+				.header("Authorization",auth)
 				.method("PATCH", HttpRequest.BodyPublishers.ofString(json))
 				.build();
 		HttpClient httpClient = HttpClient.newHttpClient();
@@ -133,13 +135,14 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
 	}
 
 	@Override
-	public HttpResponse<String> doPlansPatchAPI(String name, final long desiredVersion, String json) throws URISyntaxException, IOException, InterruptedException {
+	public HttpResponse<String> doPlansPatchAPI(String name, final long desiredVersion, String auth,String json) throws URISyntaxException, IOException, InterruptedException {
 		int otherPort = (currentPort == 8081) ? 8090 : 8081;
 		String apiUrl = "http://localhost:" + otherPort + "/api/plans/update/" + name;
 
 		HttpRequest requestpatch = HttpRequest.newBuilder()
 				.uri(URI.create(apiUrl))
 				.header("Content-Type", "application/json")
+				.header("Authorization",auth)
 				.header("if-match", Long.toString(desiredVersion) )
 				.method("PATCH", HttpRequest.BodyPublishers.ofString(json))
 				.build();
@@ -151,13 +154,14 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
 	}
 
 	@Override
-	public HttpResponse<String> doPlansPatchDeactivate(String name, long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
+	public HttpResponse<String> doPlansPatchDeactivate(String name, String auth,long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
 		int otherPort = (currentPort == 8081) ? 8090 : 8081;
 		String apiUrl = "http://localhost:" + otherPort + "/api/plans/deactivate/" + name;
 
 		HttpRequest requestpatch = HttpRequest.newBuilder()
 				.uri(URI.create(apiUrl))
 				.header("Content-Type", "application/json")
+				.header("Authorization",auth)
 				.header("if-match", Long.toString(desiredVersion))
 				.method("PATCH", HttpRequest.BodyPublishers.noBody())
 				.build();

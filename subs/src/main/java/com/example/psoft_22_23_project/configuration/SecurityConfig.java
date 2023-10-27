@@ -78,8 +78,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/swagger-ui/**").permitAll()
 				.antMatchers("/h2/**").permitAll()
 				//.hasRole("Subscriber")
-				.antMatchers(HttpMethod.GET,"/api/subscriptions/**").permitAll()
-				.antMatchers(HttpMethod.GET,"/api/subscriptions2/**").permitAll()
+				//create subs
+				.antMatchers(HttpMethod.POST,"/api/subscriptions/create").hasRole("Subscriber")
+				//cancel sub
+				.antMatchers(HttpMethod.PATCH,"/api/subscriptions").hasRole("Subscriber")
+				//change plan
+				.antMatchers(HttpMethod.PATCH,"/api/subscriptions/change/{name}").hasRole("Subscriber")
+
+				//renovar sub
+				.antMatchers(HttpMethod.PATCH,"/api/subscriptions/renew").hasRole("Subscriber")
+
+				//ver plano da sub
+				.antMatchers(HttpMethod.GET,"/api/subscriptions").hasRole("Subscriber")
+				//procurar pela sub pelo usename
+				.antMatchers(HttpMethod.GET,"/api/subscriptions/external/{username}").hasRole("Subscriber")
+
+
 
 				.anyRequest().authenticated()
 

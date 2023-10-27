@@ -13,19 +13,19 @@ public interface SubscriptionsService {
     Iterable<Subscriptions> findAll();
 
 
-    Subscriptions create(CreateSubscriptionsRequest resource) throws URISyntaxException, IOException, InterruptedException;
+    Subscriptions create(CreateSubscriptionsRequest resource, String auth) throws URISyntaxException, IOException, InterruptedException;
 
     //void delete(Long id);
     Optional<Subscriptions> findSubByUser( String user);
 
-    Subscriptions cancelSubscription(long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
+    Subscriptions cancelSubscription(String auth,long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
 
-    Subscriptions renewAnualSubscription(long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
+    Subscriptions renewAnualSubscription(String auth,long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
 
-    Subscriptions changePlan(long desiredVersion, String name) throws URISyntaxException, IOException, InterruptedException;
+    Subscriptions changePlan(long desiredVersion, String name, String auth) throws URISyntaxException, IOException, InterruptedException;
 
     void migrateAllToPlan(long desiredVersion,String actualPlan, String newPlan);
-    PlansDetails planDetails();
+    PlansDetails planDetails(String auth);
 
     Optional<Subscriptions> findSubByUserExternal(String user);
 }

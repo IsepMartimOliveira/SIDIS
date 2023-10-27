@@ -77,13 +77,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/api-docs/**").permitAll()
 				.antMatchers("/swagger-ui/**").permitAll()
 				.antMatchers("/h2/**").permitAll()
-
-
+				//get planos todos
+				.antMatchers(HttpMethod.GET,"/api/plans").permitAll()
+				.antMatchers(HttpMethod.GET,"/api/plans/{name}").permitAll()
+				//get para outra api confirmar nomname
+				.antMatchers(HttpMethod.GET,"/api/plans/external/{name}").permitAll()
+				//.antMatchers(HttpMethod.GET,"/api/plans/external/{name}").hasRole("Marketing_Director")
+				//get no get all um dos lados
+				.antMatchers(HttpMethod.GET,"/api/plans/external").permitAll()
+				//post do plano
 				.antMatchers(HttpMethod.POST,"/api/plans").hasRole("Marketing_Director")
-				.antMatchers(HttpMethod.GET,"/api/plans2/**").permitAll()
-
-				.antMatchers(HttpMethod.GET,"/api/plans/**").permitAll()
-				.antMatchers(HttpMethod.PATCH,"/api/plans/**").permitAll()
+				//patch desativar plano
+				.antMatchers(HttpMethod.PATCH,"/api/plans/deactivate/{name}").hasRole("Marketing_Director")
+				//patch updade plan
+				.antMatchers(HttpMethod.PATCH,"/api/plans/update/{name}").hasRole("Marketing_Director")
+				//update money plan
+				.antMatchers(HttpMethod.PATCH,"/api/plans/updateMoney/{name}").hasRole("Marketing_Director")
 
 				.anyRequest().authenticated()
 

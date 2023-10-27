@@ -85,7 +85,7 @@ public class MoneyUpdateTest {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         securityContext.setAuthentication(authentication);
 
-        Plans result = plansService.moneyUpdate(plan.getName().getName(), request, 0L);
+        Plans result = plansService.moneyUpdate(plan.getName().getName(), request, "auth",0L);
 
 
         when(plansRepository.save(Mockito.any(Plans.class))).thenReturn(plan);
@@ -102,7 +102,7 @@ public class MoneyUpdateTest {
     public void Test_PlanDoesNotExist() {
         EditPlanMoneyRequest editPlansRequest = new EditPlanMoneyRequest();
         String planName = "Test_PlanDoesNotExist";
-        assertThrows(IllegalArgumentException.class, () -> plansService.moneyUpdate(planName, editPlansRequest,0L));
+        assertThrows(IllegalArgumentException.class, () -> plansService.moneyUpdate(planName, editPlansRequest,"auth",0L));
     }
 
 }

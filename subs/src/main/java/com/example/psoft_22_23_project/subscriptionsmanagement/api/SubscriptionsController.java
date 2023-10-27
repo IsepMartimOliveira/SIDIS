@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -52,9 +53,10 @@ public class SubscriptionsController {
 
     @PostMapping(value = "/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<SubscriptionsView> create(@Valid @RequestBody final CreateSubscriptionsRequest resource) throws URISyntaxException, IOException, InterruptedException {
+    public ResponseEntity<SubscriptionsView> create(@Valid @RequestBody final CreateSubscriptionsRequest resource,
+                                                    @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken) throws URISyntaxException, IOException, InterruptedException {
 
-        final var subscriptions = service.create(resource);
+        final var subscriptions = service.create(resource,authorizationToken);
 
         final var newSubscriptionUri =
                 ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(subscriptions.getPlan()).build().toUri();
@@ -66,23 +68,23 @@ public class SubscriptionsController {
 
     @Operation(summary = "Cancel a subscription")
     @PatchMapping
-    public ResponseEntity<SubscriptionsView> cancelSubscription(final WebRequest request) throws URISyntaxException, IOException, InterruptedException {
+    public ResponseEntity<SubscriptionsView> cancelSubscription(final WebRequest request,@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken) throws URISyntaxException, IOException, InterruptedException {
         final String ifMatchValue = request.getHeader("If-Match");
         if (ifMatchValue == null || ifMatchValue.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "You must issue a conditional PATCH using 'if-match'");
         }
 
-        final var subscriptions = service.cancelSubscription(getVersionFromIfMatchHeader(ifMatchValue));
+        final var subscriptions = service.cancelSubscription(authorizationToken,getVersionFromIfMatchHeader(ifMatchValue));
         return ResponseEntity.ok().eTag(Long.toString(subscriptions.getVersion())).body(subscriptionsViewMapper.toSubscriptionView(subscriptions));
     }
 
 
     @Operation(summary = "Give detailed information about a plan")
     @GetMapping
-    public ResponseEntity<PlansDetailsView> planDetails() {
+    public ResponseEntity<PlansDetailsView> planDetails(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken) {
 
-        final PlansDetails plan = service.planDetails();
+        final PlansDetails plan = service.planDetails(authorizationToken);
 
         return ResponseEntity.ok(plansDetailsViewMapper.toPlansDetailsView(plan));
     }
@@ -100,28 +102,28 @@ public class SubscriptionsController {
 
     @Operation(summary = "Renew annual subscription")
     @PatchMapping(value = "/renew")
-    public ResponseEntity<SubscriptionsView> renewAnualSubscription(final WebRequest request) throws URISyntaxException, IOException, InterruptedException {
+    public ResponseEntity<SubscriptionsView> renewAnualSubscription(final WebRequest request,@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken) throws URISyntaxException, IOException, InterruptedException {
         final String ifMatchValue = request.getHeader("If-Match");
         if (ifMatchValue == null || ifMatchValue.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "You must issue a conditional PATCH using 'if-match'");
         }
 
-        final var subscriptions = service.renewAnualSubscription(getVersionFromIfMatchHeader(ifMatchValue));
+        final var subscriptions = service.renewAnualSubscription(authorizationToken,getVersionFromIfMatchHeader(ifMatchValue));
         return ResponseEntity.ok().eTag(Long.toString(subscriptions.getVersion())).body(subscriptionsViewMapper.toSubscriptionView(subscriptions));
     }
 
 
     @Operation(summary = "Change plan of my subscription")
     @PatchMapping(value = "/change/{name}")
-    public ResponseEntity<SubscriptionsView> changePlan(final WebRequest request, @Valid @PathVariable final String name) throws URISyntaxException, IOException, InterruptedException {
+    public ResponseEntity<SubscriptionsView> changePlan(final WebRequest request, @Valid @PathVariable final String name,@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken) throws URISyntaxException, IOException, InterruptedException {
         final String ifMatchValue = request.getHeader("If-Match");
         if (ifMatchValue == null || ifMatchValue.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "You must issue a conditional PATCH using 'if-match'");
         }
 
-        final var subscriptions = service.changePlan(getVersionFromIfMatchHeader(ifMatchValue), name);
+        final var subscriptions = service.changePlan(getVersionFromIfMatchHeader(ifMatchValue), name,authorizationToken);
         return ResponseEntity.ok().eTag(Long.toString(subscriptions.getVersion())).body(subscriptionsViewMapper.toSubscriptionView(subscriptions));
     }
 
