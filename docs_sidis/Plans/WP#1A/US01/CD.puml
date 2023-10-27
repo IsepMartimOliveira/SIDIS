@@ -39,12 +39,13 @@ class CreatePlansMapper{
 interface PlansRepository
 {
 +findByName_Name(String name): Optional<Plans>
++ getPlansFromOtherAPI(String name)
 +save(S entity) : <S extends Plans>
 }
 
 interface PlansRepositoryCustomImpl
 {
-+ getPlansFromOtherAPI(String name)
+
 
 }
 
@@ -53,7 +54,7 @@ PlansController ..> PlansService: uses >
 PlansService ..> PlansRepository: uses >
 PlansService ..> PlansRepositoryCustomImpl: uses >
 PlansRepository ..> Plans: < record
-PlansRepositoryCustomImpl ..left>PlansController: HTPP API call >
+PlansRepository ..left>PlansController: HTPP API call >
 PlansService ..> CreatePlansMapper: uses >
 PlansController ..>PlansViewMapper: uses >
 @enduml

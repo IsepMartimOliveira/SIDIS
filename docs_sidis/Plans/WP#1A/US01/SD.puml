@@ -12,14 +12,13 @@ participant ":PlansService" as Serv
 participant ":PlansRepository" as Repo
 participant ":CreatePlansMapper" as Mapper
 participant ":PlansViewMapper" as View
-participant ":PlansRepositoryCustomImpl" as RepoHTTP
 
 Ac -> Ctrl : POST /plans
 Ctrl -> Serv :Plans plans = create(CreatePlanRequest resource)
 Serv -> Repo :Optional<Plans> plans = findByName_Name(resource.getName())
 Repo --> Serv : plans.isEmpty
-Serv->RepoHTTP:getPlansFromOtherAPI(resource.getName())
-RepoHTTP-->Serv: HTTP 404
+Serv->Repo:getPlansFromOtherAPI(resource.getName())
+Repo-->Serv: HTTP 404
 note left
 1) Service will check if plan exists
 

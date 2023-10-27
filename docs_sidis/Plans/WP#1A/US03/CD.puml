@@ -18,8 +18,8 @@ class Plans{
      -promoted
      +updateData(long desiredVersion, String description,double maximumNumberOfUsers,String numberOfMinutes ,double musicCollections,String musicSuggestions)
 }
-class PlansViewMapper{
-    +toPlansView(Plans plans):PlansView
+class PlansMapperInverse{
+    +toPlansView(PlanRequest plans)
 }
 class PlansController{
     +partialUpdate(final WebRequest request,final String name,final EditPlansRequest resource):ResponseEntity<PlansView>
@@ -27,16 +27,16 @@ class PlansController{
 class PlansService{
  +partialUpdate(String name, EditPlansRequest resource, long parseLong):Plans
 }
-interface PlansRepositoryCustomImpl
-{
-+ getPlansFromOtherAPI(String name)
-+ doPlansPatchAPI(name,desiredVersion,json)
+
+
+class PlansViewMapper{
+    +toPlansView(Plans plans):PlansView
 }
-
-
 interface PlansRepository
 {
 +findByName_Name(String name): Optional<Plans>
++ getPlansFromOtherAPI(String name)
++ doPlansPatchAPI(name,desiredVersion,json)
 +save(S entity) : <S extends Plans>
 }
 
@@ -46,6 +46,8 @@ PlansService ..> PlansRepository: uses >
 PlansService ..> PlansRepositoryCustomImpl: uses >
 PlansRepository ..> Plans: < record
 PlansService ..> Plans: uses >
-PlansRepositoryCustomImpl ..left>PlansController: HTPP API call >
+PlansRepository ..left>PlansController: HTPP API call >
+PlansController ..> PlansMapperInverse: uses >
 PlansController ..> PlansViewMapper: uses >
+
 @enduml

@@ -1,0 +1,24 @@
+    @startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Sequence Diagram / As a new customer I want to know all existing plans
+
+autonumber
+
+actor "User" as Ac
+participant ":PlansBootstraper" as Ctrl
+
+participant ":PlansRepository" as Repo
+
+Ac->Ctrl:Initiates the system
+alt Loop
+Ctrl->Repo:checks plans that are required to be intialized
+Repo-->Ctrl:Returns the plans
+end
+
+
+
+
+
+@enduml

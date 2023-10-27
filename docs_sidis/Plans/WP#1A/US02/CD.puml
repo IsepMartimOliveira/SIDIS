@@ -21,6 +21,9 @@ class Plans{
 class PlansViewMapper{
     +toPlansView(Plans plans):PlansView
 }
+class PlansMapperInverse{
+    +toPlansView(PlanRequest plans)
+}
 class PlansController{
     +deactivate(final WebRequest request,final String name): ResponseEntity<PlansView>
    }
@@ -31,19 +34,18 @@ class PlansService{
 interface PlansRepository
 {
 +findByName_Name(String name): Optional<Plans>
-+save(S entity) : <S extends Plans>
-}
-interface PlansRepositoryCustomImpl
-{
 + getPlansFromOtherAPI(String name)
 + doPlansPatchDeactivate(String name, long desiredVersion)
++save(S entity) : <S extends Plans>
 }
+
 
 PlansController ..> PlansService: uses >
 PlansService ..> PlansRepository: uses >
 PlansService ..> PlansRepositoryCustomImpl: uses >
 PlansRepository ..> Plans: < record
-PlansRepositoryCustomImpl ..left>PlansController: HTPP API call >
+PlansRepository ..left>PlansController: HTPP API call >
 PlansService ..> Plans: uses >
+PlansController ..> PlansMapperInverse: uses >
 PlansController ..>PlansViewMapper: uses >
 @enduml
