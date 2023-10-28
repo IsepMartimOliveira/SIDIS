@@ -46,11 +46,11 @@ interface SubsRepoHttpCustom {
 
     PlansDetails subExistNotLocal(String username, String auth) throws URISyntaxException, IOException, InterruptedException;
 
-    Subscriptions cancelSub(String newString, String auth, HttpResponse<String> user, long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
+    Subscriptions cancelSub(String newString, String auth, long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
 
-    Subscriptions renewSub(String newString, String auth, HttpResponse<String> user, long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
+    Subscriptions renewSub(String newString, String auth, long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
 
-    Subscriptions changePlan(String newString, String auth, String name, HttpResponse<String> user, long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
+    Subscriptions changePlan(String newString, String auth, String name, long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
 }
 @RequiredArgsConstructor
 @Configuration
@@ -183,7 +183,9 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
     }
 
     @Override
-    public Subscriptions cancelSub(String newString, String auth, HttpResponse<String> user, long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
+    public Subscriptions cancelSub(String newString, String auth, long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
+        HttpResponse<String> user = getUserFromOtherAPI(newString);
+
         if (user.statusCode() == 200) {
             Optional<Subscriptions> existingSubscription = subscriptionsRepositoryDB.findByActiveStatus_ActiveAndUser(true, newString);
             if (existingSubscription.isPresent()) {
@@ -232,7 +234,8 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
     }
 
     @Override
-    public Subscriptions renewSub(String newString, String auth, HttpResponse<String> user, long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
+    public Subscriptions renewSub(String newString, String auth, long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
+        HttpResponse<String> user = getUserFromOtherAPI(newString);
 
         if (user.statusCode() == 200) {
             Optional<Subscriptions> existingSubscription = subscriptionsRepositoryDB.findByActiveStatus_ActiveAndUser(true, newString);
@@ -265,7 +268,8 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
     }
 
     @Override
-    public Subscriptions changePlan(String newString, String auth, String name, HttpResponse<String> user, long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
+    public Subscriptions changePlan(String newString, String auth, String name, long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
+        HttpResponse<String> user = getUserFromOtherAPI(newString);
         if(user.statusCode()==200){
             Optional<Subscriptions> existingSubscription = subscriptionsRepositoryDB.findByActiveStatus_ActiveAndUser(true, newString);
             if (existingSubscription.isPresent()) {

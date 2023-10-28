@@ -106,17 +106,12 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         } else {
             newString = username;
         }
-
-        HttpResponse<String> user = subscriptionsRepository.getUserFromOtherAPI(newString);
-
-        Subscriptions obj = subscriptionsRepository.cancelSub(newString,auth,user,desiredVersion);
-
+        Subscriptions obj = subscriptionsRepository.cancelSub(newString,auth,desiredVersion);
         return subscriptionsRepository.save(obj);
     }
 
     @Override
     public Subscriptions renewAnualSubscription(String auth,final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
-
         // Check if the current user is authorized to cancel the subscription
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         int commaIndex = username.indexOf(",");
@@ -127,23 +122,14 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         } else {
             newString = username;
         }
-
-
-        HttpResponse<String> user = subscriptionsRepository.getUserFromOtherAPI(newString);
-        Subscriptions obj = subscriptionsRepository.renewSub(newString,auth,user,desiredVersion);
+        Subscriptions obj = subscriptionsRepository.renewSub(newString,auth,desiredVersion);
         return subscriptionsRepository.save(obj);
-
-
-
-
     }
 
 
 
     @Override
     public Subscriptions changePlan(final long desiredVersion, final String name,String auth) throws URISyntaxException, IOException, InterruptedException {
-
-
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         int commaIndex = username.indexOf(",");
 
@@ -153,15 +139,8 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         } else {
             newString = username;
         }
-
-
-        HttpResponse<String> user = subscriptionsRepository.getUserFromOtherAPI(newString);
-        Subscriptions obj = subscriptionsRepository.changePlan(newString,auth,name,user,desiredVersion);
+        Subscriptions obj = subscriptionsRepository.changePlan(newString,auth,name,desiredVersion);
         return subscriptionsRepository.save(obj);
-
-
-
-
     }
 
 
