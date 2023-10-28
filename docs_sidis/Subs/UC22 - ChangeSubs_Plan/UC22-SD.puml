@@ -7,77 +7,42 @@ autonumber
 actor "Subscriber" as Ac
 participant ":SubscriptionsController" as Ctrl
 participant ":SubscriptionsService" as Serv
-participant ":PlansRepository" as PlanRepo
-participant ":UserRepository" as UserRepo
+
 participant ":SubscriptionsRepository" as SubRepo
 participant ":DeviceRepository" as DevRepo
 participant ":Subscriptions" as Sub
 
 
 Ac -> Ctrl : PATCH /subscriptions/change/{name}
-Ctrl -> Serv : subscriptions = changePlan(long desiredVersion, String name)
-Serv -> PlanRepo :Plans plan = plansRepository.findByActive_ActiveAndName_Name(true, resource.getName())
-PlanRepo --> Serv : plans
-note right
-  This retrieves the information of the logged
-  in user from the repository.
-  if the user is trying to subscribe to
-  a plan with a name that does not exist
-  the code will end here and throw a
-  EntityNotFoundException
+Ctrl -> Serv : subscriptions = (long desiredVersion, String name, String auth)
+Serv -> SubRepo : Subscriptions changePlan(newString,auth,name,desiredVersion);
+
+
+SubRepo --> SubRepo: HttpResponse<String> user = getUserFromOtherAPI(newString);
+note left
+if user does not exist will
+throw IllegalArgumentException
 end note
-
-Serv -> UserRepo :User user = userRepository.findById(Long.valueOf(newString))
-UserRepo --> Serv : user
-
-note right
-  if the user
-  who is trying to subscribe
-  is does not exist in the system
-  the code will
-  end here and throw
-  a UsernameNotFoundException
+SubRepo --> SubRepo: Subscriptions sub = findByActiveStatus_ActiveAndUser(true,username)
+note left
+if sub does does not exist locally will
+check other machine
 end note
+alt change locally
+SubRepo --> SubRepo: HttpResponse<String> plan = getPlansFromOtherAPI(name);
+SubRepo --> SubRepo: HttpResponse<String> plan2 = getPlansFromOtherAPI(subscription.getPlan());
+SubRepo --> SubRepo : if(subscription.getPlan().getName().getName().equals(name))
+SubRepo --> Sub:changePlan(desiredVersion, jsonArray.getString("name"))
+SubRepo --> Serv :sub
+end alt
 
-Serv -> SubRepo :Subscriptions subscription = repository.findByActiveStatus_ActiveAndUser(true, user)
-SubRepo --> Serv : subscriptions
-
-Serv -> DevRepo :  int activeDevices= deviceRepository.countBySubscription(subscription);
-DevRepo --> Serv : activeDevices
-
-Serv -> Serv : if(activeDevices > deviceLimit)
-
-note right
-  if the user
-  who is trying to upgrade/downgrade
-  to a plan with a limit of devices
-  lower than the actual number of
-  active devices by the user,
-  the code will
-  end here and throw
-  a IllegalArgumentException
-end note
-
-Serv --> Serv :
-
-
-Serv -> Serv : if(subscription.getPlan().getName().getName().equals(name))
-
-note right
-  if the user
-  is trying to upgrade/downgrade
-  to his actual plan, the code will
-  end here and throw
-  a IllegalArgumentException
-end note
-
-Serv --> Serv :
+alt change not locally
+SubRepo --> SubRepo: HttpResponse<String> existingSubscription2 = getSubsFromOtherApi(newString, auth)
+SubRepo --> Serv :sub
+end alt
 deactivate Sub
-Serv -> Sub : subscription.changePlan(desiredVersion, plan)
 
-
-
-Serv -> SubRepo: save(subscription)
+Serv -> SubRepo: save(sub)
 SubRepo --> Serv: subscription
 Serv --> Ctrl: subscription
 

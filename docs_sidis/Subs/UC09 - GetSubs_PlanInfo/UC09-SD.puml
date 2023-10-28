@@ -13,28 +13,40 @@ participant ":Subscriptions" as Sub
 Ac -> Ctrl : GET /subscriptions/
 Ctrl -> Serv : Plan plan = planDetails(auth)
 
-Serv -> SubRepo : HttpResponse<String> getUserFromOtherAPI(String name)
-
-SubRepo --> Serv : user
-
+Serv -> SubRepo: isPresent(auth,username)
+SubRepo --> SubRepo:  HttpResponse<String> user = getUserFromOtherAPI(newString)
 note right
   here the rep will do a call
   for both user machines to check if
   user exist if it does not it will
   throw a UsernameNotFoundException
 end note
+SubRepo --> SubRepo: Optional<Subscriptions> sub = findByActiveStatus_ActiveAndUser(true, username)
+note right
+  here the rep will do a call
+  locally to check if
+  subs exist if it does not it will
+  throw a UsernameNotFoundException
+end note
+SubRepo --> Serv: subscription
+
+
 alt A - subs exist locally
-Serv -> SubRepo :Optional <Subscriptions> subscription = repository.findByUser(user)
-SubRepo --> Serv : subscription
+Serv -> SubRepo:PlansDetails subExistLocal(planName);
+
+SubRepo --> SubRepo :HttpResponse<String> plan = getPlansFromOtherAPI(plan2)
+SubRepo --> Serv : plan
 end alt
 alt B - subs does not exist locally
-Serv -> SubRepo : HttpResponse<String> getSubsFromOtherApi(String name,String auth)
-SubRepo --> Serv : subscription
+
+Serv -> SubRepo:PlansDetails subExistNotLocal(username, auth);
+
+SubRepo --> SubRepo : HttpResponse<String> user = getUserFromOtherAPI(String name)
+SubRepo --> SubRepo : HttpResponse<String> = subscriptiongetSubsFromOtherApi(String username,String auth)
+SubRepo --> Serv : plan
 end alt
 
 
-Serv -> Sub: PlanDetails plan = subscription.getPlan()
-Sub --> Serv: plan
 Serv --> Ctrl: plan
 
 

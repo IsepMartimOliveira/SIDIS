@@ -54,7 +54,7 @@ public class SubscriptionsController {
     @PostMapping(value = "/create")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<SubscriptionsView> create(@Valid @RequestBody final CreateSubscriptionsRequest resource,
-                                                    @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken) throws URISyntaxException, IOException, InterruptedException {
+                                                    @RequestHeader(HttpHeaders.AUTHORIZATION) final String authorizationToken) throws URISyntaxException, IOException, InterruptedException {
 
         final var subscriptions = service.create(resource,authorizationToken);
 

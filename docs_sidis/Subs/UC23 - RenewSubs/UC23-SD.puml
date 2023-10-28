@@ -7,31 +7,26 @@ autonumber
 actor "Subscriber" as Ac
 participant ":SubscriptionsController" as Ctrl
 participant ":SubscriptionsService" as Serv
-participant ":UserRepository" as UserRepo
 participant ":SubscriptionsRepository" as SubRepo
 participant ":Subscriptions" as Sub
 
 
 Ac -> Ctrl : PATCH /subscriptions/renew
-Ctrl -> Serv : subscriptions = renewAnualSubscription(long desiredVersion);
+Ctrl -> Serv : subscriptions = renewAnualSubscription(long desiredVersion,String auth);
+Serv -> SubRepo:Subscriptions obj = subscriptionsRepository.renewSub(newString,auth,desiredVersion)
 
-Serv -> UserRepo :User user = userRepository.findById(Long.valueOf(newString))
-UserRepo --> Serv : user
+SubRepo --> SubRepo: HttpResponse<String> user = getUserFromOtherAPI(newString);
+alt user exist
+    SubRepo --> SubRepo:Optional<Subscriptions> subscription = findByActiveStatus_ActiveAndUser(true, newString);
+        alt subscription exist locally
+         SubRepo --> Sub:  subscription.checkChange(desiredVersion)
+         SubRepo --> Sub:  getEndDate().setEndDate(String.valueOf(endDate.plusYears(1)));
+         else subscription exist not locally
+         SubRepo --> SubRepo: getSubsFromOtherApi(newString, auth)
+         SubRepo --> SubRepo:throw  IllegalArgumentException
+        end
 
-note right
-  if the user
-  who is trying to subscribe
-  is does not exist in the system
-  the code will
-  end here and throw
-  a UsernameNotFoundException
-end note
-
-Serv -> SubRepo :Subscriptions subscription = repository.findByActiveStatus_ActiveAndUser(true, user)
-SubRepo --> Serv : subscriptions
-
-
-Serv -> Serv :  if (Objects.equals(subscription.getPaymentType().getPaymentType(), "monthly"))
+end
 
 note right
   if the user is trying to renew
@@ -39,19 +34,10 @@ note right
   the code will
   end here and throw
   a IllegalArgumentException
+
 end note
 
-Serv --> Serv :
-
-
-
-deactivate Sub
-Serv -> Sub : subscription.checkChange(desiredVersion)
-note right
- this will check if this operation
- is already done and avoid conflicts
-end note
-
+SubRepo --> Serv: subscription
 
 Serv -> SubRepo: save(subscription)
 SubRepo --> Serv: subscription

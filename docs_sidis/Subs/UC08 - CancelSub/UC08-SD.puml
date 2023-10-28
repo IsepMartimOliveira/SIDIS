@@ -7,15 +7,14 @@ autonumber
 actor "Subscriber" as Ac
 participant ":SubscriptionsController" as Ctrl
 participant ":SubscriptionsService" as Serv
-participant ":UserRepository" as UserRepo
 participant ":SubscriptionsRepository" as SubRepo
 participant ":Subscriptions" as Sub
 
 Ac -> Ctrl : PATCH /subscriptions/
-Ctrl -> Serv : Subscriptions subscriptions = cancelSubscription(long desiredVersion)
+Ctrl -> Serv : Subscriptions subscriptions = cancelSubscription(long desiredVersion, String auth)
 
-Serv -> UserRepo :User user = userRepository.findById(Long.valueOf(newString))
-UserRepo --> Serv : user
+
+Serv -> SubRepo : Subscriptions cancelSub(String username,String auth,long desiredVersion)
 
 note right
   This retrieves the information of the logged
@@ -24,10 +23,18 @@ note right
   does not exist in the system  the code will
   end here and throw a EntityNotFoundException
 end note
+SubRepo -> SubRepo :User findById(Long.valueOf(newString))
+SubRepo --> SubRepo : user
 
-Serv -> SubRepo :Subscriptions subscription = repository.findByUser(user)
-SubRepo --> Serv : subscription
 
+alt A - will check if user´s subscription exist locally
+SubRepo -> SubRepo :Subscriptions findByActiveStatus_ActiveAndUser(user)
+SubRepo --> SubRepo : subscription
+end
+alt B - will check if user´s subscription exist not locally
+SubRepo -> SubRepo :Subscriptions getSubsFromOtherApi(newString, auth)
+SubRepo --> SubRepo : subscription
+end
 note right
   if the user is trying to cancel
   a subscription does not have an active
@@ -36,19 +43,12 @@ note right
   a EntityNotFoundException
 end note
 
-note left
-  if it does have a subscription it
-  will check if the subscription is
-  already canceled or not.
-  if the subscription is already canceled
-  it will throw EntityNotFoundException
-end note
-
 deactivate Sub
-Serv -> Sub : subscription.deactivate(desiredVersion)
+SubRepo -> subscription : deactivate(desiredVersion)
+subscription-->SubRepo: subscription
+SubRepo --> Serv: subscription
 
-
-Serv -> SubRepo: save(obj)
+Serv -> SubRepo: save(subscription)
 SubRepo --> Serv: subscription
 Serv --> Ctrl: subscription
 

@@ -17,7 +17,7 @@ class SubscriptionsViewMapper{
     +toSubscriptionsView(Subscription subscriptions):SubscriptionsView
 }
 class SubscriptionsController{
-    create(final CreateSubscriptionsRequest resource, String auth):ResponseEntity<SubscriptionsView>
+    create(final CreateSubscriptionsRequest resource, final String auth):ResponseEntity<SubscriptionsView>
     }
 class SubscriptionsService{
  +create(createSubscriptionsMapper resource):Subscriptions
@@ -30,12 +30,12 @@ class CreateSubscriptionsMapper{
 
 interface SubscriptionsRepository
 {
-+findByUser(User user): Optional<Subscriptions>
++findByActiveStatus_ActiveAndUser(Boolean true, String username): Optional<Subscriptions>
 +save(S entity) : <S extends Subscriptions>
 +getPlansFromOtherAPI(String name): HttpResponse<String>
 +getUserFromOtherAPI(String name) : HttpResponse<String>
 +getSubsFromOtherApi(String name,String auth) : HttpResponse<String>
-
++planExists(String plan,String auth,String resource): Subscriptions
 }
 
 

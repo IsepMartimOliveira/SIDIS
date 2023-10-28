@@ -27,7 +27,6 @@ import com.example.psoft_22_23_project.plansmanagement.model.PromotionResult;
 import com.example.psoft_22_23_project.plansmanagement.repositories.PlansRepository;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;

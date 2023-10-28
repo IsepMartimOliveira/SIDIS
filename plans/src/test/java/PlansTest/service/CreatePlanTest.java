@@ -19,16 +19,12 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
-
 public class CreatePlanTest {
 
     @Mock
     private PlansRepository plansRepository;
-
-
     @Mock
     private CreatePlansMapper createPlansMapper;
-
     @InjectMocks
     private PlansServiceImpl plansService;
     @BeforeEach
@@ -38,7 +34,7 @@ public class CreatePlanTest {
 
     private void setupMockRepository(String planName, Plans plan) {
         when(plansRepository.findByName_Name(planName)).thenReturn(Optional.of(plan));
-        when(plansRepository.save(plan)).thenReturn(plan); // Mock the save operation
+        when(plansRepository.save(plan)).thenReturn(plan);
     }
     private Plans createPlan(String name) {
         Name planName = new Name();
@@ -151,13 +147,9 @@ public class CreatePlanTest {
 
     @Test
     public void createPlan_SameName() {
-
         String planName =  "Plan";
-
         Plans plan = createPlan(planName);
-
         setupMockRepository(planName, plan);
-
         CreatePlanRequest request = new CreatePlanRequest();
         request.setName("Plan");
         assertThrows(IllegalArgumentException.class, () -> plansService.create(request,"auth"));

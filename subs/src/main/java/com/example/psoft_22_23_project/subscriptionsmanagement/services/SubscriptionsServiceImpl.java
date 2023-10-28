@@ -6,16 +6,12 @@ import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptio
 import com.example.psoft_22_23_project.subscriptionsmanagement.repositories.SubscriptionsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.json.JSONObject;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.http.HttpResponse;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -75,7 +71,6 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
     @Override
     public Subscriptions cancelSubscription(String auth,final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
 
-        // Check if the current user is authorized to cancel the subscription
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
         int commaIndex = username.indexOf(",");
@@ -85,13 +80,13 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         } else {
             newString = username;
         }
+
         Subscriptions obj = subscriptionsRepository.cancelSub(newString,auth,desiredVersion);
         return subscriptionsRepository.save(obj);
     }
 
     @Override
     public Subscriptions renewAnualSubscription(String auth,final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
-        // Check if the current user is authorized to cancel the subscription
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         int commaIndex = username.indexOf(",");
 
@@ -108,7 +103,7 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
 
 
     @Override
-    public Subscriptions changePlan(final long desiredVersion, final String name,String auth) throws URISyntaxException, IOException, InterruptedException {
+    public Subscriptions changePlan(final long desiredVersion, final String name,final String auth) throws URISyntaxException, IOException, InterruptedException {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         int commaIndex = username.indexOf(",");
 

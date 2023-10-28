@@ -8,8 +8,8 @@ participant ":SubscriptionsService" as Serv
 participant ":SubscriptionsRepository" as SubRepo
 participant ":CreateSubscriptionsMapper" as Mapper
 Ac -> Ctrl : POST /subscriptions/create
-Ctrl -> Serv : subscriptions = create(CreateSubscriptionsRequest resource)
-Serv -> SubRepo : HttpResponse<String> getPlansFromOtherAPI(String name)
+Ctrl -> Serv : subscriptions = create(final CreateSubscriptionsRequest resource, final String auth)
+Serv -> SubRepo : HttpResponse<String> getPlansFromOtherAPI(String planName)
 SubRepo --> Serv : plan
 note right
   In this point, its made a call to
@@ -17,9 +17,12 @@ note right
   plan exists, if not will throw a
   EntityNotFoundException
 end note
+Serv -> SubRepo: Subscriptions subscriptionsRepository.planExists(plan,auth,resource);
 
-Serv -> SubRepo : HttpResponse<String> getUserFromOtherAPI(String name)
-SubRepo --> Serv : user
+SubRepo -> SubRepo : HttpResponse<String> getUserFromOtherAPI(String name)
+SubRepo --> SubRepo : user
+
+
 
 note right
   In this point, its made a call to
@@ -28,17 +31,28 @@ note right
   EntityNotFoundException
 end note
 
-Serv -> SubRepo :HttpResponse<String> getSubsFromOtherApi(String name,String auth)
-SubRepo --> Serv : subscriptions
-
+SubRepo -> SubRepo :HttpResponse<String> getSubsFromOtherApi(String name,String auth)
+SubRepo --> SubRepo : subscriptions
 note right
   In this point, its made a call to
   the other Subs Machines that will check if
   user haves a subs, if yes it will throw a
   EntityNotFoundException
 end note
-Serv -> Mapper :Subscriptions obj = createSubscriptionsMapper.create(user, plan, resource);
-Mapper --> Serv: obj
+
+
+note left
+  If plan exists and user exists
+  and user does not have a subscription
+  in both machines it will create one
+  in this machine
+end note
+SubRepo -> Mapper :Subscriptions create(user, plan, resource);
+Mapper --> SubRepo: obj
+
+SubRepo --> Serv: obj
+
+
 Serv -> SubRepo: save(obj)
 SubRepo --> Serv: obj
 Serv --> Ctrl: obj

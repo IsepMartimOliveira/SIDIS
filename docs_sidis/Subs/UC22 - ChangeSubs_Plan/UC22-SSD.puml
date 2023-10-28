@@ -4,12 +4,17 @@ actor "Subscriber" as MD
 
 activate MD
 MD -> ":System" : PATCH /subscriptions/change/{name}
-alt successful case - upgrade/downgrade plan is accepted
+":System" --> ":System" : Checks User in other machine
+
+":System" --> ":System" : Checks Plans in other machine
+":System" --> ":System" : Checks Subs in other machine
+
+alt successful case - Plan and User and Sub exist
 activate ":System"
 ":System" --> ":System" : Advance to upgrade/downgrade to specified plan
 ":System" --> MD : Informs operation success
 
-else failure case - upgrade/downgrade is not accepted
+else failure case - Plan or User or Sub does not exist
 
 ":System" --> MD : Shows error message
 deactivate ":System"

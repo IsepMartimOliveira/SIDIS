@@ -9,7 +9,7 @@ MD -> ":System" : GET /subscriptions
 
 alt successful case - user and subscription exists
 activate ":System"
-":System" --> ":System" : Gets data from database
+":System" --> ":System" : Gets plans data
 ":System" --> MD : Informs operation success
 
 

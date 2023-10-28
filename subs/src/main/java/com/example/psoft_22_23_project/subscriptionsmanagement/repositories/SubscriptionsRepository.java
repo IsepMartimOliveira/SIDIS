@@ -306,7 +306,7 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
 
 
         }
-        throw new IllegalArgumentException("No subscriptions associated with the user");
+        throw new IllegalArgumentException("No User does not exist");
     }
 
     @Override

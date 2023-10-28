@@ -12,16 +12,15 @@ class Subscriptions {
     -activeStatus
     -planName
     -username
-    +getPlan():Plan
 }
 
 
 
 class PlansViewMapper{
-    +toPlansView(PlansDetails plan):PlansView
+    +toPlansView(PlansDetails plan):PlansDetailsView
 }
 class SubscriptionsController{
-    planDetails():ResponseEntity<PlansView>
+    planDetails():ResponseEntity<PlansDetailsView>
     }
 class SubscriptionsService{
  +planDetails(String auth):Plan
@@ -31,6 +30,10 @@ interface SubscriptionsRepository
 {
 +getSubsFromOtherApi(String name,String auth) :HttpResponse<String>
 +getPlansFromOtherAPI(String name): HttpResponse<String>
++isPresent(String auth, String username): Optional<Subscriptions>
++subExistLocal(String planName): PlansDetails
++subExistNotLocal(String username, String auth): PlansDetails
+
 
 }
 
