@@ -78,34 +78,13 @@ public class PlansServiceImpl implements PlansService {
 	}
 
 	public Optional<Plans> getPlanByName(String planName) throws URISyntaxException, IOException, InterruptedException {
-
 		Optional<Plans> plans = plansRepository.findByName_Name(planName);
 
 		if (plans.isPresent()) {
 			return plans;
 		}
-
-		HttpResponse<String> plan = plansRepository.getPlansFromOtherAPI(planName,"auth");
-		if (plan.statusCode() == 200) {
-			JSONObject jsonArray = new JSONObject(plan.body());
-
-			PlanRequest newPlan = new PlanRequest(
-					jsonArray.getString("name"),
-					jsonArray.getString("description"),
-					jsonArray.getString("numberOfMinutes"),
-					jsonArray.getString("maximumNumberOfUsers"),
-					jsonArray.getString("musicCollection"),
-					jsonArray.getString("musicSuggestion"),
-					jsonArray.getString("annualFee"),
-					jsonArray.getString("monthlyFee"),
-					jsonArray.getString("active"),
-					jsonArray.getString("promoted")
-			);
-			Plans obj = plansMapperInverse.toPlansView(newPlan);
-			return Optional.ofNullable(obj);
-		}else {
-			throw new IllegalArgumentException("Plan with name " + planName + " already exists locally!");
-		}
+		Optional<Plans> obj = plansRepository.getPlanByNameNotLocally(planName);
+		return obj;
 
     }
 
@@ -118,8 +97,7 @@ public class PlansServiceImpl implements PlansService {
 		if (plans.isPresent()) {
 			throw new IllegalArgumentException("Plan with name " + resource.getName() + " already exists locally!");
 		}
-		HttpResponse<String> response = plansRepository.getPlansFromOtherAPI(resource.getName(),auth);
-		Plans obj = plansRepository.createNotLocal(response,auth,resource);
+		Plans obj = plansRepository.createNotLocal(auth,resource);
 		return plansRepository.save(obj);
 
 	}
@@ -137,9 +115,7 @@ public class PlansServiceImpl implements PlansService {
 			return plansRepository.save(plans1);
 		}
 
-		HttpResponse<String> response = plansRepository.getPlansFromOtherAPI(name,auth);
-
-		 Plans plan = plansRepository.updateNotLocal(response,resource,name,desiredVersion,auth);
+		Plans plan = plansRepository.updateNotLocal(resource,name,desiredVersion,auth);
 		return plan;
 	}
 
@@ -206,8 +182,7 @@ public class PlansServiceImpl implements PlansService {
 			plans1.deactivate(desiredVersion);
 			return plansRepository.save(plans1);
 		}
-		HttpResponse<String> response = plansRepository.getPlansFromOtherAPI(name,authorizationToken);
-		Plans obj = plansRepository.deactivateNotLocal(response,name,desiredVersion,authorizationToken);
+		Plans obj = plansRepository.deactivateNotLocal(name,desiredVersion,authorizationToken);
 		return obj;
 	}
 

@@ -22,8 +22,11 @@ package com.example.psoft_22_23_project.usermanagement.repositories;
 
 
 import com.example.psoft_22_23_project.exceptions.NotFoundException;
+import com.example.psoft_22_23_project.usermanagement.api.UserMapperInverse;
+import com.example.psoft_22_23_project.usermanagement.api.UserRequest;
 import com.example.psoft_22_23_project.usermanagement.model.User;
 import lombok.RequiredArgsConstructor;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -66,14 +69,20 @@ interface UserRepositoryDB extends CrudRepository<User,Long>{
 }
 interface UserRepoHttp {
 	HttpResponse<String> getUserFromOtherAPI(String name) throws URISyntaxException, IOException, InterruptedException;
+
+	Optional<User> getUserByNameNotLocally(String username) throws URISyntaxException, IOException, InterruptedException;
 }
 @RequiredArgsConstructor
 class UserRepoHttpImpl implements UserRepoHttp {
+
+	private final UserMapperInverse userMapperInverse;
+
 	// 82 91 subs
 	// 81 90 plans
 	// 83 92 users
 	@Value("${server.port}")
 	private int currentPort;
+
 	@Override
 	public HttpResponse<String> getUserFromOtherAPI(String name) throws URISyntaxException, IOException, InterruptedException {
 
@@ -91,6 +100,21 @@ class UserRepoHttpImpl implements UserRepoHttp {
 
 		return response;
 
+	}
+
+	@Override
+	public Optional<User> getUserByNameNotLocally(String username) throws URISyntaxException, IOException, InterruptedException {
+		HttpResponse<String> plan = getUserFromOtherAPI(username);
+		if (plan.statusCode() == 200) {
+			JSONObject jsonArray = new JSONObject(plan.body());
+
+			UserRequest newUser = new UserRequest(jsonArray.getString("username"));
+			User obj = userMapperInverse.toUserView(newUser);
+			return Optional.ofNullable(obj);
+		}
+		else {
+			throw new IllegalArgumentException("Plan with name " + username + " already exists locally!");
+		}
 	}
 }
 

@@ -29,6 +29,7 @@ import com.example.psoft_22_23_project.plansmanagement.services.CreatePlansMappe
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.Modifying;
@@ -81,11 +82,13 @@ interface PlansRepoHttpCustom{
 
 	Iterable<Plans> addLocalPlusNot(HttpResponse<String> response,Iterable<Plans> planslocal);
 
-	Plans updateNotLocal(HttpResponse<String> response, EditPlansRequest resource, String name, long desiredVersion, String auth) throws URISyntaxException, IOException, InterruptedException;
+	Plans updateNotLocal( EditPlansRequest resource, String name, long desiredVersion, String auth) throws URISyntaxException, IOException, InterruptedException;
 
-	Plans createNotLocal(HttpResponse<String> response, String auth, CreatePlanRequest resource);
+	Plans createNotLocal(String auth, CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException;
 
-	Plans deactivateNotLocal(HttpResponse<String> response, String name, long desiredVersion, String authorizationToken) throws URISyntaxException, IOException, InterruptedException;
+	Plans deactivateNotLocal( String name, long desiredVersion, String authorizationToken) throws URISyntaxException, IOException, InterruptedException;
+
+	Optional<Plans> getPlanByNameNotLocally(String planName) throws IOException, InterruptedException, URISyntaxException;
 }
 @RequiredArgsConstructor
 @Configuration
@@ -214,7 +217,9 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
 	}
 
 	@Override
-	public Plans updateNotLocal(HttpResponse<String> response, EditPlansRequest resource, String name, long desiredVersion, String auth) throws URISyntaxException, IOException, InterruptedException {
+	public Plans updateNotLocal( EditPlansRequest resource, String name, long desiredVersion, String auth) throws URISyntaxException, IOException, InterruptedException {
+		HttpResponse<String> response = getPlansFromOtherAPI(name,auth);
+
 		if (response.statusCode() == 200) {
 			Gson gson = new Gson();
 			String json = gson.toJson(resource);
@@ -237,7 +242,8 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
 	}
 
 	@Override
-	public Plans createNotLocal(HttpResponse<String> response, String auth, CreatePlanRequest resource) {
+	public Plans createNotLocal( String auth, CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException {
+		HttpResponse<String> response = getPlansFromOtherAPI(resource.getName(),auth);
 		if(response.statusCode() == 404){
 			Plans obj = createPlansMapper.create(resource);
 			return obj;
@@ -247,7 +253,9 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
 	}
 
 	@Override
-	public Plans deactivateNotLocal(HttpResponse<String> response, String name, long desiredVersion, String authorizationToken) throws URISyntaxException, IOException, InterruptedException {
+	public Plans deactivateNotLocal( String name, long desiredVersion, String authorizationToken) throws URISyntaxException, IOException, InterruptedException {
+		HttpResponse<String> response = getPlansFromOtherAPI(name,authorizationToken);
+
 		if (response.statusCode() == 200) {
 			Gson gson = new Gson();
 			HttpResponse<String> responses=doPlansPatchDeactivate(name,authorizationToken,desiredVersion);
@@ -260,6 +268,33 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
 			throw new IllegalArgumentException("Plan with name " + name + " does not exists on another machine and locally !");
 		}
 		return null;
+	}
+
+	@Override
+	public Optional<Plans> getPlanByNameNotLocally(String planName) throws IOException, InterruptedException, URISyntaxException {
+		HttpResponse<String> plan = getPlansFromOtherAPI(planName,"auth");
+
+
+		if (plan.statusCode() == 200) {
+			JSONObject jsonArray = new JSONObject(plan.body());
+
+			PlanRequest newPlan = new PlanRequest(
+					jsonArray.getString("name"),
+					jsonArray.getString("description"),
+					jsonArray.getString("numberOfMinutes"),
+					jsonArray.getString("maximumNumberOfUsers"),
+					jsonArray.getString("musicCollection"),
+					jsonArray.getString("musicSuggestion"),
+					jsonArray.getString("annualFee"),
+					jsonArray.getString("monthlyFee"),
+					jsonArray.getString("active"),
+					jsonArray.getString("promoted")
+			);
+			Plans obj = plansMapperInverse.toPlansView(newPlan);
+			return Optional.ofNullable(obj);
+		}else {
+			throw new IllegalArgumentException("Plan with name " + planName + " already exists locally!");
+		}
 	}
 
 	private Iterable<Plans> addPlanToIterable(Iterable<Plans> plans, Plans newPlan) {

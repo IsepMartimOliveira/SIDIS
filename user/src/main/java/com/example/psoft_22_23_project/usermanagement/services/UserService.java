@@ -48,7 +48,6 @@ public class UserService implements UserDetailsService {
 	private final PasswordEncoder passwordEncoder;
 	private final UserEditMapper userEditMapper;
 	private final UserRepository userRepository;
-	private final UserMapperInverse userMapperInverse;
 
 	@Transactional
 	public User create(final CreateUserRequest request) throws URISyntaxException, IOException, InterruptedException {
@@ -92,18 +91,14 @@ public class UserService implements UserDetailsService {
 		Optional<User> user = userRepository.findByUsername(username);
 		if (user.isPresent()) {
 			return user;
-		}else {
-			HttpResponse<String> plan = userRepository.getUserFromOtherAPI(username);
-			if (plan.statusCode() == 200){
-				JSONObject jsonArray = new JSONObject(plan.body());
+		} else {
+			Optional<User> obj = userRepository.getUserByNameNotLocally(username);
+			return obj;
 
-				UserRequest newUser = new UserRequest(jsonArray.getString("username"));
-				User obj = userMapperInverse.toUserView(newUser);
-				return Optional.ofNullable(obj);
-			}
 		}
-		throw new IllegalArgumentException("Username with name " + username + " does not exist!");
+
 	}
+
 
 	public Optional<User> getUserByNameExternal(String username){
 		Optional<User> user = userRepository.findByUsername(username);
