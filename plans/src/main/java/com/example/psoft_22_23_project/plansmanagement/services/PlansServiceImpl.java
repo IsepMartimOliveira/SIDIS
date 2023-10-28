@@ -27,7 +27,6 @@ import com.example.psoft_22_23_project.plansmanagement.model.PromotionResult;
 import com.example.psoft_22_23_project.plansmanagement.repositories.PlansRepository;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -41,7 +40,6 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,52 +48,21 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PlansServiceImpl implements PlansService {
 	private final PlansRepository plansRepository;
-	private final CreatePlansMapper createPlansMapper;
 	private final PlansMapperInverse plansMapperInverse;
 	@Value("${server.port}")
 	private int currentPort;
 	@Override
 	public Iterable<Plans> findAtive() throws URISyntaxException, IOException, InterruptedException {
 		Iterable<Plans> planslocal = plansRepository.findByActive_Active(true);
-
 		HttpResponse<String> plansfora = plansRepository.getPlansFromOtherAPI();
-
-		JSONArray jsonArray = new JSONArray(plansfora.body());
-
-		for (int i = 0; i < jsonArray.length(); i++) {
-			if (plansRepository.findByName_Name(jsonArray.getJSONObject(i).getString("name")).isEmpty()){
-				PlanRequest newPlan = new PlanRequest(
-						jsonArray.getJSONObject(i).getString("name"),
-						jsonArray.getJSONObject(i).getString("description"),
-						jsonArray.getJSONObject(i).getString("numberOfMinutes"),
-						jsonArray.getJSONObject(i).getString("maximumNumberOfUsers"),
-						jsonArray.getJSONObject(i).getString("musicCollection"),
-						jsonArray.getJSONObject(i).getString("musicSuggestion"),
-						jsonArray.getJSONObject(i).getString("annualFee"),
-						jsonArray.getJSONObject(i).getString("monthlyFee"),
-						jsonArray.getJSONObject(i).getString("active"),
-						jsonArray.getJSONObject(i).getString("promoted")
-				);
-				Plans obj = plansMapperInverse.toPlansView(newPlan);
-				planslocal = addPlanToIterable(planslocal, obj);
-			}
-		}
-		return planslocal;
+		Iterable<Plans> plans = plansRepository.addLocalPlusNot(plansfora,planslocal);
+		return plans;
 	}
 
 	@Override
 	public Iterable<Plans> findAtiveExternal(){
 		Iterable<Plans> planslocal = plansRepository.findByActive_Active(true);
 		return planslocal;
-	}
-
-	private Iterable<Plans> addPlanToIterable(Iterable<Plans> plans, Plans newPlan) {
-		if (plans instanceof List) {
-			List<Plans> planList = new ArrayList<>((List<Plans>) plans);
-			planList.add(newPlan);
-			return planList;
-		}
-		return plans;
 	}
 	@Override
 	public List<FeeRevision> history(final String name) {
@@ -152,25 +119,16 @@ public class PlansServiceImpl implements PlansService {
 			throw new IllegalArgumentException("Plan with name " + resource.getName() + " already exists locally!");
 		}
 		HttpResponse<String> response = plansRepository.getPlansFromOtherAPI(resource.getName(),auth);
-		if(response.statusCode() == 404){
-			Plans obj = createPlansMapper.create(resource);
-			return plansRepository.save(obj);
-
-		}else {
-			throw new IllegalArgumentException("Plan with name " + resource.getName() + " already exists on another machine!");
-		}
+		Plans obj = plansRepository.createNotLocal(response,auth,resource);
+		return plansRepository.save(obj);
 
 	}
-
-
-
-
 	@Override
 	public Plans partialUpdate(final String name, final EditPlansRequest resource, String auth ,final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
 
 		//encontrar plano localmente
 		final Optional<Plans> plans = plansRepository.findByName_Name(name);
-				//.orElseThrow(() -> new IllegalArgumentException("Plan with name " + name + " doesn't exists locally!"));
+		//.orElseThrow(() -> new IllegalArgumentException("Plan with name " + name + " doesn't exists locally!"));
 		if (plans.isPresent()){
 			Plans plans1 = plans.get();
 			plans1.updateData(desiredVersion, resource.getDescription(),
@@ -181,29 +139,8 @@ public class PlansServiceImpl implements PlansService {
 
 		HttpResponse<String> response = plansRepository.getPlansFromOtherAPI(name,auth);
 
-		if (response.statusCode() == 200) {
-
-			Gson gson = new Gson();
-			String json = gson.toJson(resource);
-			HttpResponse<String> responses = plansRepository.doPlansPatchAPI(name,desiredVersion,auth,json);
-
-
-			if (responses.statusCode() == 500){
-				throw new IllegalArgumentException("You must issue a conditional PATCH using 'if-match' (2)!");
-			}else if(responses.statusCode() == 200){
-				//
-				PlanRequest planRequest = gson.fromJson(responses.body(), PlanRequest.class);
-				//
-				return plansMapperInverse.toPlansView(planRequest);
-			} else if (responses.statusCode() == 409) {
-				throw new IllegalArgumentException("If match number wrong!");
-			}
-			throw new IllegalArgumentException("Plan with name " + name + " was updated!");
-		}
-		else if(response.statusCode()==401){
-			throw new IllegalArgumentException("Authentication failed. Please check your credentials or login to access this resource.");
-		}
-		throw new IllegalArgumentException("Plan with name " + name + " does not exists on another machine and locally !");
+		 Plans plan = plansRepository.updateNotLocal(response,resource,name,desiredVersion,auth);
+		return plan;
 	}
 
 	@Override
@@ -268,33 +205,10 @@ public class PlansServiceImpl implements PlansService {
 			}
 			plans1.deactivate(desiredVersion);
 			return plansRepository.save(plans1);
-
 		}
-
 		HttpResponse<String> response = plansRepository.getPlansFromOtherAPI(name,authorizationToken);
-
-
-		if (response.statusCode() == 200) {
-			Gson gson = new Gson();
-			HttpResponse<String> responses=plansRepository.doPlansPatchDeactivate(name,authorizationToken,desiredVersion);
-
-
-			if (responses.statusCode() == 500){
-				throw new IllegalArgumentException("You must issue a conditional PATCH using 'if-match' (2)!");
-			}else if(responses.statusCode() == 200){
-
-				PlanRequest planRequest = gson.fromJson(responses.body(), PlanRequest.class);
-				return plansMapperInverse.toPlansView(planRequest);
-
-			} else if (responses.statusCode() == 409) {
-				throw new IllegalArgumentException("If match number wrong!");
-			}
-			throw new IllegalArgumentException("Plan with name " + name + " was updated!");
-		}
-		else if(response.statusCode()==401){
-			throw new IllegalArgumentException("Authentication failed. Please check your credentials or login to access this resource.");
-		}
-		throw new IllegalArgumentException("Plan with name " + name + " does not exists on another machine and locally !");
+		Plans obj = plansRepository.deactivateNotLocal(response,name,desiredVersion,authorizationToken);
+		return obj;
 	}
 
 	@Override
