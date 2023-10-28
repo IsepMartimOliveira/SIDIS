@@ -48,6 +48,9 @@ interface SubsRepoHttpCustom {
 
     Subscriptions cancelSub(String newString, String auth, HttpResponse<String> user, long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
 
+    Subscriptions renewSub(String newString, String auth, HttpResponse<String> user, long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
+
+    Subscriptions changePlan(String newString, String auth, String name, HttpResponse<String> user, long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
 }
 @RequiredArgsConstructor
 @Configuration
@@ -81,15 +84,15 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
                         throw new IllegalArgumentException("You need to let your active subscription end in order to subscribe, locally ");
                     }
                 } else {
-                    HttpResponse<String> existingSubscription2 = getSubsFromOtherApi(newString,auth);
+                    HttpResponse<String> existingSubscription2 = getSubsFromOtherApi(newString, auth);
                     if (existingSubscription2.statusCode() == 404) {
                         Subscriptions obj = createSubscriptionsMapper.create(newString, jsonArray.getString("name"), resource);
                         return obj;
                     } else
                         throw new IllegalArgumentException("You need to let your active subscription end in order to subscribe, not locally ");
                 }
-            } else throw new IllegalArgumentException("User With Username: "+newString+" Does Not Exist");
-        } else throw new IllegalArgumentException("Plan With Name "+ resource.getName() +" Does Not Exist");
+            } else throw new IllegalArgumentException("User With Username: " + newString + " Does Not Exist");
+        } else throw new IllegalArgumentException("Plan With Name " + resource.getName() + " Does Not Exist");
 
         return null;
     }
@@ -137,7 +140,7 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
     }
 
     @Override
-    public HttpResponse<String> getSubsFromOtherApi(String userName,String auth) throws URISyntaxException, IOException, InterruptedException {
+    public HttpResponse<String> getSubsFromOtherApi(String userName, String auth) throws URISyntaxException, IOException, InterruptedException {
         // 82 91 subs
         // 81 90 plans
         // 83 92 users
@@ -147,7 +150,7 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
                 .GET()
-                .header("Authorization",auth)
+                .header("Authorization", auth)
                 .build();
 
         HttpClient client = HttpClient.newHttpClient();
@@ -160,7 +163,7 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
 
     @Override
     public PlansDetails subExistNotLocal(String username, String auth) throws URISyntaxException, IOException, InterruptedException {
-        HttpResponse<String> existingSubscription2 = getSubsFromOtherApi(username,auth);
+        HttpResponse<String> existingSubscription2 = getSubsFromOtherApi(username, auth);
         JSONObject planjsonArray2 = new JSONObject(existingSubscription2.body());
 
         if (existingSubscription2.statusCode() == 200) {
@@ -176,7 +179,7 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
                     planjsonArray.getString("monthlyFee"),
                     planjsonArray.getString("active"),
                     planjsonArray.getString("promoted"));
-        }else throw new IllegalArgumentException("User Does not have subs");
+        } else throw new IllegalArgumentException("User Does not have subs");
     }
 
     @Override
@@ -216,15 +219,82 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
                 return subscription;
 
             } else {
-                HttpResponse<String> existingSubscription2 = getSubsFromOtherApi(newString,auth);
+                HttpResponse<String> existingSubscription2 = getSubsFromOtherApi(newString, auth);
                 if (existingSubscription2.statusCode() == 200) {
                     throw new IllegalArgumentException("The subscription you want to cancel exists on another machine");
-                }
-                else throw new IllegalArgumentException("The subscription you want to cancel exists on another machine or locally");
+                } else
+                    throw new IllegalArgumentException("The subscription you want to cancel exists on another machine or locally");
 
             }
-        }throw new IllegalArgumentException("User Does not Exist");
+        }
+        throw new IllegalArgumentException("User Does not Exist");
 
+    }
+
+    @Override
+    public Subscriptions renewSub(String newString, String auth, HttpResponse<String> user, long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
+
+        if (user.statusCode() == 200) {
+            Optional<Subscriptions> existingSubscription = subscriptionsRepositoryDB.findByActiveStatus_ActiveAndUser(true, newString);
+            if (existingSubscription.isPresent()) {
+                Subscriptions subscription = existingSubscription.get();
+                if (Objects.equals(subscription.getPaymentType().getPaymentType(), "monthly")) {
+
+                    throw new IllegalArgumentException("You can not renew a monthly subscription");
+                } else {
+
+                    subscription.checkChange(desiredVersion);
+
+
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                    LocalDate endDate = LocalDate.parse(subscription.getEndDate().getEndDate(), formatter);
+
+                    subscription.getEndDate().setEndDate(String.valueOf(endDate.plusYears(1)));
+                }
+                return subscription;
+
+            } else {
+                HttpResponse<String> existingSubscription2 = getSubsFromOtherApi(newString, auth);
+                if (existingSubscription2.statusCode() == 200) {
+                    throw new IllegalArgumentException("The subscription you want to renew exists on another machine");
+
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Subscriptions changePlan(String newString, String auth, String name, HttpResponse<String> user, long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
+        if(user.statusCode()==200){
+            Optional<Subscriptions> existingSubscription = subscriptionsRepositoryDB.findByActiveStatus_ActiveAndUser(true, newString);
+            if (existingSubscription.isPresent()) {
+                Subscriptions subscription = existingSubscription.get();
+                HttpResponse<String> plan = getPlansFromOtherAPI(name);
+                HttpResponse<String> plan2 = getPlansFromOtherAPI(subscription.getPlan());
+                JSONObject initialPlan=new JSONObject(plan2.body());
+                JSONObject jsonArray = new JSONObject(plan.body());
+                if(Objects.equals(initialPlan.getString("name"), jsonArray.getString("name"))){
+                    throw new IllegalArgumentException("The user is already subscribed to this plan!");
+                }
+                if (plan.statusCode() == 200 ) {
+                    subscription.changePlan(desiredVersion, jsonArray.getString("name"));
+                    return subscription;
+                }
+
+
+            }else{
+                HttpResponse<String> existingSubscription2 =getSubsFromOtherApi(newString,auth);
+                if (existingSubscription2.statusCode() == 200) {
+                    throw new IllegalArgumentException("The subscription you want to change exists on another machine");
+
+                }
+
+            }
+
+
+        }
+        throw new IllegalArgumentException("No subscriptions associated with the user");
     }
 }
 

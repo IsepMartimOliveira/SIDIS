@@ -128,41 +128,18 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
             newString = username;
         }
 
+
         HttpResponse<String> user = subscriptionsRepository.getUserFromOtherAPI(newString);
-        if (user.statusCode() == 200) {
-            Optional<Subscriptions> existingSubscription = subscriptionsRepository.findByActiveStatus_ActiveAndUser(true, newString);
-            if (existingSubscription.isPresent()) {
-                Subscriptions subscription = existingSubscription.get();
-                if (Objects.equals(subscription.getPaymentType().getPaymentType(), "monthly")) {
-
-                    throw new IllegalArgumentException("You can not renew a monthly subscription");
-                } else {
-
-                    subscription.checkChange(desiredVersion);
-
-
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                    LocalDate endDate = LocalDate.parse(subscription.getEndDate().getEndDate(), formatter);
-
-                    subscription.getEndDate().setEndDate(String.valueOf(endDate.plusYears(1)));
-                }
-                return subscriptionsRepository.save(subscription);
-
-            } else {
-                HttpResponse<String> existingSubscription2 = subscriptionsRepository.getSubsFromOtherApi(newString,auth);
-                if (existingSubscription2.statusCode() == 200) {
-                    throw new IllegalArgumentException("The subscription you want to renew exists on another machine");
-
-                }
-            }
+        Subscriptions obj = subscriptionsRepository.renewSub(newString,auth,user,desiredVersion);
+        return subscriptionsRepository.save(obj);
 
 
 
-        }
 
-
-        throw new IllegalArgumentException("Something is really bad :(");
     }
+
+
+
     @Override
     public Subscriptions changePlan(final long desiredVersion, final String name,String auth) throws URISyntaxException, IOException, InterruptedException {
 
@@ -179,36 +156,11 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
 
 
         HttpResponse<String> user = subscriptionsRepository.getUserFromOtherAPI(newString);
-        if(user.statusCode()==200){
-            Optional<Subscriptions> existingSubscription = subscriptionsRepository.findByActiveStatus_ActiveAndUser(true, newString);
-            if (existingSubscription.isPresent()) {
-                Subscriptions subscription = existingSubscription.get();
-                HttpResponse<String> plan = subscriptionsRepository.getPlansFromOtherAPI(name);
-                HttpResponse<String> plan2 = subscriptionsRepository.getPlansFromOtherAPI(subscription.getPlan());
-                JSONObject initialPlan=new JSONObject(plan2.body());
-                JSONObject jsonArray = new JSONObject(plan.body());
-                if(Objects.equals(initialPlan.getString("name"), jsonArray.getString("name"))){
-                    throw new IllegalArgumentException("The user is already subscribed to this plan!");
-                }
-                if (plan.statusCode() == 200 ) {
-
-                    subscription.changePlan(desiredVersion, jsonArray.getString("name"));
-                    return subscriptionsRepository.save(subscription);
-                }
+        Subscriptions obj = subscriptionsRepository.changePlan(newString,auth,name,user,desiredVersion);
+        return subscriptionsRepository.save(obj);
 
 
-            }else{
-                HttpResponse<String> existingSubscription2 = subscriptionsRepository.getSubsFromOtherApi(newString,auth);
-                if (existingSubscription2.statusCode() == 200) {
-                    throw new IllegalArgumentException("The subscription you want to change exists on another machine");
 
-                }
-
-            }
-
-
-        }
-        throw new IllegalArgumentException("No subscriptions associated with the user");
 
     }
 
