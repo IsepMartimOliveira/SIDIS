@@ -61,35 +61,14 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         } else {
             newString = username;
         }
-        //buscar user
-        HttpResponse<String> user = subscriptionsRepository.getUserFromOtherAPI(newString);
-
-        JSONObject jsonArray = new JSONObject(user.body());
-        //ver se user existe
-        if (user.statusCode() == 200) {
-            // buscar subs do user localmente
-            Optional<Subscriptions> subscription = subscriptionsRepository.findByActiveStatus_ActiveAndUser(true, jsonArray.getString("username"));
+        Optional<Subscriptions> subscription = subscriptionsRepository.isPresent(auth,newString);
             if (subscription.isPresent()) {
-                HttpResponse<String> plan = subscriptionsRepository.getPlansFromOtherAPI(subscription.get().getPlan());
-                JSONObject planjsonArray = new JSONObject(plan.body());
-                if (plan.statusCode() == 200) {
-                    return new PlansDetails(planjsonArray.getString("name"),
-                            planjsonArray.getString("description"),
-                            planjsonArray.getString("numberOfMinutes"),
-                            planjsonArray.getString("maximumNumberOfUsers"),
-                            planjsonArray.getString("musicCollection"),
-                            planjsonArray.getString("musicSuggestion"),
-                            planjsonArray.getString("annualFee"),
-                            planjsonArray.getString("monthlyFee"),
-                            planjsonArray.getString("active"),
-                            planjsonArray.getString("promoted"));
-
-                }
+                PlansDetails objLocal=subscriptionsRepository.subExistLocal(subscription.get().getPlan());
+                return objLocal;
             } else {
-                PlansDetails obj = subscriptionsRepository.subExistNotLocal(jsonArray.getString("username"),auth);
+                PlansDetails obj = subscriptionsRepository.subExistNotLocal(newString,auth);
                 return obj;
             }
-        }throw new IllegalArgumentException("User does not exist");
 
     }
 

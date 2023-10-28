@@ -51,6 +51,10 @@ interface SubsRepoHttpCustom {
     Subscriptions renewSub(String newString, String auth, long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
 
     Subscriptions changePlan(String newString, String auth, String name, long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
+
+    Optional<Subscriptions> isPresent(String auth, String newString) throws URISyntaxException, IOException, InterruptedException;
+
+    PlansDetails subExistLocal(String plan) throws URISyntaxException, IOException, InterruptedException;
 }
 @RequiredArgsConstructor
 @Configuration
@@ -162,8 +166,12 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
     }
 
     @Override
-    public PlansDetails subExistNotLocal(String username, String auth) throws URISyntaxException, IOException, InterruptedException {
-        HttpResponse<String> existingSubscription2 = getSubsFromOtherApi(username, auth);
+    public PlansDetails subExistNotLocal(String newString, String auth) throws URISyntaxException, IOException, InterruptedException {
+        HttpResponse<String> user = getUserFromOtherAPI(newString);
+
+        JSONObject jsonArray = new JSONObject(user.body());
+
+        HttpResponse<String> existingSubscription2 = getSubsFromOtherApi(jsonArray.getString("username"), auth);
         JSONObject planjsonArray2 = new JSONObject(existingSubscription2.body());
 
         if (existingSubscription2.statusCode() == 200) {
@@ -270,25 +278,25 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
     @Override
     public Subscriptions changePlan(String newString, String auth, String name, long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
         HttpResponse<String> user = getUserFromOtherAPI(newString);
-        if(user.statusCode()==200){
+        if (user.statusCode() == 200) {
             Optional<Subscriptions> existingSubscription = subscriptionsRepositoryDB.findByActiveStatus_ActiveAndUser(true, newString);
             if (existingSubscription.isPresent()) {
                 Subscriptions subscription = existingSubscription.get();
                 HttpResponse<String> plan = getPlansFromOtherAPI(name);
                 HttpResponse<String> plan2 = getPlansFromOtherAPI(subscription.getPlan());
-                JSONObject initialPlan=new JSONObject(plan2.body());
+                JSONObject initialPlan = new JSONObject(plan2.body());
                 JSONObject jsonArray = new JSONObject(plan.body());
-                if(Objects.equals(initialPlan.getString("name"), jsonArray.getString("name"))){
+                if (Objects.equals(initialPlan.getString("name"), jsonArray.getString("name"))) {
                     throw new IllegalArgumentException("The user is already subscribed to this plan!");
                 }
-                if (plan.statusCode() == 200 ) {
+                if (plan.statusCode() == 200) {
                     subscription.changePlan(desiredVersion, jsonArray.getString("name"));
                     return subscription;
                 }
 
 
-            }else{
-                HttpResponse<String> existingSubscription2 =getSubsFromOtherApi(newString,auth);
+            } else {
+                HttpResponse<String> existingSubscription2 = getSubsFromOtherApi(newString, auth);
                 if (existingSubscription2.statusCode() == 200) {
                     throw new IllegalArgumentException("The subscription you want to change exists on another machine");
 
@@ -300,6 +308,37 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
         }
         throw new IllegalArgumentException("No subscriptions associated with the user");
     }
-}
 
+    @Override
+    public Optional<Subscriptions> isPresent(String auth, String newString) throws URISyntaxException, IOException, InterruptedException {
+        HttpResponse<String> user = getUserFromOtherAPI(newString);
+
+        JSONObject jsonArray = new JSONObject(user.body());
+        if (user.statusCode() == 200) {
+            Optional<Subscriptions> subscription = subscriptionsRepositoryDB.findByActiveStatus_ActiveAndUser(true, jsonArray.getString("username"));
+            return subscription;
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public PlansDetails subExistLocal(String plan2) throws URISyntaxException, IOException, InterruptedException {
+        HttpResponse<String> plan = getPlansFromOtherAPI(plan2);
+        JSONObject planjsonArray = new JSONObject(plan.body());
+        if (plan.statusCode() == 200) {
+            return new PlansDetails(planjsonArray.getString("name"),
+                    planjsonArray.getString("description"),
+                    planjsonArray.getString("numberOfMinutes"),
+                    planjsonArray.getString("maximumNumberOfUsers"),
+                    planjsonArray.getString("musicCollection"),
+                    planjsonArray.getString("musicSuggestion"),
+                    planjsonArray.getString("annualFee"),
+                    planjsonArray.getString("monthlyFee"),
+                    planjsonArray.getString("active"),
+                    planjsonArray.getString("promoted"));
+
+        }
+        return  null;
+    }
+}
 
