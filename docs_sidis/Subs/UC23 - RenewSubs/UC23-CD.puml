@@ -44,6 +44,8 @@ SubscriptionsController ..> SubscriptionsService: uses >
 SubscriptionsService ..> SubscriptionsRepository: uses >
 SubscriptionsRepository ..> Subscriptions: < record
 SubscriptionsController ..>SubscriptionsViewMapper: uses >
+SubscriptionsController ..>SubscriptionsRepository: HTTP API Call <
+
 @enduml
 
 

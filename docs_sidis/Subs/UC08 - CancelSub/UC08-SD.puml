@@ -11,36 +11,23 @@ participant ":SubscriptionsRepository" as SubRepo
 participant ":Subscriptions" as Sub
 
 Ac -> Ctrl : PATCH /subscriptions/
-Ctrl -> Serv : Subscriptions subscriptions = cancelSubscription(long desiredVersion, String auth)
+Ctrl -> Serv : Subscriptions obj = cancelSubscription(long desiredVersion, String auth)
 
 
-Serv -> SubRepo : Subscriptions cancelSub(String username,String auth,long desiredVersion)
+Serv -> SubRepo : Subscriptions obj = cancelSub(String username,String auth,long desiredVersion)
 
-note right
-  This retrieves the information of the logged
-  in user from the repository.
-  If the user who is trying to cancel a subscription
-  does not exist in the system  the code will
-  end here and throw a EntityNotFoundException
-end note
-SubRepo -> SubRepo :User findById(Long.valueOf(newString))
-SubRepo --> SubRepo : user
+SubRepo --> SubRepo :User user =findById(Long.valueOf(newString))
 
 
 alt A - will check if user´s subscription exist locally
-SubRepo -> SubRepo :Subscriptions findByActiveStatus_ActiveAndUser(user)
-SubRepo --> SubRepo : subscription
-end
-alt B - will check if user´s subscription exist not locally
-SubRepo -> SubRepo :Subscriptions getSubsFromOtherApi(newString, auth)
-SubRepo --> SubRepo : subscription
+SubRepo --> SubRepo :Subscriptions subscription= findByActiveStatus_ActiveAndUser(user)
+else B - will check if user´s subscription exist not locally
+SubRepo --> SubRepo :Subscriptions subscription=getSubsFromOtherApi(newString, auth)
 end
 note right
-  if the user is trying to cancel
-  a subscription does not have an active
-  subscription the code will
-  end here and throw
-  a EntityNotFoundException
+ There needs to exist a subscription
+ locally or not locally for
+ deactivate it
 end note
 
 deactivate Sub

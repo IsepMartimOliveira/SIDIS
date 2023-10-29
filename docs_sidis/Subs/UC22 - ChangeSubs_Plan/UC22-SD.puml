@@ -14,8 +14,8 @@ participant ":Subscriptions" as Sub
 
 
 Ac -> Ctrl : PATCH /subscriptions/change/{name}
-Ctrl -> Serv : subscriptions = (long desiredVersion, String name, String auth)
-Serv -> SubRepo : Subscriptions changePlan(newString,auth,name,desiredVersion);
+Ctrl -> Serv : Subscriptions sub = (long desiredVersion, String name, String auth)
+Serv -> SubRepo : Subscriptions obj = changePlan(newString,auth,name,desiredVersion);
 
 
 SubRepo --> SubRepo: HttpResponse<String> user = getUserFromOtherAPI(newString);
@@ -34,9 +34,7 @@ SubRepo --> SubRepo: HttpResponse<String> plan2 = getPlansFromOtherAPI(subscript
 SubRepo --> SubRepo : if(subscription.getPlan().getName().getName().equals(name))
 SubRepo --> Sub:changePlan(desiredVersion, jsonArray.getString("name"))
 SubRepo --> Serv :sub
-end alt
-
-alt change not locally
+else change not locally
 SubRepo --> SubRepo: HttpResponse<String> existingSubscription2 = getSubsFromOtherApi(newString, auth)
 SubRepo --> Serv :sub
 end alt

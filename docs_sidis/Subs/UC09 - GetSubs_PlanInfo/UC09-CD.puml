@@ -16,7 +16,7 @@ class Subscriptions {
 
 
 
-class PlansViewMapper{
+class PlansDetailsViewMapper{
     +toPlansView(PlansDetails plan):PlansDetailsView
 }
 class SubscriptionsController{
@@ -43,7 +43,9 @@ SubscriptionsController ..> SubscriptionsService: uses >
 SubscriptionsService ..> SubscriptionsRepository: uses >
 SubscriptionsService ..> Subscriptions: uses >
 SubscriptionsRepository ..> Subscriptions: < record
-SubscriptionsController ..>PlansViewMapper: uses >
+SubscriptionsController ..>PlansDetailsViewMapper: uses >
+SubscriptionsController ..>SubscriptionsRepository: HTTP API Call <
+
 @enduml
 
 

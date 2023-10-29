@@ -8,7 +8,7 @@ participant ":SubscriptionsService" as Serv
 participant ":SubscriptionsRepository" as SubRepo
 participant ":CreateSubscriptionsMapper" as Mapper
 Ac -> Ctrl : POST /subscriptions/create
-Ctrl -> Serv : subscriptions = create(final CreateSubscriptionsRequest resource, final String auth)
+Ctrl -> Serv : subscriptions obj = create(final CreateSubscriptionsRequest resource, final String auth)
 Serv -> SubRepo : HttpResponse<String> getPlansFromOtherAPI(String planName)
 SubRepo --> Serv : plan
 note right
@@ -17,11 +17,9 @@ note right
   plan exists, if not will throw a
   EntityNotFoundException
 end note
-Serv -> SubRepo: Subscriptions subscriptionsRepository.planExists(plan,auth,resource);
+Serv -> SubRepo: Subscriptions obj = planExists(plan,auth,resource);
 
-SubRepo -> SubRepo : HttpResponse<String> getUserFromOtherAPI(String name)
-SubRepo --> SubRepo : user
-
+SubRepo --> SubRepo : HttpResponse<String> user =getUserFromOtherAPI(String name)
 
 
 note right
@@ -31,8 +29,7 @@ note right
   EntityNotFoundException
 end note
 
-SubRepo -> SubRepo :HttpResponse<String> getSubsFromOtherApi(String name,String auth)
-SubRepo --> SubRepo : subscriptions
+SubRepo --> SubRepo :HttpResponse<String> subscriptions= getSubsFromOtherApi(String name,String auth)
 note right
   In this point, its made a call to
   the other Subs Machines that will check if
@@ -47,7 +44,7 @@ note left
   in both machines it will create one
   in this machine
 end note
-SubRepo -> Mapper :Subscriptions create(user, plan, resource);
+SubRepo -> Mapper :Subscriptions obj = create(user, plan, resource);
 Mapper --> SubRepo: obj
 
 SubRepo --> Serv: obj
