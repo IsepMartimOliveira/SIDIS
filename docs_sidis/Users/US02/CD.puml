@@ -1,0 +1,48 @@
+@startuml
+'https://plantuml.com/class-diagram
+hide circle
+class UserRepository <<interface>>
+
+title Class Diagram / As Marketing director, I want to define a new Plan detailing the monthly and annual cost, the maximum number of devices and other characteristics of the plan
+
+
+
+class User{
+  - username;
+   -password;
+}
+
+class Role{
+-role
+}
+class UserViewMapper{
+    +toUserView(User user):UserView
+}
+class AuthApi{
+   create(final CreateUserRequest request) UserView
+    }
+class UserService{
+ +create(final CreateUserRequest request):User
+
+
+}
+class UserEditMapper{
+    +create(CreateUserRequest request):User
+}
+
+interface UserRepository
+{
++findByUsername(String username)
++save(S entity) : <S extends User>
+}
+
+
+
+User..left>Role:has
+AuthApi ..> UserService: uses >
+UserService ..> UserRepository: uses >
+UserRepository ..> User: < record
+UserRepository ..left>AuthApi: HTPP API call >
+UserService ..> UserEditMapper: uses >
+AuthApi..>UserViewMapper: uses >
+@enduml

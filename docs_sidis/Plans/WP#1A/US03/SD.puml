@@ -2,7 +2,7 @@
 'https://plantuml.com/sequence-diagram
 autoactivate on
 autonumber
-title Sequence Diagram/ As Marketing director, I want to define a new Plan detailing the monthly and annual cost, the maximum number of devices and other characteristics of the plan
+title Sequence Diagram/  As marketing director, I want to change a plan’s details other than pricing
 
 autonumber
 
@@ -12,8 +12,9 @@ participant ":PlansService" as Serv
 participant ":PlansRepository" as Repo
 participant ":Plans" as Plan
 participant ":PlansViewMapper" as View
-participant ":PlansMapperInverser" as ViewInverser
 participant ":PlanRequest" as Request
+participant ":PlansMapperInverser" as ViewInverser
+
 
 
 Ac -> Ctrl : PATCH /plans/update/{name}
@@ -29,17 +30,19 @@ HTPP API Call to another instance
 end note
 deactivate Plan
 alt Check if the Plan exist on other instances if plan==empty
-Serv->Repo:getPlansFromOtherAPI(resource.getName())
-Repo-->Serv: HTTP 200
+Serv->Repo:updateNotLocal(resource,name,desiredVersion,auth)
+Repo->Repo:getPlansFromOtherAPI(resource.getName())
+Repo-->Repo: HTTP 200
 
 
 
-Serv->Repo:doPlansPatchAPI(name,desiredVersion,json)
-Repo-->Serv: HTTP 200
-Serv -> Request :  gson.fromJson(responses.body(), PlanRequest.class)
-Request-->Serv:PlanRequest planRequest
-Serv -> ViewInverser : toPlansView(planRequest)
-ViewInverser -->Serv: plan
+Repo->Repo:doPlansPatchAPI(name,desiredVersion,json)
+Repo-->Repo: HTTP 200
+Repo -> Request :  gson.fromJson(responses.body(), PlanRequest.class)
+Request-->Repo:PlanRequest planRequest
+Repo -> ViewInverser : toPlansView(planRequest)
+ViewInverser -->Repo: plan
+Repo-->Serv:plan
 end
 alt If Plan exist in Local Machine
 Serv -> Plan :plan.updateData(long desiredVersion, String description,Integer maximumNumberOfUsers,String numberOfMinutes ,Integer musicCollections,String musicSuggestions, Boolean active, Boolean promoted)

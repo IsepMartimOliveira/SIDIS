@@ -43,16 +43,11 @@ interface PlansRepository
 +save(S entity) : <S extends Plans>
 }
 
-interface PlansRepositoryCustomImpl
-{
 
-
-}
 
 
 PlansController ..> PlansService: uses >
 PlansService ..> PlansRepository: uses >
-PlansService ..> PlansRepositoryCustomImpl: uses >
 PlansRepository ..> Plans: < record
 PlansRepository ..left>PlansController: HTPP API call >
 PlansService ..> CreatePlansMapper: uses >

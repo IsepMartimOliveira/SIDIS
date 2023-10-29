@@ -80,7 +80,7 @@ interface PlansRepoHttpCustom{
 	HttpResponse<String> doPlansPatchMoneyAPI(String name, final long desiredVersion,String auth, String json)throws URISyntaxException, IOException, InterruptedException;
 	HttpResponse<String> doPlansPatchDeactivate(String name, String auth,final long desiredVersion)throws URISyntaxException, IOException, InterruptedException;
 
-	Iterable<Plans> addLocalPlusNot(HttpResponse<String> response,Iterable<Plans> planslocal);
+	Iterable<Plans> addLocalPlusNot(Iterable<Plans> planslocal) throws URISyntaxException, IOException, InterruptedException;
 
 	Plans updateNotLocal( EditPlansRequest resource, String name, long desiredVersion, String auth) throws URISyntaxException, IOException, InterruptedException;
 
@@ -195,7 +195,9 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
 	}
 
 	@Override
-	public Iterable<Plans> addLocalPlusNot(HttpResponse<String> response,Iterable<Plans> planslocal) {
+	public Iterable<Plans> addLocalPlusNot(Iterable<Plans> planslocal) throws URISyntaxException, IOException, InterruptedException {
+		HttpResponse<String> response = getPlansFromOtherAPI();
+
 		JSONArray jsonArray = new JSONArray(response.body());
 		for (int i = 0; i < jsonArray.length(); i++) {
 			PlanRequest newPlan = new PlanRequest(

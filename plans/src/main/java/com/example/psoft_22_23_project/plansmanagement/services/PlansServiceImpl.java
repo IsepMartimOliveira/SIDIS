@@ -53,8 +53,7 @@ public class PlansServiceImpl implements PlansService {
 	@Override
 	public Iterable<Plans> findAtive() throws URISyntaxException, IOException, InterruptedException {
 		Iterable<Plans> planslocal = plansRepository.findByActive_Active(true);
-		HttpResponse<String> plansfora = plansRepository.getPlansFromOtherAPI();
-		Iterable<Plans> plans = plansRepository.addLocalPlusNot(plansfora,planslocal);
+		Iterable<Plans> plans = plansRepository.addLocalPlusNot(planslocal);
 		return plans;
 	}
 
@@ -119,6 +118,21 @@ public class PlansServiceImpl implements PlansService {
 	}
 
 	@Override
+	public Plans deactivate(final String name, String authorizationToken,final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
+		final Optional<Plans> plans = plansRepository.findByName_Name(name);
+		if(plans.isPresent()){
+			Plans plans1 = plans.get();
+			if(!plans1.getActive().getActive()){
+				throw new IllegalArgumentException("Plan with name " + name + " is already deactivate");
+			}
+			plans1.deactivate(desiredVersion);
+			return plansRepository.save(plans1);
+		}
+		Plans obj = plansRepository.deactivateNotLocal(name,desiredVersion,authorizationToken);
+		return obj;
+	}
+
+	@Override
 	public Plans moneyUpdate(final String name, final EditPlanMoneyRequest resource,String auth, final long desiredVersion)throws URISyntaxException, IOException, InterruptedException {
 		final Optional<Plans> plans = plansRepository.findByName_Name(name);
 
@@ -167,22 +181,6 @@ public class PlansServiceImpl implements PlansService {
 		}
 		throw new IllegalArgumentException("Plan with name " + name + " does not exists on another machine and locally !");
 
-	}
-
-
-	@Override
-	public Plans deactivate(final String name, String authorizationToken,final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
-		final Optional<Plans> plans = plansRepository.findByName_Name(name);
-		if(plans.isPresent()){
-			Plans plans1 = plans.get();
-			if(!plans1.getActive().getActive()){
-				throw new IllegalArgumentException("Plan with name " + name + " is already deactivate");
-			}
-			plans1.deactivate(desiredVersion);
-			return plansRepository.save(plans1);
-		}
-		Plans obj = plansRepository.deactivateNotLocal(name,desiredVersion,authorizationToken);
-		return obj;
 	}
 
 	@Override

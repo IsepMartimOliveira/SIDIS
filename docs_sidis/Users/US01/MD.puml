@@ -1,0 +1,24 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title Domain Model / As a new customer I want to know all existing plans
+
+skinparam classAttributeIconSize 0
+hide circle
+hide methods
+
+class User{
+    -username
+    -password
+
+}
+
+
+class Role{
+    -type
+}
+
+
+Role "1" <.right. "1" User: Has
+
+@enduml
