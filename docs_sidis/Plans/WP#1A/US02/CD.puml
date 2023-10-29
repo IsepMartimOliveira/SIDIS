@@ -44,7 +44,7 @@ PlansController ..> PlansService: uses >
 PlansService ..> PlansRepository: uses >
 PlansService ..> PlansRepositoryCustomImpl: uses >
 PlansRepository ..> Plans: < record
-PlansRepository ..left>PlansController: HTPP API call >
+PlansRepository ..left>PlansController: HTTP API call >
 PlansService ..> Plans: uses >
 PlansController ..> PlansMapperInverse: uses >
 PlansController ..>PlansViewMapper: uses >

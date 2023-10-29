@@ -48,7 +48,7 @@ class PlansViewMapper{
 PlansController ..> PlansService: uses >
 PlansController ..> Plans
 PlansService ..> PlansRepository: uses >
-PlansRepository ..>PlansController: HTPP API call >
+PlansRepository ..>PlansController: HTTP API call >
 PlansRepository ..> Plans: records >
 PlansController ..right> PlansMapperInverse: uses >
 PlansController..left> PlansViewMapper: use >

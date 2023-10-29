@@ -15,6 +15,7 @@ Ac->Ctrl:Initiates the system
 alt Loop
 Ctrl->Repo:checks plans that are required to be intialized
 Repo-->Ctrl:Returns the plans
+Ctrl-->Ac:plans
 end
 
 

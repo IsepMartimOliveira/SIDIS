@@ -42,7 +42,7 @@ User..left>Role:has
 AuthApi ..> UserService: uses >
 UserService ..> UserRepository: uses >
 UserRepository ..> User: < record
-UserRepository ..left>AuthApi: HTPP API call >
+UserRepository ..left>AuthApi: HTTP API call >
 UserService ..> UserEditMapper: uses >
 AuthApi..>UserViewMapper: uses >
 @enduml

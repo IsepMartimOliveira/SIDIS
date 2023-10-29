@@ -10,7 +10,6 @@ hide methods
 class User{
     -username
     -password
-
 }
 
 

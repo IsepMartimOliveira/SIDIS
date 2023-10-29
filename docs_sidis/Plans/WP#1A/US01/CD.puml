@@ -49,7 +49,7 @@ interface PlansRepository
 PlansController ..> PlansService: uses >
 PlansService ..> PlansRepository: uses >
 PlansRepository ..> Plans: < record
-PlansRepository ..left>PlansController: HTPP API call >
+PlansRepository ..left>PlansController: HTTP API call >
 PlansService ..> CreatePlansMapper: uses >
 PlansController ..>PlansViewMapper: uses >
 @enduml

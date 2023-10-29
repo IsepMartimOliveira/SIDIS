@@ -2,34 +2,28 @@
 'https://plantuml.com/sequence-diagram
 autoactivate on
 autonumber
-title  Sequence Diagram / Register a new account
+title  Sequence Diagram / Login account
 
 autonumber
 
 actor "User" as Ac
 participant ":AuthApi" as Auth
-participant ":UserService" as Serv
-participant ":UserRepository" as Repo
-participant ":UserEditMapper" as Mapper
-participant ":PasswordEncoder" as Pass
-participant ":UserViewMapper" as View
+participant ":Authentication" as Auth2
+participant ":User" as User
+participant ":JwtClaimsSet" as Jwt
 
-Ac->Auth:POST public/register
-Auth->Serv:create(CreateUserRequest request)
-Serv->Repo:findByUsername(request.getUsername())
-Repo-->Serv:user2
-Serv->Repo:getUserFromOtherAPI(request.getUsername())
-Repo->Serv:HTTP 404
-Serv->Mapper:create(request)
-Mapper-->Serv:user
-Serv->Pass:setPassword(passwordEncoder.encode(request.getPassword())
-Pass-->Serv:pass
-Serv->Repo:save(user)
-Repo-->Serv:user
-Serv-->Auth:user
-Auth->View:toUserView(user)
-View->Auth:UserView
-Auth-->Ac:userView
+
+Ac->Auth:POST public/login
+Auth->Auth2:authenticate()
+Auth2-->Auth:authentication
+Auth->User:(User) authentication.getPrincipal()
+User-->Auth:user
+Auth->Jwt:JwtClaimsSet.builder()
+Jwt-->Auth:claims
+Auth-->Ac:ResponseEntity.ok()
+
+
+
 
 
 

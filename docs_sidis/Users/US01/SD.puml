@@ -15,6 +15,7 @@ Ac->Ctrl:Initiates the system
 alt Loop
 Ctrl->Repo:checks what user is required to be initialized
 Repo-->Ctrl:Returns the user
+Ctrl-->Ac: user
 end
 
 

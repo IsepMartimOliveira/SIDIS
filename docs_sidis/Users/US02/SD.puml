@@ -19,7 +19,7 @@ Auth->Serv:create(CreateUserRequest request)
 Serv->Repo:findByUsername(request.getUsername())
 Repo-->Serv:user2
 Serv->Repo:getUserFromOtherAPI(request.getUsername())
-Repo->Serv:HTTP 404
+Repo-->Serv:HTTP 404
 Serv->Mapper:create(request)
 Mapper-->Serv:user
 Serv->Pass:setPassword(passwordEncoder.encode(request.getPassword())

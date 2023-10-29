@@ -1,9 +1,9 @@
 @startuml
 'https://plantuml.com/class-diagram
 hide circle
-class UserRepository <<interface>>
 
-title Class Diagram / Register a new account
+
+title Class Diagram /Login a  account
 
 
 
@@ -15,34 +15,27 @@ class User{
 class Role{
 -role
 }
-class UserViewMapper{
-    +toUserView(User user):UserView
-}
+
 class AuthApi{
   login( final AuthRequest request)
     }
-class UserService{
- +create(final CreateUserRequest request):User
 
 
-}
-class UserEditMapper{
-    +create(CreateUserRequest request):User
-}
 
-interface UserRepository
+interface Authentication
 {
-+findByUsername(String username)
-+save(S entity) : <S extends User>
++   Object getPrincipal()
++   Collection<? extends GrantedAuthority> getAuthorities()
 }
 
+class JwtClaimsSet
+{
+JwtClaimsSet(Map<String, Object> claims)
+}
 
 
 User..left>Role:has
-AuthApi ..> UserService: uses >
-UserService ..> UserRepository: uses >
-UserRepository ..> User: < record
-UserRepository ..left>AuthApi: HTPP API call >
-UserService ..> UserEditMapper: uses >
-AuthApi..>UserViewMapper: uses >
+AuthApi ..> Authentication: uses >
+AuthApi..>User: uses >
+AuthApi..>JwtClaimsSet: uses >
 @enduml

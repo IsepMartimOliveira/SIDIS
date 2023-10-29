@@ -32,6 +32,7 @@ it is already deactivate
 end note
 alt Check if the Plan exist on other instances if plan==empty
 Serv->Repo:deactivateNotLocal(name,desiredVersion,authorizationToken)
+Repo->Repo: getPlansFromOtherAPI(name,authorizationToken)
 Repo-->Repo: HTTP 200
 
 Repo->Repo:doPlansPatchDeactivate(name,desiredVersion)
