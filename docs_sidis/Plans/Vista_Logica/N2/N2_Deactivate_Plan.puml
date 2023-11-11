@@ -6,12 +6,12 @@ title  Deactivate  a  Plan
 
 autonumber
 
-actor "User" as Ac
+actor "Client" as Ac
 participant ":Plan" as Auth
 participant ":Plan1" as Serv
 
 
-Ac->Auth:PATCH /plans/deactivate/{name}
+Ac->Auth:PATCH plans/deactivate/{name}
 Auth->Auth:checkLocal
 
 alt Plans exist locally

@@ -6,7 +6,7 @@ title  Change details from  a  Plan
 
 autonumber
 
-actor "User" as Ac
+actor "Client" as Ac
 participant ":Plan" as Auth
 participant ":Plan1" as Serv
 

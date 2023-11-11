@@ -1,0 +1,41 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Create  a  Plan
+
+autonumber
+
+actor "Client" as Ac
+participant ":User" as User
+participant ":UserDB" as Udb
+
+participant ":Plan" as Plan
+participant ":PlanDB" as PDB
+participant ":PlanHTTP" as PHTTP
+participant ":Plan1" as Plan1
+
+
+
+Ac->User: POST public/login
+User->Udb:checkLocal
+Udb-->User:user
+User-->User:generates JWT Token
+User-->Ac:200
+Ac->Plan:GET  /plans
+Plan->PDB:checkLocal
+PDB-->Plan:plans
+
+Plan->PHTTP:GET plans/external/
+PHTTP->Plan1:checkLocal
+Plan1-->PHTTP:200
+PHTTP-->PHTTP:addPlans
+
+PHTTP-->Plan:plans
+
+Plan-->Ac:200
+
+
+
+
+@enduml
