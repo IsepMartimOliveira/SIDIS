@@ -1,0 +1,37 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Deactivate  a  Plan
+
+autonumber
+
+actor "User" as Ac
+participant ":Plan" as Auth
+participant ":Plan1" as Serv
+
+
+Ac->Auth:PATCH /plans/deactivate/{name}
+Auth->Auth:checkLocal
+
+alt Plans exist locally
+Auth->Auth:Deactivate
+Auth->Auth:save
+end
+alt Plans exist on another instance
+Auth->Serv: GET plans/external/{planName}
+Serv-->Auth:200
+Auth->Serv:PATCH plans/deactivate/{name}
+Serv-->Auth:200
+end
+Auth-->Ac:200
+
+
+
+
+
+
+
+
+
+@enduml
