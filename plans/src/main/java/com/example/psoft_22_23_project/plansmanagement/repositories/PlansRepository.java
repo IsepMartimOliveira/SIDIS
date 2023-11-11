@@ -93,6 +93,8 @@ interface PlansRepoHttpCustom{
 @RequiredArgsConstructor
 @Configuration
 class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
+	@Value("${plans.external}")
+	private String externalPlansUrl;
 	@Value("${server.port}")
 	private int currentPort;
 	private final CreatePlansMapper createPlansMapper;
@@ -101,8 +103,9 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
 	@Override
 	public HttpResponse<String> getPlansFromOtherAPI(String name, String auth) throws URISyntaxException, IOException, InterruptedException {
 
-		int otherPort = (currentPort == 8081) ? 8090 : 8081;
-		URI uri = new URI("http://localhost:" + otherPort + "/api/plans/external/" + name);
+
+		String urlWithDynamicName = externalPlansUrl.replace("{name}", name);
+		URI uri = new URI(urlWithDynamicName);
 
 		HttpRequest request = HttpRequest.newBuilder()
 				.uri(uri)

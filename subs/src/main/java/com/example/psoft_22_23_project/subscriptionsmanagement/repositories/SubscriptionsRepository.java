@@ -61,6 +61,13 @@ interface SubsRepoHttpCustom {
 class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
     @Value("${server.port}")
     private int currentPort;
+    @Value("${plan.server.port}")
+    private int planPort;
+
+    @Value("${user.server.port}")
+    private int userPort;
+    @Value("${subscription.external}")
+    private String externalSubscriptionUrl;
     private final CreateSubscriptionsMapper createSubscriptionsMapper;
     private final SubscriptionsRepositoryDB subscriptionsRepositoryDB;
 
@@ -106,8 +113,8 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
         // 82 91 subs
         // 81 90 plans
         // 83 92 users
-        int otherPort = (currentPort == 8082) ? 8081 : 8090;
-        URI uri = new URI("http://localhost:" + otherPort + "/api/plans/" + name);
+        //int otherPort = (currentPort == 8082) ? 8081 : 8090;
+        URI uri = new URI("http://localhost:" + planPort + "/api/plans/" + name);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
@@ -127,8 +134,8 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
         // 82 91 subs
         // 81 90 plans
         // 83 92 users
-        int otherPort = (currentPort == 8082) ? 8083 : 8092;
-        URI uri = new URI("http://localhost:" + otherPort + "/api/user/" + name);
+        //int otherPort = (currentPort == 8082) ? 8083 : 8092;
+        URI uri = new URI("http://localhost:" + userPort + "/api/user/" + name);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
@@ -148,9 +155,10 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
         // 82 91 subs
         // 81 90 plans
         // 83 92 users
-        int otherPort = (currentPort == 8082) ? 8091 : 8082;
+        String urlWithDynamicName = externalSubscriptionUrl.replace("{username}", userName);
+        URI uri = new URI(urlWithDynamicName);
 
-        URI uri = new URI("http://localhost:" + otherPort + "/api/subscriptions/external/" + userName);
+       // URI uri = new URI("http://localhost:" + otherPort + "/api/subscriptions/external/" + userName);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
                 .GET()

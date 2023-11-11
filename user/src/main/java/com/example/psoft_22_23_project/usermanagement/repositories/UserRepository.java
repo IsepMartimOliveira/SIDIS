@@ -83,12 +83,16 @@ class UserRepoHttpImpl implements UserRepoHttp {
 	@Value("${server.port}")
 	private int currentPort;
 
+	@Value("${user.external}")
+	private String externalUserUrl;
+
 	@Override
 	public HttpResponse<String> getUserFromOtherAPI(String name) throws URISyntaxException, IOException, InterruptedException {
 
-		int otherPort = (currentPort == 8083) ? 8092 : 8083;
-		URI uri = new URI("http://localhost:" + otherPort + "/api/user/external/" + name);
-
+		//int otherPort = (currentPort == 8083) ? 8092 : 8083;
+		//URI uri = new URI("http://localhost:" + otherPort + "/api/user/external/" + name);
+		String urlWithDynamicName = externalUserUrl.replace("{name}", name);
+		URI uri = new URI(urlWithDynamicName);
 		HttpRequest request = HttpRequest.newBuilder()
 				.uri(uri)
 				.GET()
