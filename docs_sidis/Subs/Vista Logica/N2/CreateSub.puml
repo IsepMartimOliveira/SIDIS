@@ -1,0 +1,20 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Create  a new Subscription
+
+autonumber
+
+actor "Client" as Ac
+participant ":Subscription" as Auth
+participant ":Subscription1" as Serv
+
+
+Ac->Auth: POST /subscriptions/create
+Auth->Auth:checkLocal
+Auth->Serv: GET /subscriptions/external/{username}
+Serv-->Auth:404
+Auth->Auth:save
+Auth-->Ac:201
+@enduml

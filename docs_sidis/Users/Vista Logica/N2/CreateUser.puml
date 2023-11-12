@@ -1,0 +1,29 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Create  a new User
+
+autonumber
+
+actor "Client" as Ac
+participant ":User" as Auth
+participant ":User1" as Serv
+
+
+Ac->Auth:POST /public/register
+Auth->Auth:checkLocal
+Auth->Serv: GET /user/external/{name}
+Serv-->Auth:404
+Auth->Auth:save
+Auth-->Ac:201
+
+
+
+
+
+
+
+
+
+@enduml

@@ -40,8 +40,7 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
 
     @Override
     public Subscriptions create(final CreateSubscriptionsRequest resource,String auth) throws URISyntaxException, IOException, InterruptedException {
-        HttpResponse<String> plan = subscriptionsRepository.getPlansFromOtherAPI(resource.getName());
-        Subscriptions obj = subscriptionsRepository.planExists(plan,auth,resource);
+        Subscriptions obj = subscriptionsRepository.planExists(auth,resource);
         return subscriptionsRepository.save(obj);
     }
 

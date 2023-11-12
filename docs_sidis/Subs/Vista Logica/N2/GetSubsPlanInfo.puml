@@ -1,0 +1,26 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title   Renew a  Subscription
+
+autonumber
+
+actor "Client" as Ac
+participant ":Subscription" as Auth
+participant ":Subscription1" as Serv
+
+
+Ac->Auth:  GET /subscriptions/
+Auth->Auth:checkLocal
+alt Subscription exist locally
+Auth-->Auth:gives me my plan details
+end
+alt Subscription doesn´t exist locally
+
+Auth->Serv: GET /subscriptions/external/{username}
+Serv-->Auth:200
+Auth-->Auth:Throw error message
+end
+Auth-->Ac:200
+@enduml

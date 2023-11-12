@@ -36,7 +36,7 @@ interface SubscriptionsRepositoryDB extends CrudRepository<Subscriptions,Long> {
 
 }
 interface SubsRepoHttpCustom {
-    Subscriptions planExists(HttpResponse<String> plan, String auth, CreateSubscriptionsRequest resource) throws URISyntaxException, IOException, InterruptedException;
+    Subscriptions planExists(String auth, CreateSubscriptionsRequest resource) throws URISyntaxException, IOException, InterruptedException;
 
     HttpResponse<String> getPlansFromOtherAPI(String name) throws URISyntaxException, IOException, InterruptedException;
 
@@ -73,7 +73,8 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
 
 
     @Override
-    public Subscriptions planExists(HttpResponse<String> plan, String auth, CreateSubscriptionsRequest resource) throws URISyntaxException, IOException, InterruptedException {
+    public Subscriptions planExists( String auth, CreateSubscriptionsRequest resource) throws URISyntaxException, IOException, InterruptedException {
+        HttpResponse<String> plan =getPlansFromOtherAPI(resource.getName());
         if (plan.statusCode() == 200) {
             JSONObject jsonArray = new JSONObject(plan.body());
 
