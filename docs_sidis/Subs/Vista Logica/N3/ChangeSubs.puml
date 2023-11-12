@@ -2,7 +2,7 @@
 'https://plantuml.com/sequence-diagram
 autoactivate on
 autonumber
-title  Cancel  a new Subscription
+title  Renew  a new Subscription
 
 autonumber
 
@@ -15,9 +15,12 @@ participant ":User1" as User1
 participant ":UserHTTP" as UHTTP
 participant ":SubscriptionDB" as SDB
 participant ":Subscription1" as Serv
+participant ":Plan" as Plan
+participant ":PlanDB" as PDB
+participant ":Plan1" as Plan1
+participant ":PlanHTTP" as PHTTP
 
-
-Ac->Auth: PATCH /subscriptions/
+Ac->Auth:  PATCH /subscriptions/change/{name}
 Auth->SHTTP:
 SHTTP->User:checkUserExists
 alt User exist in first instance
@@ -41,11 +44,21 @@ SHTTP->Serv:GET subscriptions/external/{username}
 Serv-->SHTTP:200
 SHTTP->SHTTP:ThrowIllegalMessage
 end
-SHTTP->SHTTP:cancellSubscription
-SHTTP->Auth:cancelledSubscription
+SHTTP->Plan:GET /api/plans/{name}
 
+alt Plan exist in the first instance
+Plan->PDB:checkLocal
+PDB-->Plan:200
+alt Plan doesn´t exist in the first instance
+Plan->Plan1:GET plans/external/{planName}
+Plan1->PHTTP:checkInstance
+PHTTP-->Plan1:200
+Plan1-->Plan:200
 end
-
+end
+Plan-->SHTTP:200
+end
+SHTTP-->Auth:changedSubscription
 
 Auth->Auth:save
 Auth-->Ac:200

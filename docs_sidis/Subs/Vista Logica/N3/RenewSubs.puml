@@ -2,7 +2,7 @@
 'https://plantuml.com/sequence-diagram
 autoactivate on
 autonumber
-title  Cancel  a new Subscription
+title  Renew  a new Subscription
 
 autonumber
 
@@ -17,7 +17,7 @@ participant ":SubscriptionDB" as SDB
 participant ":Subscription1" as Serv
 
 
-Ac->Auth: PATCH /subscriptions/
+Ac->Auth:  PATCH /subscriptions/renew
 Auth->SHTTP:
 SHTTP->User:checkUserExists
 alt User exist in first instance
@@ -41,8 +41,8 @@ SHTTP->Serv:GET subscriptions/external/{username}
 Serv-->SHTTP:200
 SHTTP->SHTTP:ThrowIllegalMessage
 end
-SHTTP->SHTTP:cancellSubscription
-SHTTP->Auth:cancelledSubscription
+SHTTP->SHTTP:add a year
+SHTTP->Auth:renewedSubscription
 
 end
 
