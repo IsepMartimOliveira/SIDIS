@@ -1,0 +1,52 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Cancel  a new Subscription
+
+autonumber
+
+actor "Client" as Ac
+participant ":Subscription" as Auth
+participant ":SubscriptionHTTP" as SHTTP
+participant ":User" as User
+participant ":UserDB" as UDB
+participant ":User1" as User1
+participant ":UserHTTP" as UHTTP
+participant ":SubscriptionDB" as SDB
+participant ":Subscription1" as Serv
+
+
+Ac->Auth: PATCH /subscriptions/
+Auth->SHTTP:
+SHTTP->User:checkUserExists
+alt User exist in first instance
+User->UDB:checkLocal
+UDB-->User:exists
+alt User doesn´t exist in the first instance
+User->User1:GET user/external/{name}
+User1->UHTTP:checkInstance
+UHTTP-->User1:200
+User1-->User:200
+end
+User-->SHTTP:200
+
+end
+
+alt Subscription exists in the first Instance
+SHTTP->SDB:checkSubExists
+SDB-->SHTTP:subscriptions
+alt Subscription doesn´t exist in the first instance
+SHTTP->Serv:GET subscriptions/external/{username}
+Serv-->SHTTP:200
+SHTTP->SHTTP:ThrowIllegalMessage
+end
+SHTTP->SHTTP:cancellSubscription
+SHTTP->Auth:cancelledSubscription
+
+end
+
+
+Auth->Auth:save
+Auth-->Ac:201
+@enduml

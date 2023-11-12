@@ -1,0 +1,58 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Create  a new Subscription
+
+autonumber
+
+actor "Client" as Ac
+participant ":Subscription" as Auth
+participant ":SubscriptionHTTP" as SHTTP
+participant ":Plan" as Plan
+participant ":PlanDB" as PDB
+participant ":Plan1" as Plan1
+participant ":PlanHTTP" as PHTTP
+participant ":User" as User
+participant ":UserDB" as UDB
+participant ":User1" as User1
+participant ":UserHTTP" as UHTTP
+participant ":SubscriptionDB" as SDB
+participant ":Subscription1" as Serv
+
+
+Ac->Auth: POST /subscriptions/create
+Auth->SHTTP: check
+SHTTP->Plan:GET /api/plans/{name}
+alt Plan exist in first instance
+Plan->PDB:checkLocal
+PDB-->Plan:exists
+alt Plan doesn´t exist in the first instance
+Plan->Plan1:GET plans/external/{planName}
+Plan1->PHTTP:checkInstance
+PHTTP-->Plan1:200
+Plan1-->Plan:200
+end
+Plan-->SHTTP:200
+end
+SHTTP->User:checkUserExists
+alt User exist in first instance
+User->UDB:checkLocal
+UDB-->User:exists
+alt User doesn´t exist in the first instance
+User->User1:GET user/external/{name}
+User1->UHTTP:checkInstance
+UHTTP-->User1:200
+User1-->User:200
+end
+User-->SHTTP:200
+
+end
+SHTTP->SDB:checkSubExists
+SDB-->SHTTP:empty
+SHTTP->Serv:GET subscriptions/external/{username}
+Serv-->SHTTP:404
+SHTTP-->Auth:ok
+Auth->Auth:save
+Auth-->Ac:201
+@enduml
