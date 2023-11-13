@@ -14,7 +14,7 @@ participant ":Subscription1" as Serv
 Ac->Auth:  GET /subscriptions/
 Auth->Auth:checkLocal
 alt Subscription exist locally
-Auth-->Auth:gives me my plan details
+Auth-->Auth:Shows plan details
 end
 alt Subscription doesn´t exist locally
 
