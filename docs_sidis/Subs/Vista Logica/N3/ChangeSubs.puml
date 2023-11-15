@@ -8,17 +8,17 @@ autonumber
 
 actor "Client" as Ac
 participant ":Subscription" as Auth
-participant ":SubscriptionHTTP" as SHTTP
+database ":SubscriptionHTTP" as SHTTP
 participant ":User" as User
-participant ":UserDB" as UDB
+database ":UserDB" as UDB
 participant ":User1" as User1
-participant ":UserHTTP" as UHTTP
-participant ":SubscriptionDB" as SDB
+database ":UserHTTP" as UHTTP
+database ":SubscriptionDB" as SDB
 participant ":Subscription1" as Serv
 participant ":Plan" as Plan
-participant ":PlanDB" as PDB
+database ":PlanDB" as PDB
 participant ":Plan1" as Plan1
-participant ":PlanHTTP" as PHTTP
+database ":PlanHTTP" as PHTTP
 
 Ac->Auth:  PATCH /subscriptions/change/{name}
 Auth->SHTTP:
