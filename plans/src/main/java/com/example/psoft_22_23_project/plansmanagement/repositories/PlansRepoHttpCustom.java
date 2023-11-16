@@ -47,21 +47,23 @@ public interface PlansRepoHttpCustom {
 @RequiredArgsConstructor
 @Configuration
 class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
-    @Value("${plans.external}")
-    private String externalPlansUrl;
-    @Value("${plansall.external}")
-    private String externalAllPlansUrl;
     @Value("${server.port}")
     private int currentPort;
+    @Value("${port1}")
+    private int portOne;
+    @Value("${port2}")
+    private int portTwo;
+    private int otherPort;
     private final CreatePlansMapper createPlansMapper;
     private final PlansMapperInverse plansMapperInverse;
 
     @Override
     public HttpResponse<String> getPlansFromOtherAPI(String name, String auth) throws URISyntaxException, IOException, InterruptedException {
+        otherPort = (currentPort==portTwo) ? portOne : portTwo;
+        URI uri = new URI("http://localhost:" + otherPort + "/api/plans/external/"+name);
 
-
-        String urlWithDynamicName = externalPlansUrl.replace("{name}", name);
-        URI uri = new URI(urlWithDynamicName);
+       // String urlWithDynamicName = externalPlansUrl.replace("{name}", name);
+        //URI uri = new URI(urlWithDynamicName);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
@@ -80,8 +82,8 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
 
     @Override
     public HttpResponse<String> getPlansFromOtherAPI() throws URISyntaxException, IOException, InterruptedException {
-
-        URI uri = new URI(externalAllPlansUrl);
+        otherPort = (currentPort==portTwo) ? portOne : portTwo;
+        URI uri = new URI("http://localhost:" + otherPort + "/api/plans/external");
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
                 .GET()
@@ -116,11 +118,14 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
 
     @Override
     public HttpResponse<String> doPlansPatchAPI(String name, final long desiredVersion, String auth,String json) throws URISyntaxException, IOException, InterruptedException {
-        int otherPort = (currentPort == 8081) ? 8090 : 8081;
-        String apiUrl = "http://localhost:" + otherPort + "/api/plans/update/" + name;
+        //String urlWithDynamicName = patchDetails.replace("{name}", name);
+        //URI uri = new URI(urlWithDynamicName);
+
+        otherPort = (currentPort==portTwo) ? portOne : portTwo;
+        URI uri = new URI("http://localhost:" + otherPort + "/api/plans/update/" + name);
 
         HttpRequest requestpatch = HttpRequest.newBuilder()
-                .uri(URI.create(apiUrl))
+                .uri(uri)
                 .header("Content-Type", "application/json")
                 .header("Authorization",auth)
                 .header("if-match", Long.toString(desiredVersion) )
@@ -135,11 +140,13 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
 
     @Override
     public HttpResponse<String> doPlansPatchDeactivate(String name, String auth,long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
-        int otherPort = (currentPort == 8081) ? 8090 : 8081;
-        String apiUrl = "http://localhost:" + otherPort + "/api/plans/deactivate/" + name;
+        otherPort = (currentPort==portTwo) ? portOne : portTwo;
+        URI uri = new URI("http://localhost:" + otherPort + "/api/plans/deactivate/" + name);
+        //String urlWithDynamicName = patchDeactivate.replace("{name}", name);
+        //URI uri = new URI(urlWithDynamicName);
 
         HttpRequest requestpatch = HttpRequest.newBuilder()
-                .uri(URI.create(apiUrl))
+                .uri(uri)
                 .header("Content-Type", "application/json")
                 .header("Authorization",auth)
                 .header("if-match", Long.toString(desiredVersion))

@@ -52,13 +52,15 @@ public interface SubsRepoHttpCustom {
 class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
     @Value("${server.port}")
     private int currentPort;
+    @Value("${port1}")
+    private int portOne;
+    @Value("${port2}")
+    private int portTwo;
+    private int otherPort;
     @Value("${plan.server.port}")
     private int planPort;
-
     @Value("${user.server.port}")
     private int userPort;
-    @Value("${subscription.external}")
-    private String externalSubscriptionUrl;
     private final CreateSubscriptionsMapper createSubscriptionsMapper;
     private final SubscriptionsRepositoryDB subscriptionsRepositoryDB;
 
@@ -145,10 +147,11 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
         // 82 91 subs
         // 81 90 plans
         // 83 92 users
-        String urlWithDynamicName = externalSubscriptionUrl.replace("{username}", userName);
-        URI uri = new URI(urlWithDynamicName);
-
+      //  String urlWithDynamicName = externalSubscriptionUrl.replace("{username}", userName);
+        //URI uri = new URI(urlWithDynamicName);
         // URI uri = new URI("http://localhost:" + otherPort + "/api/subscriptions/external/" + userName);
+        otherPort = (currentPort==portTwo) ? portOne : portTwo;
+        URI uri = new URI("http://localhost:" + otherPort + "/api/subscriptions/external/"+userName);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
                 .GET()

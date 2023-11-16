@@ -83,6 +83,12 @@ class UserRepoHttpImpl implements UserRepoHttp {
 	@Value("${server.port}")
 	private int currentPort;
 
+	@Value("${port1}")
+	private int portOne;
+	@Value("${port2}")
+	private int portTwo;
+	private int otherPort;
+
 	@Value("${user.external}")
 	private String externalUserUrl;
 
@@ -91,8 +97,10 @@ class UserRepoHttpImpl implements UserRepoHttp {
 
 		//int otherPort = (currentPort == 8083) ? 8092 : 8083;
 		//URI uri = new URI("http://localhost:" + otherPort + "/api/user/external/" + name);
-		String urlWithDynamicName = externalUserUrl.replace("{name}", name);
-		URI uri = new URI(urlWithDynamicName);
+		//String urlWithDynamicName = externalUserUrl.replace("{name}", name);
+		//URI uri = new URI(urlWithDynamicName);
+		otherPort=(currentPort==portTwo) ? portOne : portTwo;
+		URI uri = new URI("http://localhost:" + otherPort + "/api/user/external/"+name);
 		HttpRequest request = HttpRequest.newBuilder()
 				.uri(uri)
 				.GET()
