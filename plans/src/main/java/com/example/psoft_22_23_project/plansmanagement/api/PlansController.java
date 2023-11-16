@@ -41,7 +41,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 
 @Tag(name = "Plans", description = "Endpoints for managing plans")
@@ -93,7 +92,7 @@ public class PlansController {
 
 	@Operation(summary = "Get Plan by name")
 	@GetMapping("/external/{planName}")
-	public ResponseEntity<PlansView> getPlanByNameExternal(@PathVariable String planName){
+	public ResponseEntity<PlansView> getPlanByNameExternal(@PathVariable String planName) throws IOException, URISyntaxException, InterruptedException {
 		Optional<Plans> planOptional = service.getPlanByNameExternal(planName);
 
 		if (planOptional.isPresent()) {
@@ -106,48 +105,6 @@ public class PlansController {
 	}
 
 
-	@Operation(summary = "Get Plans by active status and promoted")
-	@GetMapping("/byActiveAndPromoted")
-	public ResponseEntity<List<PlansView>> getPlansByActive(
-			@RequestParam Boolean activePlan,
-			@RequestParam String name,@RequestParam Boolean promoted) {
-		if (activePlan == null && name == null) {
-			return ResponseEntity.badRequest().build();
-		}
-
-		Optional<Plans> activePlans=service.getPlanByActiveAndPromoted(activePlan, name,promoted);
-
-
-		if (activePlans.isPresent()) {
-			List<PlansView> plansViews = activePlans.stream()
-					.map(plansViewMapper::toPlansView)
-					.collect(Collectors.toList());
-			return ResponseEntity.ok(plansViews);
-		} else {
-			return ResponseEntity.notFound().build();
-		}
-	}
-	/*@Operation(summary = "Get Plans by active status and promoted")
-	@GetMapping("/byActive")
-	public ResponseEntity<List<PlansView>> getPlansByActive(
-			@RequestParam Boolean activePlan,
-			@RequestParam String name) {
-		if (activePlan == null && name == null) {
-			return ResponseEntity.badRequest().build();
-		}
-
-		Optional<Plans> activePlans=service.getPlanByActive(activePlan, name);
-
-
-		if (activePlans.isPresent()) {
-			List<PlansView> plansViews = activePlans.stream()
-					.map(plansViewMapper::toPlansView)
-					.collect(Collectors.toList());
-			return ResponseEntity.ok(plansViews);
-		} else {
-			return ResponseEntity.notFound().build();
-		}
-	}*/
 	@Operation(summary = "Creates a new Plan")
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED) public ResponseEntity<PlansView>
@@ -164,7 +121,7 @@ public class PlansController {
 
 	@Operation(summary = "Gets money history of plan")
 	@GetMapping(value = "/history/{name}")
-	public List<FeeRevisionView> history(@PathVariable("name") @Parameter(description = "The name of the plan to get history") final String name) {
+	public List<FeeRevisionView> history(@PathVariable("name") @Parameter(description = "The name of the plan to get history") final String name) throws IOException, URISyntaxException, InterruptedException {
 		return feeRevisionViewMapper.toFeesView(service.history(name));
 	}
 
@@ -186,22 +143,6 @@ public class PlansController {
 	}
 
 
-	@Operation(summary = "Partially updates money of an existing plan")
-	@PatchMapping(value = "/updateMoney/{name}")
-	public ResponseEntity<PlansView> moneyUpdate(final WebRequest request,
-												   @PathVariable("name") @Parameter(description = "The name of the plan to update") final String name,
-												 	@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken,
-												   @Valid @RequestBody final EditPlanMoneyRequest resource) throws URISyntaxException, IOException, InterruptedException {
-
-		final String ifMatchValue = request.getHeader("If-Match");
-		if (ifMatchValue == null || ifMatchValue.isEmpty()) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-					"You must issue a conditional PATCH using 'if-match' (1)");
-		}
-
-		final Plans plans = service.moneyUpdate(name, resource, authorizationToken,getVersionFromIfMatchHeader(ifMatchValue));
-		return ResponseEntity.ok().eTag(Long.toString(plans.getVersion())).body(plansViewMapper.toPlansView(plans));
-	}
 
 
 
@@ -220,46 +161,9 @@ public class PlansController {
 		return ResponseEntity.ok().eTag(Long.toString(plans.getVersion())).body(plansViewMapper.toPlansView(plans));
 	}
 
-	@Operation(summary = "Promote a plan")
-	@PatchMapping(value = "/promote")
-	public ResponseEntity<PromotionResultView> promote(final WebRequest request,
-													   @RequestParam("name") @Parameter(description = "The name of the plan to promote") final String name) throws IOException, URISyntaxException, InterruptedException {
-		final String ifMatchValue = request.getHeader("If-Match");
-		if (ifMatchValue == null || ifMatchValue.isEmpty()) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-					"You must issue a conditional PATCH using 'if-match'");
-		}
 
-		final var promotionResult = service.promote(name, getVersionFromIfMatchHeader(ifMatchValue));
 
-		PromotionResultView promotionResultView = new PromotionResultView();
-		promotionResultView.setNewPromotedPlan(plansViewMapper.toPlansView(promotionResult.getNewPromotedPlan()));
-		promotionResultView.setPreviousPromotedPlan(plansViewMapper.toPlansView(promotionResult.getPreviousPromotedPlan()));
 
-		return ResponseEntity.ok()
-				.eTag(Long.toString(promotionResult.getNewPromotedPlan().getVersion()))
-				.body(promotionResultView);
-	}
-
-	@Operation(summary = "Ceases an existing plan")
-	@DeleteMapping
-	public ResponseEntity<PlansView> cease(final WebRequest request,
-											 @RequestParam("name")  final String name) {
-		final String ifMatchValue = request.getHeader("If-Match");
-		if (ifMatchValue == null || ifMatchValue.isEmpty()) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-					"You must issue a conditional DELETE using 'if-match'");
-		}
-		final int count = service.cease(name, getVersionFromIfMatchHeader(ifMatchValue));
-
-		if (count == 0) {
-			return ResponseEntity.status(HttpStatus.CONFLICT).build();
-		} else if (count == 1) {
-			return ResponseEntity.ok().build();
-		} else {
-			return ResponseEntity.status(HttpStatus.CONFLICT).build();
-		}
-	}
 
 }
 

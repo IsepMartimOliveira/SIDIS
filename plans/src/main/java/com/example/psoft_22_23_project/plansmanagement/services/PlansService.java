@@ -22,11 +22,9 @@ package com.example.psoft_22_23_project.plansmanagement.services;
 
 
 import com.example.psoft_22_23_project.plansmanagement.api.CreatePlanRequest;
-import com.example.psoft_22_23_project.plansmanagement.api.EditPlanMoneyRequest;
 import com.example.psoft_22_23_project.plansmanagement.api.EditPlansRequest;
 import com.example.psoft_22_23_project.plansmanagement.model.FeeRevision;
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
-import com.example.psoft_22_23_project.plansmanagement.model.PromotionResult;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -39,23 +37,16 @@ public interface PlansService {
 
 	Plans partialUpdate(String name, EditPlansRequest resource,String auth, long parseLong) throws URISyntaxException, IOException, InterruptedException;
 
-	Plans moneyUpdate(String name, EditPlanMoneyRequest resource,String auth, long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
-
 	Plans deactivate(String name, String authorizationToken,long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
-
-	PromotionResult promote(String name, long desiredVersion) throws IOException, InterruptedException, URISyntaxException;
-
-	int cease(String name, final long desiredVersion);
 
 	Iterable<Plans> findAtive() throws URISyntaxException, IOException, InterruptedException;
 	Iterable<Plans> findAtiveExternal();
 
-	List<FeeRevision> history(String name);
+	List<FeeRevision> history(String name) throws IOException, URISyntaxException, InterruptedException;
 
 
 	Optional<Plans> getPlanByName(String planName) throws URISyntaxException, IOException, InterruptedException;
-	Optional<Plans> getPlanByNameExternal(String planName);
+	Optional<Plans> getPlanByNameExternal(String planName) throws IOException, URISyntaxException, InterruptedException;
 
-	Optional<Plans>getPlanByActiveAndPromoted(Boolean active,String name,Boolean promoted);
-	Optional<Plans> getPlanByActive(Boolean active,String name);
+
 }
