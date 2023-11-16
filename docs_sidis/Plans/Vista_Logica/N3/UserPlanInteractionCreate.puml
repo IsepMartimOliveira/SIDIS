@@ -8,11 +8,11 @@ autonumber
 
 actor "Client" as Ac
 participant ":User" as User
-participant ":UserDB" as Udb
+database ":UserDB" as Udb
 
 participant ":Plan" as Plan
 participant ":PlanDB" as PDB
-participant ":PlanHTTP" as PHTTP
+database ":PlanHTTP" as PHTTP
 participant ":Plan1" as Plan1
 
 

@@ -11,8 +11,8 @@ participant ":User" as User
 participant ":UserDB" as Udb
 
 participant ":Plan" as Plan
-participant ":PlanDB" as PDB
-participant ":PlanHTTP" as PHTTP
+database ":PlanDB" as PDB
+database ":PlanHTTP" as PHTTP
 participant ":Plan1" as Plan1
 
 
