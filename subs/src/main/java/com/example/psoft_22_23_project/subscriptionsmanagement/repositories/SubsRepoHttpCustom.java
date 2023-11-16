@@ -1,6 +1,5 @@
 package com.example.psoft_22_23_project.subscriptionsmanagement.repositories;
 
-
 import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreateSubscriptionsRequest;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.PlansDetails;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptions;
@@ -9,11 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Repository;
 
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -25,17 +21,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.Optional;
 
-@Repository
-@Configuration
-public interface SubscriptionsRepository extends SubscriptionsRepositoryDB,SubsRepoHttpCustom{
-
-}
-interface SubscriptionsRepositoryDB extends CrudRepository<Subscriptions,Long> {
-    Optional<Subscriptions> findById(long id);
-    Optional<Subscriptions> findByActiveStatus_ActiveAndUser(@NotNull boolean active, @NotNull String user);
-
-}
-interface SubsRepoHttpCustom {
+public interface SubsRepoHttpCustom {
     Subscriptions planExists(String auth, CreateSubscriptionsRequest resource) throws URISyntaxException, IOException, InterruptedException;
 
     HttpResponse<String> getPlansFromOtherAPI(String name) throws URISyntaxException, IOException, InterruptedException;
@@ -55,7 +41,12 @@ interface SubsRepoHttpCustom {
     Optional<Subscriptions> isPresent(String auth, String newString) throws URISyntaxException, IOException, InterruptedException;
 
     PlansDetails subExistLocal(String plan) throws URISyntaxException, IOException, InterruptedException;
+
+    Optional<Subscriptions> getSubsByNameNotLocally(String name,String auth) throws IOException, InterruptedException, URISyntaxException;
+
+    Optional<PlansDetails> getPlanByName(String name) throws IOException, InterruptedException, URISyntaxException;
 }
+
 @RequiredArgsConstructor
 @Configuration
 class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
@@ -74,9 +65,9 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
 
     @Override
     public Subscriptions planExists( String auth, CreateSubscriptionsRequest resource) throws URISyntaxException, IOException, InterruptedException {
-        HttpResponse<String> plan =getPlansFromOtherAPI(resource.getName());
-        if (plan.statusCode() == 200) {
-            JSONObject jsonArray = new JSONObject(plan.body());
+        Optional<PlansDetails> plan = getPlanByName(resource.getName());
+
+            JSONObject jsonArray = new JSONObject(plan);
 
             String username = SecurityContextHolder.getContext().getAuthentication().getName();
             int commaIndex = username.indexOf(",");
@@ -96,16 +87,14 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
                         throw new IllegalArgumentException("You need to let your active subscription end in order to subscribe, locally ");
                     }
                 } else {
-                    HttpResponse<String> existingSubscription2 = getSubsFromOtherApi(newString, auth);
+                    HttpResponse<String> existingSubscription2 = getSubsFromOtherApi(newString,auth);
                     if (existingSubscription2.statusCode() == 404) {
-                        Subscriptions obj = createSubscriptionsMapper.create(newString, jsonArray.getString("name"), resource);
+                        Subscriptions obj = createSubscriptionsMapper.create(newString, plan.get().getName(), resource);
                         return obj;
                     } else
                         throw new IllegalArgumentException("You need to let your active subscription end in order to subscribe, not locally ");
                 }
             } else throw new IllegalArgumentException("User With Username: " + newString + " Does Not Exist");
-        } else throw new IllegalArgumentException("Plan With Name " + resource.getName() + " Does Not Exist");
-
         return null;
     }
 
@@ -152,14 +141,14 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
     }
 
     @Override
-    public HttpResponse<String> getSubsFromOtherApi(String userName, String auth) throws URISyntaxException, IOException, InterruptedException {
+    public HttpResponse<String> getSubsFromOtherApi(String userName,String auth) throws URISyntaxException, IOException, InterruptedException {
         // 82 91 subs
         // 81 90 plans
         // 83 92 users
         String urlWithDynamicName = externalSubscriptionUrl.replace("{username}", userName);
         URI uri = new URI(urlWithDynamicName);
 
-       // URI uri = new URI("http://localhost:" + otherPort + "/api/subscriptions/external/" + userName);
+        // URI uri = new URI("http://localhost:" + otherPort + "/api/subscriptions/external/" + userName);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
                 .GET()
@@ -180,7 +169,7 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
 
         JSONObject jsonArray = new JSONObject(user.body());
 
-        HttpResponse<String> existingSubscription2 = getSubsFromOtherApi(jsonArray.getString("username"), auth);
+        HttpResponse<String> existingSubscription2 = getSubsFromOtherApi(jsonArray.getString("username"),auth);
         JSONObject planjsonArray2 = new JSONObject(existingSubscription2.body());
 
         if (existingSubscription2.statusCode() == 200) {
@@ -238,7 +227,7 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
                 return subscription;
 
             } else {
-                HttpResponse<String> existingSubscription2 = getSubsFromOtherApi(newString, auth);
+                HttpResponse<String> existingSubscription2 = getSubsFromOtherApi(newString,auth);
                 if (existingSubscription2.statusCode() == 200) {
                     throw new IllegalArgumentException("The subscription you want to cancel exists on another machine");
                 } else
@@ -274,7 +263,7 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
                 return subscription;
 
             } else {
-                HttpResponse<String> existingSubscription2 = getSubsFromOtherApi(newString, auth);
+                HttpResponse<String> existingSubscription2 = getSubsFromOtherApi(newString,auth);
                 if (existingSubscription2.statusCode() == 200) {
                     throw new IllegalArgumentException("The subscription you want to renew exists on another machine");
 
@@ -305,7 +294,7 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
 
 
             } else {
-                HttpResponse<String> existingSubscription2 = getSubsFromOtherApi(newString, auth);
+                HttpResponse<String> existingSubscription2 = getSubsFromOtherApi(newString,auth);
                 if (existingSubscription2.statusCode() == 200) {
                     throw new IllegalArgumentException("The subscription you want to change exists on another machine");
 
@@ -348,6 +337,37 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
 
         }
         return  null;
+    }
+
+    @Override
+    public Optional<Subscriptions> getSubsByNameNotLocally(String name,String auth) throws IOException, InterruptedException, URISyntaxException {
+        HttpResponse<String> plan = getSubsFromOtherApi(name,auth);
+
+        if (plan.statusCode() == 200) {
+            throw new IllegalArgumentException("Subs exists not locally!");
+        }
+        return null;
+    }
+
+
+    @Override
+    public Optional<PlansDetails> getPlanByName(String name) throws IOException, InterruptedException, URISyntaxException {
+        HttpResponse<String> plan = getPlansFromOtherAPI(name);
+        JSONObject planjsonArray = new JSONObject(plan.body());
+
+        if (plan.statusCode() == 200) {
+            return Optional.of(new PlansDetails(planjsonArray.getString("name"),
+                    planjsonArray.getString("description"),
+                    planjsonArray.getString("numberOfMinutes"),
+                    planjsonArray.getString("maximumNumberOfUsers"),
+                    planjsonArray.getString("musicCollection"),
+                    planjsonArray.getString("musicSuggestion"),
+                    planjsonArray.getString("annualFee"),
+                    planjsonArray.getString("monthlyFee"),
+                    planjsonArray.getString("active"),
+                    planjsonArray.getString("promoted")));
+        }
+        throw new IllegalArgumentException("Plan with name:"+ name+" does not exist!");
     }
 }
 

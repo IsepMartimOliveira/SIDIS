@@ -20,7 +20,7 @@ class SubsManager {
     private final SubsRepoHttpCustom httpRepository;
 
     @Transactional
-    public Optional<Subscriptions> findByName(String name) throws IOException, URISyntaxException, InterruptedException {
+    public Optional<Subscriptions> findByName(String name, String auth) throws IOException, URISyntaxException, InterruptedException {
         // local db
         Optional<Subscriptions> resultFromDB = dbRepository.findByActiveStatus_ActiveAndUser(true ,name);
 
@@ -28,9 +28,8 @@ class SubsManager {
             return resultFromDB;
         } else {
             // nao localemente
-            Optional<Subscriptions> resultFromHTTP = httpRepository.getSubsByNameNotLocally(name);
-
-            return null;
+            Optional<Subscriptions> resultFromHTTP = httpRepository.getSubsByNameNotLocally(name,auth);
+            return resultFromHTTP;
         }
     }
 

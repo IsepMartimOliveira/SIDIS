@@ -3,7 +3,6 @@ package com.example.psoft_22_23_project.subscriptionsmanagement.services;
 import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreateSubscriptionsRequest;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.PlansDetails;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptions;
-import com.example.psoft_22_23_project.subscriptionsmanagement.repositories.SubscriptionsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -11,14 +10,13 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.http.HttpResponse;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class SubscriptionsServiceImpl implements SubscriptionsService {
 
-    private final SubscriptionsRepository subscriptionsRepository;
+    private final SubsManager subsManager;
     @Override
     public Iterable<Subscriptions> findAll() {
         return null;
@@ -30,18 +28,18 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
     }
 
     @Override
-    public Optional<Subscriptions> findSubByUserExternal(String user) {
-        return subscriptionsRepository.findByActiveStatus_ActiveAndUser(true, user);
+    public Optional<Subscriptions> findSubByUserExternal(String user) throws IOException, URISyntaxException, InterruptedException {
+        return subsManager.findByActiveStatus_ActiveAndUser(true, user);
     }
     @Override
-    public Optional<Subscriptions> findSubByUser( String user) {
-        return subscriptionsRepository.findByActiveStatus_ActiveAndUser(true, user);
+    public Optional<Subscriptions> findSubByUser( String user) throws IOException, URISyntaxException, InterruptedException {
+        return subsManager.findByActiveStatus_ActiveAndUser( true ,user);
     }
 
     @Override
     public Subscriptions create(final CreateSubscriptionsRequest resource,String auth) throws URISyntaxException, IOException, InterruptedException {
-        Subscriptions obj = subscriptionsRepository.planExists(auth,resource);
-        return subscriptionsRepository.save(obj);
+        Subscriptions obj = subsManager.planExists(resource,auth);
+        return subsManager.save(obj);
     }
 
     @SneakyThrows
@@ -56,12 +54,12 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         } else {
             newString = username;
         }
-        Optional<Subscriptions> subscription = subscriptionsRepository.isPresent(auth,newString);
+        Optional<Subscriptions> subscription = subsManager.findByName(newString,auth);
             if (subscription.isPresent()) {
-                PlansDetails objLocal=subscriptionsRepository.subExistLocal(subscription.get().getPlan());
+                PlansDetails objLocal = subsManager.subExistLocal(subscription.get().getPlan());
                 return objLocal;
             } else {
-                PlansDetails obj = subscriptionsRepository.subExistNotLocal(newString,auth);
+                PlansDetails obj = subsManager.subExistNotLocal(newString,auth);
                 return obj;
             }
 
@@ -80,8 +78,8 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
             newString = username;
         }
 
-        Subscriptions obj = subscriptionsRepository.cancelSub(newString,auth,desiredVersion);
-        return subscriptionsRepository.save(obj);
+        Subscriptions obj = subsManager.cancelSub(newString,auth,desiredVersion);
+        return subsManager.save(obj);
     }
 
     @Override
@@ -95,8 +93,8 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         } else {
             newString = username;
         }
-        Subscriptions obj = subscriptionsRepository.renewSub(newString,auth,desiredVersion);
-        return subscriptionsRepository.save(obj);
+        Subscriptions obj = subsManager.renewSub(newString,auth,desiredVersion);
+        return subsManager.save(obj);
     }
 
 
@@ -112,8 +110,8 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         } else {
             newString = username;
         }
-        Subscriptions obj = subscriptionsRepository.changePlan(newString,auth,name,desiredVersion);
-        return subscriptionsRepository.save(obj);
+        Subscriptions obj = subsManager.changePlan(newString,auth,name,desiredVersion);
+        return subsManager.save(obj);
     }
 
 

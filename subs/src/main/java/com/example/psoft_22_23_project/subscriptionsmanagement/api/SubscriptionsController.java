@@ -89,7 +89,7 @@ public class SubscriptionsController {
         return ResponseEntity.ok(plansDetailsViewMapper.toPlansDetailsView(plan));
     }
     @GetMapping("/external/{user}")
-    public ResponseEntity<SubscriptionsView> getSubsByUserExternal(@PathVariable String user){
+    public ResponseEntity<SubscriptionsView> getSubsByUserExternal(@PathVariable String user) throws IOException, URISyntaxException, InterruptedException {
         Optional<Subscriptions> subsOptional = service.findSubByUserExternal(user);
         if (subsOptional.isPresent()) {
             Subscriptions subs = subsOptional.get();

@@ -24,7 +24,7 @@ class PlansManager {
         // local db
         Optional<Plans> resultFromDB = dbRepository.findByName_Name(name);
 
-        if (resultFromDB.isPresent()) {
+        if (resultFromDB != null) {
             return resultFromDB;
         } else {
             // nao localemente
