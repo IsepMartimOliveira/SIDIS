@@ -61,6 +61,9 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
     private int planPort;
     @Value("${user.server.port}")
     private int userPort;
+
+    @Value("${subscription.external}")
+    private String externalSubscriptionUrl;
     private final CreateSubscriptionsMapper createSubscriptionsMapper;
     private final SubscriptionsRepositoryDB subscriptionsRepositoryDB;
 
@@ -69,7 +72,6 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
     public Subscriptions planExists( String auth, CreateSubscriptionsRequest resource) throws URISyntaxException, IOException, InterruptedException {
         Optional<PlansDetails> plan = getPlanByName(resource.getName());
 
-            JSONObject jsonArray = new JSONObject(plan);
 
             String username = SecurityContextHolder.getContext().getAuthentication().getName();
             int commaIndex = username.indexOf(",");
@@ -147,11 +149,11 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
         // 82 91 subs
         // 81 90 plans
         // 83 92 users
-      //  String urlWithDynamicName = externalSubscriptionUrl.replace("{username}", userName);
-        //URI uri = new URI(urlWithDynamicName);
+        String urlWithDynamicName = externalSubscriptionUrl.replace("{username}", userName);
+        URI uri = new URI(urlWithDynamicName);
         // URI uri = new URI("http://localhost:" + otherPort + "/api/subscriptions/external/" + userName);
-        otherPort = (currentPort==portTwo) ? portOne : portTwo;
-        URI uri = new URI("http://localhost:" + otherPort + "/api/subscriptions/external/"+userName);
+        //otherPort = (currentPort==portTwo) ? portOne : portTwo;
+        //URI uri = new URI("http://localhost:" + otherPort + "/api/subscriptions/external/"+userName);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
                 .GET()
