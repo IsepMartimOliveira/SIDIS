@@ -1,66 +1,47 @@
+/*
+ * Copyright (c) 2022-2022 the original author or authors.
+ *
+ * MIT License
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 package com.example.psoft_22_23_project.plansmanagement.services;
 
-import com.example.psoft_22_23_project.plansmanagement.api.CreatePlanRequest;
-import com.example.psoft_22_23_project.plansmanagement.api.EditPlansRequest;
-import com.example.psoft_22_23_project.plansmanagement.model.Plans;
-import com.example.psoft_22_23_project.plansmanagement.repositories.PlansRepoHttpCustom;
-import com.example.psoft_22_23_project.plansmanagement.repositories.PlansRepositoryDB;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import com.example.psoft_22_23_project.plansmanagement.api.CreatePlanRequest;
+import com.example.psoft_22_23_project.plansmanagement.model.Plans;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Optional;
 
-@Service
-@RequiredArgsConstructor
-class PlansManager {
-    private final PlansRepositoryDB dbRepository;
-    private final PlansRepoHttpCustom httpRepository;
+public interface PlansManager {
 
-    @Transactional
-    public Optional<Plans> findByName(String name) throws IOException, URISyntaxException, InterruptedException {
-        // local db
-        Optional<Plans> resultFromDB = dbRepository.findByName_Name(name);
+	Optional<Plans> findByName(String name)throws IOException, URISyntaxException, InterruptedException;
 
-        if (resultFromDB != null) {
-            return resultFromDB;
-        } else {
-            // nao localemente
-            Optional<Plans> resultFromHTTP = httpRepository.getPlanByNameNotLocally(name);
+	Boolean findByNameDoesNotExists(String name) throws IOException, URISyntaxException, InterruptedException;
 
-            return resultFromHTTP;
-        }
-    }
+	Optional<Plans>  findByNameDoesExists(String name) throws IOException, URISyntaxException, InterruptedException;
 
-    public Iterable<Plans> findByActive_Active(boolean b) {
-        return dbRepository.findByActive_Active(b);
-    }
+	Iterable<Plans> findByActive_Active(boolean b);
 
-    public Iterable<Plans> addLocalPlusNot(Iterable<Plans> planslocal) throws URISyntaxException, IOException, InterruptedException {
-        return httpRepository.addLocalPlusNot(planslocal);
-    }
+	Iterable<Plans> addNotLocalPlans(Iterable<Plans> planslocal) throws URISyntaxException, IOException, InterruptedException;
 
-    public Optional<Plans> getPlanByNameNotLocally(String planName) throws IOException, URISyntaxException, InterruptedException {
-        return httpRepository.getPlanByNameNotLocally(planName);
-    }
+	Plans create(String auth, CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException;
 
-    public Plans createNotLocal(String auth, CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException {
-        return httpRepository.createNotLocal(auth,resource);
-    }
+	 Plans save(Plans obj);
 
-    public Plans save(Plans obj) {
-        return dbRepository.save(obj);
-    }
-
-    public Plans updateNotLocal(EditPlansRequest resource, String name, long desiredVersion, String auth) throws URISyntaxException, IOException, InterruptedException {
-        return httpRepository.updateNotLocal(resource,name,desiredVersion,auth);
-    }
-
-    public Plans deactivateNotLocal(String name, long desiredVersion, String authorizationToken) throws URISyntaxException, IOException, InterruptedException {
-        return httpRepository.deactivateNotLocal(name,desiredVersion,authorizationToken);
-    }
-
-
-}
+	}

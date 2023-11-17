@@ -45,7 +45,7 @@ public class PlansServiceImpl implements PlansService {
 	@Override
 	public Iterable<Plans> findAtive() throws URISyntaxException, IOException, InterruptedException {
 		Iterable<Plans> planslocal = plansManager.findByActive_Active(true);
-		Iterable<Plans> plans = plansManager.addLocalPlusNot(planslocal);
+		Iterable<Plans> plans = plansManager.addNotLocalPlans(planslocal);
 		return plans;
 	}
 
@@ -53,18 +53,6 @@ public class PlansServiceImpl implements PlansService {
 	public Iterable<Plans> findAtiveExternal(){
 		Iterable<Plans> planslocal = plansManager.findByActive_Active(true);
 		return planslocal;
-	}
-	@Override
-	public List<FeeRevision> history(final String name) throws IOException, URISyntaxException, InterruptedException {
-		Optional<Plans> plans = plansManager.findByName(name);
-
-		if (plans.isPresent()) {
-			Plans plans1 = plans.get();
-			List<FeeRevision> list = plans1.getFeeRevisions();
-			return list;
-
-		} else throw new IllegalArgumentException("Plan with name " + name + " does not exist");
-
 	}
 
 	public Optional<Plans> getPlanByName(String planName) throws URISyntaxException, IOException, InterruptedException {
@@ -81,7 +69,7 @@ public class PlansServiceImpl implements PlansService {
 		if (plans.isPresent()) {
 			throw new IllegalArgumentException("Plan with name " + resource.getName() + " already exists locally!");
 		}
-		Plans obj = plansManager.createNotLocal(auth,resource);
+		Plans obj = plansManager.create(auth,resource);
 		return plansManager.save(obj);
 
 	}

@@ -23,12 +23,10 @@ package com.example.psoft_22_23_project.plansmanagement.services;
 
 import com.example.psoft_22_23_project.plansmanagement.api.CreatePlanRequest;
 import com.example.psoft_22_23_project.plansmanagement.api.EditPlansRequest;
-import com.example.psoft_22_23_project.plansmanagement.model.FeeRevision;
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.List;
 import java.util.Optional;
 
 public interface PlansService {
@@ -41,9 +39,6 @@ public interface PlansService {
 
 	Iterable<Plans> findAtive() throws URISyntaxException, IOException, InterruptedException;
 	Iterable<Plans> findAtiveExternal();
-
-	List<FeeRevision> history(String name) throws IOException, URISyntaxException, InterruptedException;
-
 
 	Optional<Plans> getPlanByName(String planName) throws URISyntaxException, IOException, InterruptedException;
 	Optional<Plans> getPlanByNameExternal(String planName) throws IOException, URISyntaxException, InterruptedException;

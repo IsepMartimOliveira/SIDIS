@@ -6,6 +6,7 @@ import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptio
 import com.example.psoft_22_23_project.subscriptionsmanagement.repositories.SubsRepoHttpCustom;
 import com.example.psoft_22_23_project.subscriptionsmanagement.repositories.SubscriptionsRepositoryDB;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -20,22 +21,33 @@ class SubsManager {
     private final SubsRepoHttpCustom httpRepository;
 
     @Transactional
-    public Optional<Subscriptions> findByName(String name, String auth) throws IOException, URISyntaxException, InterruptedException {
-        // local db
-        Optional<Subscriptions> resultFromDB = dbRepository.findByActiveStatus_ActiveAndUser(true ,name);
+    public Optional<Subscriptions> findByName( String auth) throws IOException, URISyntaxException, InterruptedException {
 
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        int commaIndex = username.indexOf(",");
+        String newString;
+        if (commaIndex != -1) {
+            newString = username.substring(commaIndex + 1);
+        } else {
+            newString = username;
+        }
+
+        // local db
+        Optional<Subscriptions> resultFromDB = dbRepository.findByActiveStatus_ActiveAndUser(true ,newString);
         if (resultFromDB.isPresent()) {
             return resultFromDB;
-        } else {
-            // nao localemente
-            Optional<Subscriptions> resultFromHTTP = httpRepository.getSubsByNameNotLocally(name,auth);
+        }
+        // n local db
+        Optional<Subscriptions> resultFromHTTP = httpRepository.getSubsByNameNotLocally(newString,auth);
+        if (resultFromHTTP != null) {
             return resultFromHTTP;
         }
+        throw new IllegalArgumentException("Uses of user with name " + newString + " does not exist");
     }
 
 
-    public Subscriptions planExists(CreateSubscriptionsRequest resource, String auth) throws URISyntaxException, IOException, InterruptedException {
-        return httpRepository.planExists(auth,resource);
+    public Subscriptions create(CreateSubscriptionsRequest resource, String auth) throws URISyntaxException, IOException, InterruptedException {
+        return httpRepository.create(auth,resource);
     }
 
     public Subscriptions save(Subscriptions obj) {
@@ -54,20 +66,20 @@ class SubsManager {
         return httpRepository.subExistLocal(plan);
     }
 
-    public PlansDetails subExistNotLocal(String newString, String auth) throws URISyntaxException, IOException, InterruptedException {
-        return httpRepository.subExistNotLocal(newString,auth);
+    public PlansDetails subExistNotLocal( String auth) throws URISyntaxException, IOException, InterruptedException {
+        return httpRepository.subExistNotLocal(auth);
     }
 
-    public Subscriptions cancelSub(String newString, String auth, long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
-        return httpRepository.cancelSub(newString,auth,desiredVersion);
+    public Subscriptions cancelSub(String auth, long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
+        return httpRepository.cancelSub(auth,desiredVersion);
     }
 
-    public Subscriptions renewSub(String newString, String auth, long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
+    public Subscriptions renewSub(String auth, long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
 
-        return httpRepository.renewSub(newString,auth,desiredVersion);
+        return httpRepository.renewSub(auth,desiredVersion);
     }
 
-    public Subscriptions changePlan(String newString, String auth, String name, long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
-        return httpRepository.changePlan(newString,auth,name,desiredVersion);
+    public Subscriptions changePlan(String auth, String name, long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
+        return httpRepository.changePlan(auth,name,desiredVersion);
     }
 }

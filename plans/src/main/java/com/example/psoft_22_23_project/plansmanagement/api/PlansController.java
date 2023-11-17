@@ -39,7 +39,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.List;
 import java.util.Optional;
 
 
@@ -80,7 +79,6 @@ public class PlansController {
 	@GetMapping("/{planName}")
 	public ResponseEntity<PlansView> getPlanByName(@PathVariable String planName) throws URISyntaxException, IOException, InterruptedException {
 		Optional<Plans> planOptional = service.getPlanByName(planName);
-
 		if (planOptional.isPresent()) {
 			Plans plan = planOptional.get();
 			PlansView plansView = plansViewMapper.toPlansView(plan);
@@ -103,8 +101,6 @@ public class PlansController {
 			return ResponseEntity.notFound().build();
 		}
 	}
-
-
 	@Operation(summary = "Creates a new Plan")
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED) public ResponseEntity<PlansView>
@@ -116,13 +112,6 @@ public class PlansController {
 		return
 				ResponseEntity.created(newPlanUri).eTag(Long.toString(plan.getVersion()))
 						.body(plansViewMapper.toPlansView(plan));
-	}
-
-
-	@Operation(summary = "Gets money history of plan")
-	@GetMapping(value = "/history/{name}")
-	public List<FeeRevisionView> history(@PathVariable("name") @Parameter(description = "The name of the plan to get history") final String name) throws IOException, URISyntaxException, InterruptedException {
-		return feeRevisionViewMapper.toFeesView(service.history(name));
 	}
 
 	@Operation(summary = "Partially updates an existing plan")

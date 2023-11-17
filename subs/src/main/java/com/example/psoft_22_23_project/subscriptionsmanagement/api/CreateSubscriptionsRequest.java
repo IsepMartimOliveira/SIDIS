@@ -15,4 +15,5 @@ public class CreateSubscriptionsRequest {
         private String name;
         @Pattern(regexp = "(annually|monthly)")
         private String paymentType;
+
 }

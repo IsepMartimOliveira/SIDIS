@@ -5,7 +5,6 @@ import com.example.psoft_22_23_project.subscriptionsmanagement.model.PlansDetail
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptions;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -38,7 +37,7 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
 
     @Override
     public Subscriptions create(final CreateSubscriptionsRequest resource,String auth) throws URISyntaxException, IOException, InterruptedException {
-        Subscriptions obj = subsManager.planExists(resource,auth);
+        Subscriptions obj = subsManager.create(resource,auth);
         return subsManager.save(obj);
     }
 
@@ -46,54 +45,33 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
     @Override
     public PlansDetails planDetails(String auth) {
 
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        int commaIndex = username.indexOf(",");
-        String newString;
-        if (commaIndex != -1) {
-            newString = username.substring(commaIndex + 1);
-        } else {
-            newString = username;
-        }
-        Optional<Subscriptions> subscription = subsManager.findByName(newString,auth);
-            if (subscription.isPresent()) {
+        Optional<Subscriptions> subscription = subsManager.findByName(auth);
+
+        PlansDetails objLocal = subsManager.subExistLocal(subscription.get().getPlan());
+        return objLocal;
+        /*
+        if (subscription.isPresent()) {
                 PlansDetails objLocal = subsManager.subExistLocal(subscription.get().getPlan());
                 return objLocal;
             } else {
-                PlansDetails obj = subsManager.subExistNotLocal(newString,auth);
+                PlansDetails obj = subsManager.subExistNotLocal(auth);
                 return obj;
             }
-
+         */
     }
 
     @Override
     public Subscriptions cancelSubscription(String auth,final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
 
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        int commaIndex = username.indexOf(",");
-        String newString;
-        if (commaIndex != -1) {
-            newString = username.substring(commaIndex + 1);
-        } else {
-            newString = username;
-        }
-
-        Subscriptions obj = subsManager.cancelSub(newString,auth,desiredVersion);
+        Subscriptions obj = subsManager.cancelSub(auth,desiredVersion);
         return subsManager.save(obj);
     }
 
     @Override
     public Subscriptions renewAnualSubscription(String auth,final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        int commaIndex = username.indexOf(",");
 
-        String newString;
-        if (commaIndex != -1) {
-            newString = username.substring(commaIndex + 1);
-        } else {
-            newString = username;
-        }
-        Subscriptions obj = subsManager.renewSub(newString,auth,desiredVersion);
+        Subscriptions obj = subsManager.renewSub(auth,desiredVersion);
         return subsManager.save(obj);
     }
 
@@ -101,16 +79,8 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
 
     @Override
     public Subscriptions changePlan(final long desiredVersion, final String name,final String auth) throws URISyntaxException, IOException, InterruptedException {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        int commaIndex = username.indexOf(",");
 
-        String newString;
-        if (commaIndex != -1) {
-            newString = username.substring(commaIndex + 1);
-        } else {
-            newString = username;
-        }
-        Subscriptions obj = subsManager.changePlan(newString,auth,name,desiredVersion);
+        Subscriptions obj = subsManager.changePlan(auth,name,desiredVersion);
         return subsManager.save(obj);
     }
 
