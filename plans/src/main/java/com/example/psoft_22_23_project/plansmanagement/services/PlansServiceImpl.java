@@ -23,7 +23,6 @@ package com.example.psoft_22_23_project.plansmanagement.services;
 import com.example.psoft_22_23_project.plansmanagement.api.CreatePlanRequest;
 import com.example.psoft_22_23_project.plansmanagement.api.EditPlansRequest;
 import com.example.psoft_22_23_project.plansmanagement.api.PlansMapperInverse;
-import com.example.psoft_22_23_project.plansmanagement.model.FeeRevision;
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,7 +30,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.List;
 import java.util.Optional;
 
 
@@ -61,49 +59,38 @@ public class PlansServiceImpl implements PlansService {
     }
 
 	public Optional<Plans> getPlanByNameExternal(String planName) throws IOException, URISyntaxException, InterruptedException {
-		return plansManager.findByName(planName);
+		return plansManager.findByNameName(planName);
 	}
 	@Override
 	public Plans create(CreatePlanRequest resource, String auth) throws URISyntaxException, IOException, InterruptedException {
-		Optional<Plans> plans = plansManager.findByName(resource.getName());
-		if (plans.isPresent()) {
-			throw new IllegalArgumentException("Plan with name " + resource.getName() + " already exists locally!");
-		}
+		plansManager.findByNameDoesNotExists(resource.getName());
 		Plans obj = plansManager.create(auth,resource);
 		return plansManager.save(obj);
-
 	}
 	@Override
 	public Plans partialUpdate(final String name, final EditPlansRequest resource, String auth ,final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
-
-		//encontrar plano localmente
-		final Optional<Plans> plans = plansManager.findByName(name);
+		//ver se existe
+		final Optional<Plans> plans = plansManager.findByNameDoesExists(name);
 		//.orElseThrow(() -> new IllegalArgumentException("Plan with name " + name + " doesn't exists locally!"));
-		if (plans.isPresent()){
-			Plans plans1 = plans.get();
-			plans1.updateData(desiredVersion, resource.getDescription(),
+
+		Plans plans1 = plans.get();
+		plans1.updateData(desiredVersion, resource.getDescription(),
 					resource.getMaximumNumberOfUsers(), resource.getNumberOfMinutes(),
 					resource.getMusicCollection(), resource.getMusicSuggestion(), resource.getActive(), resource.getPromoted());
-			return plansManager.save(plans1);
-		}
-
-		Plans plan = plansManager.updateNotLocal(resource,name,desiredVersion,auth);
-		return plan;
+		return plansManager.save(plans1);
 	}
 
 	@Override
 	public Plans deactivate(final String name, String authorizationToken,final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
-		final Optional<Plans> plans = plansManager.findByName(name);
-		if(plans.isPresent()){
+		final Optional<Plans> plans = plansManager.findByNameDoesExists(name);
+
 			Plans plans1 = plans.get();
 			if(!plans1.getActive().getActive()){
 				throw new IllegalArgumentException("Plan with name " + name + " is already deactivate");
 			}
 			plans1.deactivate(desiredVersion);
 			return plansManager.save(plans1);
-		}
-		Plans obj = plansManager.deactivateNotLocal(name,desiredVersion,authorizationToken);
-		return obj;
+
 	}
 
 }

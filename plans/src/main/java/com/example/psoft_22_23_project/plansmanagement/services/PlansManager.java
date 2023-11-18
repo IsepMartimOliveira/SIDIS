@@ -32,7 +32,7 @@ public interface PlansManager {
 
 	Optional<Plans> findByName(String name)throws IOException, URISyntaxException, InterruptedException;
 
-	Boolean findByNameDoesNotExists(String name) throws IOException, URISyntaxException, InterruptedException;
+	void findByNameDoesNotExists(String name) throws IOException, URISyntaxException, InterruptedException;
 
 	Optional<Plans>  findByNameDoesExists(String name) throws IOException, URISyntaxException, InterruptedException;
 
@@ -44,4 +44,5 @@ public interface PlansManager {
 
 	 Plans save(Plans obj);
 
-	}
+	Optional<Plans> findByNameName(String planName);
+}

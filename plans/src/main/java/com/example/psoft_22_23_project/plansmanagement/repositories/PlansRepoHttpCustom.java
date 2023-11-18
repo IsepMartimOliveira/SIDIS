@@ -92,9 +92,9 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
 
     @Override
     public HttpResponse<String> getPlansFromOtherAPI() throws URISyntaxException, IOException, InterruptedException {
-        //otherPort = (currentPort==portTwo) ? portOne : portTwo;
-        //URI uri = new URI("http://localhost:" + otherPort + "/api/plans/external");
-        URI uri = new URI(externalAllPlansUrl);
+        otherPort = (currentPort==portTwo) ? portOne : portTwo;
+        URI uri = new URI("http://localhost:" + otherPort + "/api/plans/external");
+        //URI uri = new URI(externalAllPlansUrl);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
                 .GET()
@@ -251,6 +251,7 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
     @Override
     public Optional<Plans> getPlanByNameNotLocally(String planName) throws IOException, InterruptedException, URISyntaxException {
         HttpResponse<String> plan = getPlansFromOtherAPI(planName,"auth");
+
         if (plan.statusCode() == 200) {
             JSONObject jsonArray = new JSONObject(plan.body());
             PlanRequest newPlan = new PlanRequest(
@@ -267,9 +268,8 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
             );
             Plans obj = plansMapperInverse.toPlansView(newPlan);
             return Optional.ofNullable(obj);
-        }else {
-            throw new IllegalArgumentException("Plan with name " + planName + " already exists locally!");
         }
+        return null;
     }
 
     private Iterable<Plans> addPlanToIterable(Iterable<Plans> plans, Plans newPlan) {

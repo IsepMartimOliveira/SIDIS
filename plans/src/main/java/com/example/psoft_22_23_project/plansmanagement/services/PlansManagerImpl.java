@@ -33,23 +33,33 @@ class PlansManagerImpl implements PlansManager{
     }
 
     @Override
-    public Boolean findByNameDoesNotExists(String name) throws IOException, URISyntaxException, InterruptedException {
-
+    public void findByNameDoesNotExists(String name) throws IOException, URISyntaxException, InterruptedException {
         // local db
+        Optional<Plans> resultFromDB = dbRepository.findByName_Name(name);
+        if (resultFromDB.isPresent()) {
+            throw new IllegalArgumentException("Plan with name " + name + " already exists locally!");
+        } else {
+            // nao localemente
+            Optional<Plans> resultFromHTTP = httpRepository.getPlanByNameNotLocally(name);
+            if (resultFromHTTP != null){
+                throw new IllegalArgumentException("Plan with name " + name + " already exists not locally!");
+            }
+        }
+    }
+
+    @Override
+    public Optional<Plans> findByNameDoesExists(String name) throws IOException, URISyntaxException, InterruptedException {
         Optional<Plans> resultFromDB = dbRepository.findByName_Name(name);
         if (resultFromDB.isPresent()) {
             return resultFromDB;
         } else {
             // nao localemente
             Optional<Plans> resultFromHTTP = httpRepository.getPlanByNameNotLocally(name);
-            return resultFromHTTP;
+            if (resultFromHTTP.isPresent()){
+                return resultFromHTTP;
+            }
+            throw new IllegalArgumentException("Plan with name " + name + " already exists!");
         }
-
-    }
-
-    @Override
-    public Optional<Plans> findByNameDoesExists(String name) throws IOException, URISyntaxException, InterruptedException {
-        return Optional.empty();
     }
 
     @Override
@@ -67,9 +77,14 @@ class PlansManagerImpl implements PlansManager{
     public Plans create(String auth, CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException {
         return httpRepository.createNotLocal(auth,resource);
     }
-
+    @Override
     public Plans save(Plans obj) {
         return dbRepository.save(obj);
+    }
+
+    @Override
+    public Optional<Plans> findByNameName(String planName) {
+        return dbRepository.findByName_Name(planName);
     }
 
 

@@ -131,10 +131,6 @@ public class PlansController {
 		return ResponseEntity.ok().eTag(Long.toString(plans.getVersion())).body(plansViewMapper.toPlansView(plans));
 	}
 
-
-
-
-
 	@Operation(summary = "Deactivate a plan")
 	@PatchMapping(value = "/deactivate/{name}")
 	public ResponseEntity<PlansView> deactivate(final WebRequest request,
@@ -149,10 +145,6 @@ public class PlansController {
 		final var plans = service.deactivate(name, authorizationToken,getVersionFromIfMatchHeader(ifMatchValue));
 		return ResponseEntity.ok().eTag(Long.toString(plans.getVersion())).body(plansViewMapper.toPlansView(plans));
 	}
-
-
-
-
 
 }
 
