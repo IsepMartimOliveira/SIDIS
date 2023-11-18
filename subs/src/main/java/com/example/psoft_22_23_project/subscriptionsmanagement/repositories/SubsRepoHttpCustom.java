@@ -98,7 +98,48 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
             }
         throw new IllegalArgumentException("User does not have sub!");
     }
+    @Override
+    public Optional<PlansDetails> getPlanByName(String name) throws IOException, InterruptedException, URISyntaxException {
+        HttpResponse<String> plan = getPlansFromOtherAPI(name);
+        JSONObject planjsonArray = new JSONObject(plan.body());
+        if (plan.statusCode() == 200) {
+            return Optional.of(new PlansDetails(planjsonArray.getString("name"),
+                    planjsonArray.getString("description"),
+                    planjsonArray.getString("numberOfMinutes"),
+                    planjsonArray.getString("maximumNumberOfUsers"),
+                    planjsonArray.getString("musicCollection"),
+                    planjsonArray.getString("musicSuggestion"),
+                    planjsonArray.getString("annualFee"),
+                    planjsonArray.getString("monthlyFee"),
+                    planjsonArray.getString("active"),
+                    planjsonArray.getString("promoted")));
+        }
+        throw new IllegalArgumentException("Plan with name:"+ name+" does not exist!");
+    }
 
+    @Override
+    public HttpResponse<String> getSubsFromOtherApi(String userName,String auth) throws URISyntaxException, IOException, InterruptedException {
+        // 82 91 subs
+        // 81 90 plans
+        // 83 92 users
+        String urlWithDynamicName = externalSubscriptionUrl.replace("{username}", userName);
+        URI uri = new URI(urlWithDynamicName);
+        // URI uri = new URI("http://localhost:" + otherPort + "/api/subscriptions/external/" + userName);
+        //otherPort = (currentPort==portTwo) ? portOne : portTwo;
+        //URI uri = new URI("http://localhost:" + otherPort + "/api/subscriptions/external/"+userName);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(uri)
+                .GET()
+                .header("Authorization", auth)
+                .build();
+
+        HttpClient client = HttpClient.newHttpClient();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        return response;
+
+    }
     @Override
     public HttpResponse<String> getPlansFromOtherAPI(String name) throws URISyntaxException, IOException, InterruptedException {
         // 82 91 subs
@@ -141,29 +182,7 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
 
     }
 
-    @Override
-    public HttpResponse<String> getSubsFromOtherApi(String userName,String auth) throws URISyntaxException, IOException, InterruptedException {
-        // 82 91 subs
-        // 81 90 plans
-        // 83 92 users
-        String urlWithDynamicName = externalSubscriptionUrl.replace("{username}", userName);
-        URI uri = new URI(urlWithDynamicName);
-        // URI uri = new URI("http://localhost:" + otherPort + "/api/subscriptions/external/" + userName);
-        //otherPort = (currentPort==portTwo) ? portOne : portTwo;
-        //URI uri = new URI("http://localhost:" + otherPort + "/api/subscriptions/external/"+userName);
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(uri)
-                .GET()
-                .header("Authorization", auth)
-                .build();
 
-        HttpClient client = HttpClient.newHttpClient();
-
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        return response;
-
-    }
 
     @Override
     public PlansDetails subExistNotLocal(String auth) throws URISyntaxException, IOException, InterruptedException {
@@ -177,12 +196,7 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
             newString = username;
         }
 
-
-        HttpResponse<String> user = getUserFromOtherAPI(newString);
-
-        JSONObject jsonArray = new JSONObject(user.body());
-
-        HttpResponse<String> existingSubscription2 = getSubsFromOtherApi(jsonArray.getString("username"),auth);
+        HttpResponse<String> existingSubscription2 = getSubsFromOtherApi(newString,auth);
         JSONObject planjsonArray2 = new JSONObject(existingSubscription2.body());
 
         if (existingSubscription2.statusCode() == 200) {
@@ -333,14 +347,8 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
 
     @Override
     public Optional<Subscriptions> isPresent(String auth, String newString) throws URISyntaxException, IOException, InterruptedException {
-        HttpResponse<String> user = getUserFromOtherAPI(newString);
-
-        JSONObject jsonArray = new JSONObject(user.body());
-        if (user.statusCode() == 200) {
-            Optional<Subscriptions> subscription = subscriptionsRepositoryDB.findByActiveStatus_ActiveAndUser(true, jsonArray.getString("username"));
-            return subscription;
-        }
-        return Optional.empty();
+        Optional<Subscriptions> subscription = subscriptionsRepositoryDB.findByActiveStatus_ActiveAndUser(true, newString);
+        return subscription;
     }
 
     @Override
@@ -377,23 +385,5 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
     }
 
 
-    @Override
-    public Optional<PlansDetails> getPlanByName(String name) throws IOException, InterruptedException, URISyntaxException {
-        HttpResponse<String> plan = getPlansFromOtherAPI(name);
-        JSONObject planjsonArray = new JSONObject(plan.body());
-        if (plan.statusCode() == 200) {
-            return Optional.of(new PlansDetails(planjsonArray.getString("name"),
-                    planjsonArray.getString("description"),
-                    planjsonArray.getString("numberOfMinutes"),
-                    planjsonArray.getString("maximumNumberOfUsers"),
-                    planjsonArray.getString("musicCollection"),
-                    planjsonArray.getString("musicSuggestion"),
-                    planjsonArray.getString("annualFee"),
-                    planjsonArray.getString("monthlyFee"),
-                    planjsonArray.getString("active"),
-                    planjsonArray.getString("promoted")));
-        }
-        throw new IllegalArgumentException("Plan with name:"+ name+" does not exist!");
-    }
 }
 

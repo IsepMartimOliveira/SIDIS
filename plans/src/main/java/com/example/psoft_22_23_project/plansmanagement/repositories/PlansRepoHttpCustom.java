@@ -67,6 +67,37 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
     private final PlansMapperInverse plansMapperInverse;
 
     @Override
+    public Optional<Plans> getPlanByNameNotLocally(String planName) throws IOException, InterruptedException, URISyntaxException {
+        HttpResponse<String> plan = getPlansFromOtherAPI(planName,"auth");
+        if (plan.statusCode() == 200) {
+            JSONObject jsonArray = new JSONObject(plan.body());
+            PlanRequest newPlan = new PlanRequest(
+                    jsonArray.getString("name"),
+                    jsonArray.getString("description"),
+                    jsonArray.getString("numberOfMinutes"),
+                    jsonArray.getString("maximumNumberOfUsers"),
+                    jsonArray.getString("musicCollection"),
+                    jsonArray.getString("musicSuggestion"),
+                    jsonArray.getString("annualFee"),
+                    jsonArray.getString("monthlyFee"),
+                    jsonArray.getString("active"),
+                    jsonArray.getString("promoted")
+            );
+            Plans obj = plansMapperInverse.toPlansView(newPlan);
+            return Optional.ofNullable(obj);
+        }
+        return null;
+    }
+
+    private Iterable<Plans> addPlanToIterable(Iterable<Plans> plans, Plans newPlan) {
+        if (plans instanceof List) {
+            List<Plans> planList = new ArrayList<>((List<Plans>) plans);
+            planList.add(newPlan);
+            return planList;
+        }
+        return plans;
+    }
+    @Override
     public HttpResponse<String> getPlansFromOtherAPI(String name, String auth) throws URISyntaxException, IOException, InterruptedException {
         //otherPort = (currentPort==portTwo) ? portOne : portTwo;
         //URI uri = new URI("http://localhost:" + otherPort + "/api/plans/external/"+name);
@@ -106,8 +137,31 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
 
         return response;
     }
+    @Override
+    public Iterable<Plans> addLocalPlusNot(Iterable<Plans> planslocal) throws URISyntaxException, IOException, InterruptedException {
+        HttpResponse<String> response = getPlansFromOtherAPI();
 
+        JSONArray jsonArray = new JSONArray(response.body());
+        for (int i = 0; i < jsonArray.length(); i++) {
+            PlanRequest newPlan = new PlanRequest(
+                    jsonArray.getJSONObject(i).getString("name"),
+                    jsonArray.getJSONObject(i).getString("description"),
+                    jsonArray.getJSONObject(i).getString("numberOfMinutes"),
+                    jsonArray.getJSONObject(i).getString("maximumNumberOfUsers"),
+                    jsonArray.getJSONObject(i).getString("musicCollection"),
+                    jsonArray.getJSONObject(i).getString("musicSuggestion"),
+                    jsonArray.getJSONObject(i).getString("annualFee"),
+                    jsonArray.getJSONObject(i).getString("monthlyFee"),
+                    jsonArray.getJSONObject(i).getString("active"),
+                    jsonArray.getJSONObject(i).getString("promoted")
+            );
+            Plans obj = plansMapperInverse.toPlansView(newPlan);
+            planslocal = addPlanToIterable(planslocal, obj);
+        }
+        return planslocal;
+    }
 
+    // n usado daqui para baixo
 
     @Override
     public HttpResponse<String> doPlansPatchMoneyAPI(String name, final long desiredVersion, String auth,String json) throws URISyntaxException, IOException, InterruptedException {
@@ -170,34 +224,11 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
         return responses;
     }
 
-    @Override
-    public Iterable<Plans> addLocalPlusNot(Iterable<Plans> planslocal) throws URISyntaxException, IOException, InterruptedException {
-        HttpResponse<String> response = getPlansFromOtherAPI();
-
-        JSONArray jsonArray = new JSONArray(response.body());
-        for (int i = 0; i < jsonArray.length(); i++) {
-            PlanRequest newPlan = new PlanRequest(
-                    jsonArray.getJSONObject(i).getString("name"),
-                    jsonArray.getJSONObject(i).getString("description"),
-                    jsonArray.getJSONObject(i).getString("numberOfMinutes"),
-                    jsonArray.getJSONObject(i).getString("maximumNumberOfUsers"),
-                    jsonArray.getJSONObject(i).getString("musicCollection"),
-                    jsonArray.getJSONObject(i).getString("musicSuggestion"),
-                    jsonArray.getJSONObject(i).getString("annualFee"),
-                    jsonArray.getJSONObject(i).getString("monthlyFee"),
-                    jsonArray.getJSONObject(i).getString("active"),
-                    jsonArray.getJSONObject(i).getString("promoted")
-            );
-            Plans obj = plansMapperInverse.toPlansView(newPlan);
-            planslocal = addPlanToIterable(planslocal, obj);
-        }
-        return planslocal;
-    }
 
     @Override
     public Plans updateNotLocal( EditPlansRequest resource, String name, long desiredVersion, String auth) throws URISyntaxException, IOException, InterruptedException {
         HttpResponse<String> response = getPlansFromOtherAPI(name,auth);
-
+        //nao era preciso fazer get?
         if (response.statusCode() == 200) {
             Gson gson = new Gson();
             String json = gson.toJson(resource);
@@ -248,37 +279,5 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
         return null;
     }
 
-    @Override
-    public Optional<Plans> getPlanByNameNotLocally(String planName) throws IOException, InterruptedException, URISyntaxException {
-        HttpResponse<String> plan = getPlansFromOtherAPI(planName,"auth");
-
-        if (plan.statusCode() == 200) {
-            JSONObject jsonArray = new JSONObject(plan.body());
-            PlanRequest newPlan = new PlanRequest(
-                    jsonArray.getString("name"),
-                    jsonArray.getString("description"),
-                    jsonArray.getString("numberOfMinutes"),
-                    jsonArray.getString("maximumNumberOfUsers"),
-                    jsonArray.getString("musicCollection"),
-                    jsonArray.getString("musicSuggestion"),
-                    jsonArray.getString("annualFee"),
-                    jsonArray.getString("monthlyFee"),
-                    jsonArray.getString("active"),
-                    jsonArray.getString("promoted")
-            );
-            Plans obj = plansMapperInverse.toPlansView(newPlan);
-            return Optional.ofNullable(obj);
-        }
-        return null;
-    }
-
-    private Iterable<Plans> addPlanToIterable(Iterable<Plans> plans, Plans newPlan) {
-        if (plans instanceof List) {
-            List<Plans> planList = new ArrayList<>((List<Plans>) plans);
-            planList.add(newPlan);
-            return planList;
-        }
-        return plans;
-    }
 }
 

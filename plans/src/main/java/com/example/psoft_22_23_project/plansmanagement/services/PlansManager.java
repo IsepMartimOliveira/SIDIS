@@ -22,6 +22,7 @@ package com.example.psoft_22_23_project.plansmanagement.services;
 
 
 import com.example.psoft_22_23_project.plansmanagement.api.CreatePlanRequest;
+import com.example.psoft_22_23_project.plansmanagement.api.EditPlansRequest;
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 
 import java.io.IOException;
@@ -34,7 +35,8 @@ public interface PlansManager {
 
 	void findByNameDoesNotExists(String name) throws IOException, URISyntaxException, InterruptedException;
 
-	Optional<Plans>  findByNameDoesExists(String name) throws IOException, URISyntaxException, InterruptedException;
+	Optional<Plans>  findByNameDoesExistsUpdate(String name, final long desiredVersion, final EditPlansRequest resource, String auth) throws IOException, URISyntaxException, InterruptedException;
+	Optional<Plans>  findByNameDoesExists(String name, final long desiredVersion, String auth) throws IOException, URISyntaxException, InterruptedException;
 
 	Iterable<Plans> findByActive_Active(boolean b);
 

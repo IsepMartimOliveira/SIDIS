@@ -70,25 +70,20 @@ public class PlansServiceImpl implements PlansService {
 	@Override
 	public Plans partialUpdate(final String name, final EditPlansRequest resource, String auth ,final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
 		//ver se existe
-		final Optional<Plans> plans = plansManager.findByNameDoesExists(name);
+		final Optional<Plans> plans = plansManager.findByNameDoesExistsUpdate(name,desiredVersion,resource,auth);
 		//.orElseThrow(() -> new IllegalArgumentException("Plan with name " + name + " doesn't exists locally!"));
 
 		Plans plans1 = plans.get();
-		plans1.updateData(desiredVersion, resource.getDescription(),
-					resource.getMaximumNumberOfUsers(), resource.getNumberOfMinutes(),
-					resource.getMusicCollection(), resource.getMusicSuggestion(), resource.getActive(), resource.getPromoted());
+
 		return plansManager.save(plans1);
 	}
 
 	@Override
 	public Plans deactivate(final String name, String authorizationToken,final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
-		final Optional<Plans> plans = plansManager.findByNameDoesExists(name);
+		final Optional<Plans> plans = plansManager.findByNameDoesExists(name,desiredVersion,authorizationToken);
 
 			Plans plans1 = plans.get();
-			if(!plans1.getActive().getActive()){
-				throw new IllegalArgumentException("Plan with name " + name + " is already deactivate");
-			}
-			plans1.deactivate(desiredVersion);
+
 			return plansManager.save(plans1);
 
 	}
