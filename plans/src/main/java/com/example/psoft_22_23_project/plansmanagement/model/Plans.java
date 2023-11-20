@@ -156,6 +156,39 @@ public class Plans {
 
         this.promoted.setPromoted(true);
     }
+    public static Plans newFrom(final Plans resource) {
+        final Plans obj = new Plans();
+        if (resource.getName() != null) {
+            obj.name.setName(resource.getName().getName());
+        }
+        if(resource.getDescription() != null){
+            obj.description.setDescription(resource.getDescription().getDescription());
+        }
+
+        if(resource.getMaximumNumberOfUsers() != null){
+            obj.maximumNumberOfUsers.setMaximumNumberOfUsers(resource.getMaximumNumberOfUsers().getMaximumNumberOfUsers());
+        }
+
+        if(resource.getMusicCollection() != null){
+            obj.musicCollection.setMusicCollection(resource.getMusicCollection().getMusicCollection());
+        }
+
+        if(resource.getNumberOfMinutes() != null){
+            obj.numberOfMinutes.setNumberOfMinutes(resource.getNumberOfMinutes().getNumberOfMinutes());
+        }
+
+        if(resource.getMusicSuggestion() != null){
+            obj.musicSuggestion.setMusicSuggestion(resource.getMusicSuggestion().getMusicSuggestion());
+        }
+        if(resource.getActive() != null){
+            obj.active.setActive(resource.getActive().getActive());
+        }
+        if(resource.getPromoted()!= null){
+            obj.promoted.setPromoted(resource.getPromoted().getPromoted());
+        }
+
+        return obj;
+    }
 
 
 }

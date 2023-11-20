@@ -20,6 +20,18 @@
 	</properties>
 
 	<dependencies>
+		<!-- RABBIT -->
+		<dependency>
+			<groupId>com.rabbitmq</groupId>
+			<artifactId>amqp-client</artifactId>
+			<version>5.20.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.amqp</groupId>
+			<artifactId>spring-rabbit</artifactId>
+			<version>3.0.10</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -126,7 +138,12 @@
             <artifactId>spring-web</artifactId>
             <version>5.3.16</version>
         </dependency>
-    </dependencies>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.4.11</version>
+		</dependency>
+	</dependencies>
 
 	<build>
 		<plugins>
