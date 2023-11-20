@@ -116,7 +116,7 @@ class PlansManagerImpl implements PlansManager{
 
     @Override
     public Plans create(String auth, CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException {
-        return httpRepository.createNotLocal(auth,resource);
+        return httpRepository.create(auth,resource);
     }
     @Override
     public Plans save(Plans obj) {

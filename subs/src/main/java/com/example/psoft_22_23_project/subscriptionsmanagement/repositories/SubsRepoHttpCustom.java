@@ -26,8 +26,6 @@ public interface SubsRepoHttpCustom {
 
     HttpResponse<String> getPlansFromOtherAPI(String name) throws URISyntaxException, IOException, InterruptedException;
 
-    HttpResponse<String> getUserFromOtherAPI(String name) throws URISyntaxException, IOException, InterruptedException;
-
     HttpResponse<String> getSubsFromOtherApi(String name,String auth) throws URISyntaxException, IOException, InterruptedException;
 
     PlansDetails subExistNotLocal( String auth) throws URISyntaxException, IOException, InterruptedException;
@@ -160,29 +158,6 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
         return response;
 
     }
-
-    @Override
-    public HttpResponse<String> getUserFromOtherAPI(String name) throws URISyntaxException, IOException, InterruptedException {
-        // 82 91 subs
-        // 81 90 plans
-        // 83 92 users
-        //int otherPort = (currentPort == 8082) ? 8083 : 8092;
-        URI uri = new URI("http://localhost:" + userPort + "/api/user/" + name);
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(uri)
-                .GET()
-                .build();
-
-        HttpClient client = HttpClient.newHttpClient();
-
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        return response;
-
-    }
-
-
 
     @Override
     public PlansDetails subExistNotLocal(String auth) throws URISyntaxException, IOException, InterruptedException {

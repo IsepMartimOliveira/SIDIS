@@ -1,12 +1,10 @@
 package com.example.psoft_22_23_project.plansmanagement.repositories;
 
 import com.example.psoft_22_23_project.plansmanagement.api.CreatePlanRequest;
-import com.example.psoft_22_23_project.plansmanagement.api.EditPlansRequest;
 import com.example.psoft_22_23_project.plansmanagement.api.PlanRequest;
 import com.example.psoft_22_23_project.plansmanagement.api.PlansMapperInverse;
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 import com.example.psoft_22_23_project.plansmanagement.services.CreatePlansMapper;
-import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -28,19 +26,9 @@ public interface PlansRepoHttpCustom {
 
     HttpResponse<String> getPlansFromOtherAPI() throws URISyntaxException, IOException, InterruptedException;
 
-    HttpResponse<String> doPlansPatchAPI(String name, final long desiredVersion, String auth, String json) throws URISyntaxException, IOException, InterruptedException;
-
-    HttpResponse<String> doPlansPatchMoneyAPI(String name, final long desiredVersion, String auth, String json) throws URISyntaxException, IOException, InterruptedException;
-
-    HttpResponse<String> doPlansPatchDeactivate(String name, String auth, final long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
-
     Iterable<Plans> addLocalPlusNot(Iterable<Plans> planslocal) throws URISyntaxException, IOException, InterruptedException;
 
-    Plans updateNotLocal(EditPlansRequest resource, String name, long desiredVersion, String auth) throws URISyntaxException, IOException, InterruptedException;
-
-    Plans createNotLocal(String auth, CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException;
-
-    Plans deactivateNotLocal(String name, long desiredVersion, String authorizationToken) throws URISyntaxException, IOException, InterruptedException;
+    Plans create(String auth, CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException;
 
     Optional<Plans> getPlanByNameNotLocally(String planName) throws IOException, InterruptedException, URISyntaxException;
 }
@@ -99,11 +87,9 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
     }
     @Override
     public HttpResponse<String> getPlansFromOtherAPI(String name, String auth) throws URISyntaxException, IOException, InterruptedException {
-        //otherPort = (currentPort==portTwo) ? portOne : portTwo;
-        //URI uri = new URI("http://localhost:" + otherPort + "/api/plans/external/"+name);
 
-       String urlWithDynamicName = externalPlansUrl.replace("{name}", name);
-       URI uri = new URI(urlWithDynamicName);
+        otherPort = (currentPort==portTwo) ? portOne : portTwo;
+        URI uri = new URI("http://localhost:" + otherPort + "/api/plans/external/"+name);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
@@ -161,122 +147,10 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
         return planslocal;
     }
 
-    // n usado daqui para baixo
-
     @Override
-    public HttpResponse<String> doPlansPatchMoneyAPI(String name, final long desiredVersion, String auth,String json) throws URISyntaxException, IOException, InterruptedException {
-        int otherPort = (currentPort == 8081) ? 8090 : 8081;
-        String apiUrl = "http://localhost:" + otherPort + "/api/plans/updateMoney/" + name;
-
-        HttpRequest requestpatch = HttpRequest.newBuilder()
-                .uri(URI.create(apiUrl))
-                .header("Content-Type", "application/json")
-                .header("if-match", Long.toString(desiredVersion))
-                .header("Authorization",auth)
-                .method("PATCH", HttpRequest.BodyPublishers.ofString(json))
-                .build();
-        HttpClient httpClient = HttpClient.newHttpClient();
-        HttpResponse<String> responses = httpClient.send(requestpatch, HttpResponse.BodyHandlers.ofString());
-
-        return responses;
-
-    }
-
-    @Override
-    public HttpResponse<String> doPlansPatchAPI(String name, final long desiredVersion, String auth,String json) throws URISyntaxException, IOException, InterruptedException {
-        //String urlWithDynamicName = patchDetails.replace("{name}", name);
-        //URI uri = new URI(urlWithDynamicName);
-
-        otherPort = (currentPort==portTwo) ? portOne : portTwo;
-        URI uri = new URI("http://localhost:" + otherPort + "/api/plans/update/" + name);
-
-        HttpRequest requestpatch = HttpRequest.newBuilder()
-                .uri(uri)
-                .header("Content-Type", "application/json")
-                .header("Authorization",auth)
-                .header("if-match", Long.toString(desiredVersion) )
-                .method("PATCH", HttpRequest.BodyPublishers.ofString(json))
-                .build();
-        HttpClient httpClient = HttpClient.newHttpClient();
-        HttpResponse<String> responses = httpClient.send(requestpatch, HttpResponse.BodyHandlers.ofString());
-
-        return responses;
-
-    }
-
-    @Override
-    public HttpResponse<String> doPlansPatchDeactivate(String name, String auth,long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
-        otherPort = (currentPort==portTwo) ? portOne : portTwo;
-        URI uri = new URI("http://localhost:" + otherPort + "/api/plans/deactivate/" + name);
-        //String urlWithDynamicName = patchDeactivate.replace("{name}", name);
-        //URI uri = new URI(urlWithDynamicName);
-
-        HttpRequest requestpatch = HttpRequest.newBuilder()
-                .uri(uri)
-                .header("Content-Type", "application/json")
-                .header("Authorization",auth)
-                .header("if-match", Long.toString(desiredVersion))
-                .method("PATCH", HttpRequest.BodyPublishers.noBody())
-                .build();
-        HttpClient httpClient = HttpClient.newHttpClient();
-        HttpResponse<String> responses = httpClient.send(requestpatch, HttpResponse.BodyHandlers.ofString());
-
-        return responses;
-    }
-
-
-    @Override
-    public Plans updateNotLocal( EditPlansRequest resource, String name, long desiredVersion, String auth) throws URISyntaxException, IOException, InterruptedException {
-        HttpResponse<String> response = getPlansFromOtherAPI(name,auth);
-        //nao era preciso fazer get?
-        if (response.statusCode() == 200) {
-            Gson gson = new Gson();
-            String json = gson.toJson(resource);
-            HttpResponse<String> responses = doPlansPatchAPI(name,desiredVersion,auth,json);
-
-            if(responses.statusCode() == 200){
-                //
-                PlanRequest planRequest2 = gson.fromJson(responses.body(), PlanRequest.class);
-                //
-                return plansMapperInverse.toPlansView(planRequest2);
-            } else if (responses.statusCode() == 409) {
-                throw new IllegalArgumentException("If match number wrong!");
-            }
-            throw new IllegalArgumentException("Plan with name " + name + " was updated!");
-        }
-        else if(response.statusCode()==401){
-            throw new IllegalArgumentException("Authentication failed. Please check your credentials or login to access this resource.");
-        }
-        throw new IllegalArgumentException("Plan with name " + name + " does not exists on another machine and locally !");
-    }
-
-    @Override
-    public Plans createNotLocal( String auth, CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException {
-        HttpResponse<String> response = getPlansFromOtherAPI(resource.getName(),auth);
-        if(response.statusCode() == 404){
-            Plans obj = createPlansMapper.create(resource);
-            return obj;
-        }else {
-            throw new IllegalArgumentException("Plan with name " + resource.getName() + " already exists on another machine!");
-        }
-    }
-
-    @Override
-    public Plans deactivateNotLocal( String name, long desiredVersion, String authorizationToken) throws URISyntaxException, IOException, InterruptedException {
-        HttpResponse<String> response = getPlansFromOtherAPI(name,authorizationToken);
-
-        if (response.statusCode() == 200) {
-            Gson gson = new Gson();
-            HttpResponse<String> responses=doPlansPatchDeactivate(name,authorizationToken,desiredVersion);
-            if(responses.statusCode() == 200){
-                PlanRequest planRequest = gson.fromJson(responses.body(), PlanRequest.class);
-                return plansMapperInverse.toPlansView(planRequest);
-            }
-        }
-        else{
-            throw new IllegalArgumentException("Plan with name " + name + " does not exists on another machine and locally !");
-        }
-        return null;
+    public Plans create( String auth, CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException {
+        Plans obj = createPlansMapper.create(resource);
+        return obj;
     }
 
 }
