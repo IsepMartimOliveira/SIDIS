@@ -15,6 +15,19 @@ public class Config {
     public MessageConverter messageConverter() {
         return new Jackson2JsonMessageConverter();
     }
+    @Bean
+    public FanoutExchange fanout() {
+        return new FanoutExchange("plans_create");
+    }
+    @Bean
+    public Queue plansQueue() {
+        return new AnonymousQueue();
+    }
+
+    @Bean
+    public Binding bindingPlansQueue(FanoutExchange fanout, Queue plansQueue) {
+        return BindingBuilder.bind(plansQueue).to(fanout);
+    }
 
     @Bean
     public AmqpTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
@@ -22,4 +35,14 @@ public class Config {
         rabbitTemplate.setMessageConverter(messageConverter());
         return rabbitTemplate;
     }
+
+    @Bean
+    public PlansCOMSender sender() {
+        return new PlansCOMSender();
+    }
+    @Bean
+    public  PlansQReceiver receiver(){
+        return new PlansQReceiver();
+    }
+
 }
