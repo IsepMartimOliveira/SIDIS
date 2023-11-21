@@ -24,6 +24,7 @@ import com.example.psoft_22_23_project.plansmanagement.api.CreatePlanRequest;
 import com.example.psoft_22_23_project.plansmanagement.api.EditPlansRequest;
 import com.example.psoft_22_23_project.plansmanagement.api.PlansMapperInverse;
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
+import com.example.psoft_22_23_project.rabbitMQ.PlansCOMSender;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,8 @@ import java.util.Optional;
 public class PlansServiceImpl implements PlansService {
 	private final PlansManager plansManager;
 	private final PlansMapperInverse plansMapperInverse;
+	private  final PlansCOMSender plansCOMSender;
+	private final PlansToPlansRequest plansToPlansRequest;
 	@Value("${server.port}")
 	private int currentPort;
 	@Override
@@ -65,6 +68,7 @@ public class PlansServiceImpl implements PlansService {
 	public Plans create(CreatePlanRequest resource, String auth) throws URISyntaxException, IOException, InterruptedException {
 		plansManager.findByNameDoesNotExists(resource.getName());
 		Plans obj = plansManager.create(auth,resource);
+		plansCOMSender.send(resource);
 		return plansManager.save(obj);
 	}
 	@Override

@@ -22,4 +22,17 @@ public class Config {
         rabbitTemplate.setMessageConverter(messageConverter());
         return rabbitTemplate;
     }
+    @Bean
+    public FanoutExchange fanout() {
+        return new FanoutExchange("plans_create");
+    }
+    @Bean
+    public Queue plansQueryQueue() {
+        return new AnonymousQueue();
+    }
+
+    @Bean
+    public Binding bindingPlansQueryQueue(FanoutExchange fanout, Queue plansQueryQueue) {
+        return BindingBuilder.bind(plansQueryQueue).to(fanout);
+    }
 }
