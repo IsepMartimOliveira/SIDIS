@@ -40,7 +40,6 @@ public class PlansServiceImpl implements PlansService {
 	private final PlansManager plansManager;
 	private final PlansMapperInverse plansMapperInverse;
 	private  final PlansCOMSender plansCOMSender;
-	private final PlansToPlansRequest plansToPlansRequest;
 	@Value("${server.port}")
 	private int currentPort;
 	@Override
