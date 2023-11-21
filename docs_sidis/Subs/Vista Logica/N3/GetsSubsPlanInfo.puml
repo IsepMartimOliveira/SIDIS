@@ -2,39 +2,36 @@
 'https://plantuml.com/sequence-diagram
 autoactivate on
 autonumber
-title  Renew  a new Subscription
+title Get Subscription Plan Details
 
 autonumber
 
 actor "Client" as Ac
+
+participant ":User" as User
+database ":UserDB" as Udb
+
 participant ":Subscription" as Auth
 database ":SubscriptionHTTP" as SHTTP
-participant ":User" as User
-database ":UserDB" as UDB
-participant ":User1" as User1
-database ":UserHTTP" as UHTTP
+
 database ":SubscriptionDB" as SDB
 participant ":Subscription1" as Serv
 participant ":Plan" as Plan
 database ":PlanDB" as PDB
-participant ":Plan1" as Plan1
 database ":PlanHTTP" as PHTTP
+participant ":Plan1" as Plan1
+
+Ac->User: POST public/login
+User->Udb:checkLocal
+Udb-->User:user
+User-->User:generates JWT Token
+User-->Ac:200
+
+
 
 Ac->Auth:   GET /subscriptions/
-Auth->SHTTP:
-SHTTP->User:checkUserExists
-alt User exist in first instance
-User->UDB:checkLocal
-UDB-->User:exists
-alt User doesn´t exist in the first instance
-User->User1:GET user/external/{name}
-User1->UHTTP:checkInstance
-UHTTP-->User1:200
-User1-->User:200
-end
-User-->SHTTP:200
+Auth->SHTTP: getplan
 
-end
 
 alt Subscription exists in the first Instance
 SHTTP->SDB:checkSubExists
@@ -42,7 +39,13 @@ SDB-->SHTTP:subscriptions
 alt Subscription doesn´t exist in the first instance
 SHTTP->Serv:GET subscriptions/external/{username}
 Serv-->SHTTP:200
-SHTTP->SHTTP:ThrowIllegalMessage
+note left
+If sub does not exist
+SubsHTTP trows: User does not have sub
+--
+If sub exist in other machine
+SubsHTTP trows: Sub can only be changed in other machine
+end note
 end
 SHTTP->Plan:GET /api/plans/{name}
 
@@ -50,14 +53,20 @@ alt Plan exist in the first instance
 Plan->PDB:checkLocal
 PDB-->Plan:200
 alt Plan doesn´t exist in the first instance
-Plan->Plan1:GET plans/external/{planName}
-Plan1->PHTTP:checkInstance
-PHTTP-->Plan1:200
-Plan1-->Plan:200
+Plan->PHTTP:GET plans/external/{planName}
+PHTTP->Plan1:checkInstance
+Plan1-->PHTTP:200
+PHTTP-->Plan:200
+note left
+If plan with name "planName"
+does not exist in both machines
+Plan trows: Plan with name "planName" does not exist
+end note
 end
 end
 Plan-->SHTTP:200
 end
+
 SHTTP-->Auth:showPlanDetails
 
 Auth-->Ac:200

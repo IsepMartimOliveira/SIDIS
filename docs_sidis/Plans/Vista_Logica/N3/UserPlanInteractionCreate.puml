@@ -25,11 +25,20 @@ User-->Ac:200
 Ac->Plan:POST  /plans
 Plan->PDB:checkLocal
 PDB-->Plan:empty
-
+note left
+If plan with name "planName"
+exists locally
+Plan trows: Plan with that name already exists
+end note
 Plan->PHTTP:GET plans/external/{planName}
 PHTTP->Plan1:checkLocal
-Plan1->PHTTP:empty
+Plan1-->PHTTP:empty
 PHTTP-->Plan:404
+note left
+If plan with name "planName"
+exists not locally
+Plan trows: Plan with that name already exists
+end note
 Plan->Plan:save
 Plan-->Ac:201
 

@@ -37,6 +37,7 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
 
     @Override
     public Subscriptions create(final CreateSubscriptionsRequest resource,String auth) throws URISyntaxException, IOException, InterruptedException {
+
         Subscriptions obj = subsManager.create(resource,auth);
         return subsManager.save(obj);
     }
@@ -44,7 +45,7 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
     @SneakyThrows
     @Override
     public PlansDetails planDetails(String auth) {
-
+        //find by name para ver se sub existe
         Optional<Subscriptions> subscription = subsManager.findByName(auth);
 
         PlansDetails objLocal = subsManager.subExistLocal(subscription.get().getPlan());

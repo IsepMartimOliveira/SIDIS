@@ -8,7 +8,7 @@ autonumber
 
 actor "Client" as Ac
 participant ":User" as User
-participant ":UserDB" as Udb
+database ":UserDB" as Udb
 
 participant ":Plan" as Plan
 database ":PlanDB" as PDB
@@ -34,12 +34,14 @@ alt plan isEmpty
 Plan->PHTTP:GET plans/external/{planName}
 PHTTP->Plan1:checkLocal
 Plan1-->PHTTP:200
-PHTTP->Plan1:PATCH plans/deactivate/{name}
-Plan1->PHTTP:200
 PHTTP-->Plan:200
 end
-Plan-->Ac:200
 
+Plan-->Ac:200
+note right
+If alt "plan inEmpty" is true
+Plan trows: Plan exist in other machine
+end note
 
 
 

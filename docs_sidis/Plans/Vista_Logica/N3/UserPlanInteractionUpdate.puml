@@ -35,13 +35,15 @@ alt plan isEmpty
 Plan->PHTTP:GET plans/external/{planName}
 PHTTP->Plan1:checkLocal
 Plan1-->PHTTP:200
-PHTTP->Plan1:PATCH plans/update/{name}
-Plan1->PHTTP:200
 PHTTP-->Plan:200
 end
+
 Plan-->Ac:200
 
-
+note right
+If alt "plan inEmpty" is true
+Plan trows: Plan exist in other machine
+end note
 
 
 @enduml

@@ -4,6 +4,7 @@ import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreateSubscri
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.PlansDetails;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptions;
 import com.example.psoft_22_23_project.subscriptionsmanagement.services.CreateSubscriptionsMapper;
+import com.example.psoft_22_23_project.subscriptionsmanagement.services.SubsManager;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
@@ -64,6 +65,8 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
     private String externalSubscriptionUrl;
     private final CreateSubscriptionsMapper createSubscriptionsMapper;
     private final SubscriptionsRepositoryDB subscriptionsRepositoryDB;
+    private final SubsManager subsManager;
+
 
 
     @Override
