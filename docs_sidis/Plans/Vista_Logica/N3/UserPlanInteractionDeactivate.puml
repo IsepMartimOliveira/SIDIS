@@ -14,6 +14,7 @@ participant ":Plan" as Plan
 database ":PlanDB" as PDB
 database ":PlanHTTP" as PHTTP
 participant ":Plan1" as Plan1
+database "Plan1DB" as PDB1
 
 
 Ac->User: POST public/login
@@ -32,7 +33,12 @@ end
 
 alt plan isEmpty
 Plan->PHTTP:GET plans/external/{planName}
-PHTTP->Plan1:checkLocal
+PHTTP->Plan1:checkInstance
+Plan1->PDB1:checkLocal
+
+PDB1-->Plan1:200
+deactivate PDB1
+
 Plan1-->PHTTP:200
 PHTTP-->Plan:200
 end

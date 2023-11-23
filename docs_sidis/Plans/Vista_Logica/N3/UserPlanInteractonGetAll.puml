@@ -14,6 +14,8 @@ participant ":Plan" as Plan
 database ":PlanDB" as PDB
 database ":PlanHTTP" as PHTTP
 participant ":Plan1" as Plan1
+database "Plan1DB" as PDB1
+
 
 
 
@@ -24,12 +26,16 @@ User-->User:generates JWT Token
 User-->Ac:200
 Ac->Plan:GET  /plans
 Plan->PDB:checkLocal
-PDB-->Plan:plans
+PDB-->Plan:plansLocal
 
 Plan->PHTTP:GET plans/external/
-PHTTP->Plan1:checkLocal
+PHTTP->Plan1:checkInstance
+Plan1->PDB1:checkLocal
+
+PDB1-->Plan1:200
+deactivate PDB1
 Plan1-->PHTTP:200
-PHTTP-->PHTTP:addPlans
+PHTTP-->PHTTP:addPlans(plansLocal)
 
 PHTTP-->Plan:plans
 

@@ -14,7 +14,7 @@ participant ":Plan" as Plan
 participant ":PlanDB" as PDB
 database ":PlanHTTP" as PHTTP
 participant ":Plan1" as Plan1
-
+database "Plan1DB" as PDB1
 
 
 Ac->User: POST public/login
@@ -31,8 +31,10 @@ exists locally
 Plan trows: Plan with that name already exists
 end note
 Plan->PHTTP:GET plans/external/{planName}
-PHTTP->Plan1:checkLocal
-Plan1-->PHTTP:empty
+PHTTP->Plan1:checkInstance
+Plan1->PDB1:checkLocal
+PDB1-->Plan1:empty
+Plan1-->PHTTP:404
 PHTTP-->Plan:404
 note left
 If plan with name "planName"
