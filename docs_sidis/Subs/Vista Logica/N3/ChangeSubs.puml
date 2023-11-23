@@ -20,6 +20,8 @@ participant ":Plan" as Plan
 database ":PlanDB" as PDB
 database ":PlanHTTP" as PHTTP
 participant ":Plan1" as Plan1
+database ":Plan1DB" as Plan1DB
+
 
 Ac->User: POST public/login
 User->Udb:checkLocal
@@ -52,7 +54,8 @@ PDB-->Plan:200
 alt Plan doesn´t exist in the first instance
 Plan->PHTTP:checkInstance
 PHTTP->Plan1:GET plans/external/{planName}
-
+Plan1->Plan1DB:checkLocal
+Plan1DB-->Plan1: plan
 Plan1-->PHTTP:200
 PHTTP-->Plan:200
 note left

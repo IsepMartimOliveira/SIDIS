@@ -17,6 +17,7 @@ participant ":Plan" as Plan
 database ":PlanDB" as PDB
 database ":PlanHTTP" as PHTTP
 participant ":Plan1" as Plan1
+database ":Plan1DB" as Plan1DB
 
 database ":SubscriptionDB" as SDB
 participant ":Subscription1" as Serv
@@ -38,6 +39,8 @@ PDB-->Plan:exists
 alt Plan doesn´t exist in the first instance db
 Plan->PHTTP:GET plans/external/{planName}
 PHTTP->Plan1:checkInstance
+Plan1->Plan1DB:checkLocal
+Plan1DB-->Plan1: plan
 Plan1-->PHTTP:200
 PHTTP-->Plan:200
 end
