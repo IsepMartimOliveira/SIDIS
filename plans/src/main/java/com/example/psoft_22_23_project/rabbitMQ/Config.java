@@ -35,4 +35,8 @@ public class Config {
     public Binding bindingPlansQueryQueue(FanoutExchange fanout, Queue plansQueryQueue) {
         return BindingBuilder.bind(plansQueryQueue).to(fanout);
     }
+    @Bean
+    public  PlansQReceiver receiver(){
+        return new PlansQReceiver();
+    }
 }

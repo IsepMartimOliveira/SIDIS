@@ -65,7 +65,6 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
     private String externalSubscriptionUrl;
     private final CreateSubscriptionsMapper createSubscriptionsMapper;
     private final SubscriptionsRepositoryDB subscriptionsRepositoryDB;
-    private final SubsManager subsManager;
 
 
 
@@ -123,11 +122,11 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
         // 82 91 subs
         // 81 90 plans
         // 83 92 users
-        String urlWithDynamicName = externalSubscriptionUrl.replace("{username}", userName);
-        URI uri = new URI(urlWithDynamicName);
+       // String urlWithDynamicName = externalSubscriptionUrl.replace("{username}", userName);
+       // URI uri = new URI(urlWithDynamicName);
         // URI uri = new URI("http://localhost:" + otherPort + "/api/subscriptions/external/" + userName);
-        //otherPort = (currentPort==portTwo) ? portOne : portTwo;
-        //URI uri = new URI("http://localhost:" + otherPort + "/api/subscriptions/external/"+userName);
+        otherPort = (currentPort==portTwo) ? portOne : portTwo;
+        URI uri = new URI("http://localhost:" + otherPort + "/api/subscriptions/external/"+userName);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
                 .GET()
@@ -146,8 +145,8 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
         // 82 91 subs
         // 81 90 plans
         // 83 92 users
-        int otherPort = (currentPort == 8082) ? 8081 : 8090;
-        URI uri = new URI("http://localhost:" + otherPort + "/api/plans/" + name);
+        //int otherPort = (currentPort == 8082) ? 8081 : 8090;
+        URI uri = new URI("http://localhost:" + planPort + "/api/plans/" + name);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)

@@ -41,8 +41,8 @@ public class Config {
         return new PlansCOMSender();
     }
     @Bean
-    public  PlansQReceiver receiver(){
-        return new PlansQReceiver();
+    public PlansCOMReceiver receiver(){
+        return new PlansCOMReceiver();
     }
 
 }
