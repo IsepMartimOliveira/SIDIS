@@ -65,7 +65,6 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
     private String externalSubscriptionUrl;
     private final CreateSubscriptionsMapper createSubscriptionsMapper;
     private final SubscriptionsRepositoryDB subscriptionsRepositoryDB;
-    private final SubsManager subsManager;
 
 
 
