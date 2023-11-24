@@ -28,7 +28,6 @@ public interface PlansRepoHttpCustom {
 
      PlanRequest getAllExternal() throws URISyntaxException, IOException, InterruptedException;
 
-
     Optional<Plans> getPlanByNameNotLocally(String planName) throws IOException, InterruptedException, URISyntaxException;
     Iterable<Plans> addPlanToIterable(Iterable<Plans> plans, Plans newPlan);
 }
@@ -41,10 +40,8 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
     private int portOne;
     @Value("${port2}")
     private int portTwo;
-
     private int otherPort;
     private final PlansMapperInverse plansMapperInverse;
-
     @Override
     public Optional<Plans> getPlanByNameNotLocally(String planName) throws IOException, InterruptedException, URISyntaxException {
         HttpResponse<String> plan = getPlansFromOtherAPI(planName,"auth");
@@ -67,7 +64,6 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
         }
         return null;
     }
-
     public Iterable<Plans> addPlanToIterable(Iterable<Plans> plans, Plans newPlan) {
         List<Plans> combinedPlans = new ArrayList<>();
         plans.forEach(combinedPlans::add);
@@ -95,9 +91,6 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
         return response;
 
     }
-
-
-
     @Override
     public HttpResponse<String> getPlansFromOtherAPI() throws URISyntaxException, IOException, InterruptedException {
         otherPort = (currentPort==portTwo) ? portOne : portTwo;

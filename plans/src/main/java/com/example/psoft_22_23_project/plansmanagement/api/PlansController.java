@@ -48,20 +48,9 @@ import java.util.Optional;
 @RequestMapping("/api/plans")
 public class PlansController {
 
-	private static final Logger logger = LoggerFactory.getLogger(PlansController.class);
-
 	private final PlansService service;
 
 	private final PlansViewMapper plansViewMapper;
-
-	private final FeeRevisionViewMapper feeRevisionViewMapper;
-
-	private Long getVersionFromIfMatchHeader(final String ifMatchHeader) {
-		if (ifMatchHeader.startsWith("\"")) {
-			return Long.parseLong(ifMatchHeader.substring(1, ifMatchHeader.length() - 1));
-		}
-		return Long.parseLong(ifMatchHeader);
-	}
 
 	@Operation(summary = "Gets all plans")
 	@GetMapping
@@ -101,50 +90,7 @@ public class PlansController {
 			return ResponseEntity.notFound().build();
 		}
 	}
-	@Operation(summary = "Creates a new Plan")
-	@PostMapping
-	@ResponseStatus(HttpStatus.CREATED) public ResponseEntity<PlansView>
-	create(@Valid @RequestBody final CreatePlanRequest resource,@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken) throws URISyntaxException, IOException, InterruptedException {
 
-		final Plans plan = service.create(resource,authorizationToken);
-		final var newPlanUri =
-				ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(plan.getName().getName()).build() .toUri();
-		return
-				ResponseEntity.created(newPlanUri).eTag(Long.toString(plan.getVersion()))
-						.body(plansViewMapper.toPlansView(plan));
-	}
-
-	@Operation(summary = "Partially updates an existing plan")
-	@PatchMapping(value = "/update/{name}")
-	public ResponseEntity<PlansView> partialUpdate(final WebRequest request,
-												 @PathVariable("name") @Parameter(description = "The name of the plan to update") final String name,
-												   @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken,
-												 @Valid @RequestBody final EditPlansRequest resource) throws URISyntaxException, IOException, InterruptedException {
-
-		final String ifMatchValue = request.getHeader("If-Match");
-		if (ifMatchValue == null || ifMatchValue.isEmpty()) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-					"You must issue a conditional PATCH using 'if-match'");
-		}
-
-		final var plans = service.partialUpdate(name, resource, authorizationToken,getVersionFromIfMatchHeader(ifMatchValue));
-		return ResponseEntity.ok().eTag(Long.toString(plans.getVersion())).body(plansViewMapper.toPlansView(plans));
-	}
-
-	@Operation(summary = "Deactivate a plan")
-	@PatchMapping(value = "/deactivate/{name}")
-	public ResponseEntity<PlansView> deactivate(final WebRequest request,
-												@PathVariable("name") @Parameter(description = "The name of the plan to update") final String name,
-												@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken) throws URISyntaxException, IOException, InterruptedException {
-		final String ifMatchValue = request.getHeader("If-Match");
-		if (ifMatchValue == null || ifMatchValue.isEmpty()) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-					"You must issue a conditional PATCH using 'if-match'");
-		}
-
-		final var plans = service.deactivate(name, authorizationToken,getVersionFromIfMatchHeader(ifMatchValue));
-		return ResponseEntity.ok().eTag(Long.toString(plans.getVersion())).body(plansViewMapper.toPlansView(plans));
-	}
 
 }
 

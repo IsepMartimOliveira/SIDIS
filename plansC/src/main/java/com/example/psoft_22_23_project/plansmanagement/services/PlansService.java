@@ -31,17 +31,11 @@ import java.util.Optional;
 
 public interface PlansService {
 
-	Plans create(CreatePlanRequest resource, String auth) throws URISyntaxException, IOException, InterruptedException;
+	Plans create(CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException;
 
 	Plans partialUpdate(String name, EditPlansRequest resource,String auth, long parseLong) throws URISyntaxException, IOException, InterruptedException;
 
 	Plans deactivate(String name, String authorizationToken,long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
-
-	Iterable<Plans> findAtive() throws URISyntaxException, IOException, InterruptedException;
-	Iterable<Plans> findAtiveExternal();
-
-	Optional<Plans> getPlanByName(String planName) throws URISyntaxException, IOException, InterruptedException;
-	Optional<Plans> getPlanByNameExternal(String planName) throws IOException, URISyntaxException, InterruptedException;
 
 
 }

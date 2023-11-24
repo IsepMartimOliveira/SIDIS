@@ -26,11 +26,11 @@ public interface PlansRepoHttpCustom {
 
     HttpResponse<String> getPlansFromOtherAPI() throws URISyntaxException, IOException, InterruptedException;
 
-    Iterable<Plans> addLocalPlusNot(Iterable<Plans> planslocal) throws URISyntaxException, IOException, InterruptedException;
+    PlanRequest getAllExternal() throws URISyntaxException, IOException, InterruptedException;
 
-    Plans create(String auth, CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException;
 
     Optional<Plans> getPlanByNameNotLocally(String planName) throws IOException, InterruptedException, URISyntaxException;
+    Iterable<Plans> addPlanToIterable(Iterable<Plans> plans, Plans newPlan);
 }
 @RequiredArgsConstructor
 @Configuration
@@ -42,16 +42,7 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
     @Value("${port2}")
     private int portTwo;
 
-    @Value("${plans.external}")
-    private String externalPlansUrl;
-    @Value("${plansall.external}")
-    private String externalAllPlansUrl;
-    @Value("${patch.details}")
-    private String patchDetails;
-    @Value("${patch.deactivate}")
-    private String patchDeactivate;
     private int otherPort;
-    private final CreatePlansMapper createPlansMapper;
     private final PlansMapperInverse plansMapperInverse;
 
     @Override
@@ -77,13 +68,13 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
         return null;
     }
 
-    private Iterable<Plans> addPlanToIterable(Iterable<Plans> plans, Plans newPlan) {
-        if (plans instanceof List) {
-            List<Plans> planList = new ArrayList<>((List<Plans>) plans);
-            planList.add(newPlan);
-            return planList;
+    public Iterable<Plans> addPlanToIterable(Iterable<Plans> plans, Plans newPlan) {
+        List<Plans> combinedPlans = new ArrayList<>();
+        plans.forEach(combinedPlans::add);
+        if (newPlan != null) {
+            combinedPlans.add(newPlan);
         }
-        return plans;
+        return combinedPlans;
     }
     @Override
     public HttpResponse<String> getPlansFromOtherAPI(String name, String auth) throws URISyntaxException, IOException, InterruptedException {
@@ -111,7 +102,6 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
     public HttpResponse<String> getPlansFromOtherAPI() throws URISyntaxException, IOException, InterruptedException {
         otherPort = (currentPort==portTwo) ? portOne : portTwo;
         URI uri = new URI("http://localhost:" + otherPort + "/api/plans/external");
-        //URI uri = new URI(externalAllPlansUrl);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
                 .GET()
@@ -124,7 +114,7 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
         return response;
     }
     @Override
-    public Iterable<Plans> addLocalPlusNot(Iterable<Plans> planslocal) throws URISyntaxException, IOException, InterruptedException {
+    public PlanRequest getAllExternal() throws URISyntaxException, IOException, InterruptedException {
         HttpResponse<String> response = getPlansFromOtherAPI();
 
         JSONArray jsonArray = new JSONArray(response.body());
@@ -141,17 +131,12 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
                     jsonArray.getJSONObject(i).getString("active"),
                     jsonArray.getJSONObject(i).getString("promoted")
             );
-            Plans obj = plansMapperInverse.toPlansView(newPlan);
-            planslocal = addPlanToIterable(planslocal, obj);
+            return  newPlan;
         }
-        return planslocal;
+        return null;
     }
 
-    @Override
-    public Plans create( String auth, CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException {
-        Plans obj = createPlansMapper.create(resource);
-        return obj;
-    }
+
 
 }
 

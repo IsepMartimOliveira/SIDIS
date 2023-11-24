@@ -48,13 +48,10 @@ import java.util.Optional;
 @RequestMapping("/api/plans")
 public class PlansController {
 
-	private static final Logger logger = LoggerFactory.getLogger(PlansController.class);
-
 	private final PlansService service;
 
 	private final PlansViewMapper plansViewMapper;
 
-	private final FeeRevisionViewMapper feeRevisionViewMapper;
 
 	private Long getVersionFromIfMatchHeader(final String ifMatchHeader) {
 		if (ifMatchHeader.startsWith("\"")) {
@@ -63,50 +60,12 @@ public class PlansController {
 		return Long.parseLong(ifMatchHeader);
 	}
 
-	@Operation(summary = "Gets all plans")
-	@GetMapping
-	public Iterable<PlansView> findActive() throws URISyntaxException, IOException, InterruptedException {
-		return plansViewMapper.toPlansView(service.findAtive());
-	}
-
-	@Operation(summary = "Gets all plans")
-	@GetMapping("/external")
-	public Iterable<PlansView> findActiveExternal(){
-		return plansViewMapper.toPlansView(service.findAtiveExternal());
-	}
-
-	@Operation(summary = "Get Plan by name")
-	@GetMapping("/{planName}")
-	public ResponseEntity<PlansView> getPlanByName(@PathVariable String planName) throws URISyntaxException, IOException, InterruptedException {
-		Optional<Plans> planOptional = service.getPlanByName(planName);
-		if (planOptional.isPresent()) {
-			Plans plan = planOptional.get();
-			PlansView plansView = plansViewMapper.toPlansView(plan);
-			return ResponseEntity.ok(plansView);
-		} else {
-			return ResponseEntity.notFound().build();
-		}
-	}
-
-	@Operation(summary = "Get Plan by name")
-	@GetMapping("/external/{planName}")
-	public ResponseEntity<PlansView> getPlanByNameExternal(@PathVariable String planName) throws IOException, URISyntaxException, InterruptedException {
-		Optional<Plans> planOptional = service.getPlanByNameExternal(planName);
-
-		if (planOptional.isPresent()) {
-			Plans plan = planOptional.get();
-			PlansView plansView = plansViewMapper.toPlansView(plan);
-			return ResponseEntity.ok(plansView);
-		} else {
-			return ResponseEntity.notFound().build();
-		}
-	}
 	@Operation(summary = "Creates a new Plan")
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED) public ResponseEntity<PlansView>
 	create(@Valid @RequestBody final CreatePlanRequest resource,@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken) throws URISyntaxException, IOException, InterruptedException {
 
-		final Plans plan = service.create(resource,authorizationToken);
+		final Plans plan = service.create(resource);
 		final var newPlanUri =
 				ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(plan.getName().getName()).build() .toUri();
 		return

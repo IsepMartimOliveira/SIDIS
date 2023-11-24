@@ -42,31 +42,9 @@ public class PlansServiceImpl implements PlansService {
 	private final PlansMapperInverse plansMapperInverse;
 	private final CreatePlansMapper  createPlansMapper;
 	private final PlansCOMSender plansCOMSender;
-	@Override
-	public Iterable<Plans> findAtive() throws URISyntaxException, IOException, InterruptedException {
-		Iterable<Plans> planslocal = plansManager.findByActive_Active(true);
-		PlanRequest plans = plansManager.getAllExternal();
-		Plans newPlan = plansMapperInverse.toPlansView(plans);
-		Iterable<Plans> getAll=plansManager.addPlanToIterable(planslocal,newPlan);
-		return getAll;
-	}
 
 	@Override
-	public Iterable<Plans> findAtiveExternal(){
-		Iterable<Plans> planslocal = plansManager.findByActive_Active(true);
-		return planslocal;
-	}
-
-	public Optional<Plans> getPlanByName(String planName) throws URISyntaxException, IOException, InterruptedException {
-		Optional<Plans> plans = plansManager.findByName(planName);
-		return plans;
-	}
-
-	public Optional<Plans> getPlanByNameExternal(String planName) throws IOException, URISyntaxException, InterruptedException {
-		return plansManager.findByNameName(planName);
-	}
-	@Override
-	public Plans create(CreatePlanRequest resource, String auth) throws URISyntaxException, IOException, InterruptedException {
+	public Plans create(CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException {
 		plansManager.findByNameDoesNotExists(resource.getName());
 		plansCOMSender.send(resource);
 		Plans obj = createPlansMapper.create(resource);

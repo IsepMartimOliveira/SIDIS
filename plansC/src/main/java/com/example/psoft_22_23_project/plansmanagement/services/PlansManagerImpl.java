@@ -41,13 +41,8 @@ class PlansManagerImpl implements PlansManager{
         Optional<Plans> resultFromDB = dbRepository.findByName_Name(name);
         if (resultFromDB.isPresent()) {
             throw new IllegalArgumentException("Plan with name " + name + " already exists locally!");
-        } else {
-            // nao localemente
-            Optional<Plans> resultFromHTTP = httpRepository.getPlanByNameNotLocally(name);
-            if (resultFromHTTP != null){
-                throw new IllegalArgumentException("Plan with name " + name + " already exists not locally!");
-            }
         }
+
     }
 
     @Override

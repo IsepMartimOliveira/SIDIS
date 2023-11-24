@@ -23,6 +23,7 @@ package com.example.psoft_22_23_project.plansmanagement.services;
 
 import com.example.psoft_22_23_project.plansmanagement.api.CreatePlanRequest;
 import com.example.psoft_22_23_project.plansmanagement.api.EditPlansRequest;
+import com.example.psoft_22_23_project.plansmanagement.api.PlanRequest;
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 
 import java.io.IOException;
@@ -33,18 +34,15 @@ public interface PlansManager {
 
 	Optional<Plans> findByName(String name)throws IOException, URISyntaxException, InterruptedException;
 
-	void findByNameDoesNotExists(String name) throws IOException, URISyntaxException, InterruptedException;
-
-	Optional<Plans>  findByNameDoesExistsUpdate(String name, final long desiredVersion, final EditPlansRequest resource, String auth) throws IOException, URISyntaxException, InterruptedException;
-	Optional<Plans>  findByNameDoesExists(String name, final long desiredVersion, String auth) throws IOException, URISyntaxException, InterruptedException;
 
 	Iterable<Plans> findByActive_Active(boolean b);
 
-	Iterable<Plans> addNotLocalPlans(Iterable<Plans> planslocal) throws URISyntaxException, IOException, InterruptedException;
+	PlanRequest getAllExternal() throws URISyntaxException, IOException, InterruptedException;
 
-	Plans create(String auth, CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException;
+	Iterable<Plans> addPlanToIterable(Iterable<Plans> plans, Plans newPlan);
 
-	 Plans save(Plans obj);
+
+	Plans save(Plans obj);
 
 	Optional<Plans> findByNameName(String planName);
 }

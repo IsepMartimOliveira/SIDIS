@@ -22,6 +22,7 @@ package com.example.psoft_22_23_project.plansmanagement.services;
 
 import com.example.psoft_22_23_project.plansmanagement.api.CreatePlanRequest;
 import com.example.psoft_22_23_project.plansmanagement.api.EditPlansRequest;
+import com.example.psoft_22_23_project.plansmanagement.api.PlanRequest;
 import com.example.psoft_22_23_project.plansmanagement.api.PlansMapperInverse;
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 import lombok.RequiredArgsConstructor;
@@ -36,16 +37,8 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class PlansServiceImpl implements PlansService {
-	private final PlansManager plansManager;
+	private final PlansManagerImpl plansManager;
 	private final PlansMapperInverse plansMapperInverse;
-	@Value("${server.port}")
-	private int currentPort;
-	@Override
-	public Iterable<Plans> findAtive() throws URISyntaxException, IOException, InterruptedException {
-		Iterable<Plans> planslocal = plansManager.findByActive_Active(true);
-		Iterable<Plans> plans = plansManager.addNotLocalPlans(planslocal);
-		return plans;
-	}
 
 	@Override
 	public Iterable<Plans> findAtiveExternal(){
@@ -62,30 +55,11 @@ public class PlansServiceImpl implements PlansService {
 		return plansManager.findByNameName(planName);
 	}
 	@Override
-	public Plans create(CreatePlanRequest resource, String auth) throws URISyntaxException, IOException, InterruptedException {
-		plansManager.findByNameDoesNotExists(resource.getName());
-		Plans obj = plansManager.create(auth,resource);
-		return plansManager.save(obj);
+	public Iterable<Plans> findAtive() throws URISyntaxException, IOException, InterruptedException {
+		Iterable<Plans> planslocal = plansManager.findByActive_Active(true);
+		PlanRequest plans = plansManager.getAllExternal();
+		Plans newPlan = plansMapperInverse.toPlansView(plans);
+		Iterable<Plans> getAll=plansManager.addPlanToIterable(planslocal,newPlan);
+		return getAll;
 	}
-	@Override
-	public Plans partialUpdate(final String name, final EditPlansRequest resource, String auth ,final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
-		//ver se existe
-		final Optional<Plans> plans = plansManager.findByNameDoesExistsUpdate(name,desiredVersion,resource,auth);
-		//.orElseThrow(() -> new IllegalArgumentException("Plan with name " + name + " doesn't exists locally!"));
-
-		Plans plans1 = plans.get();
-
-		return plansManager.save(plans1);
-	}
-
-	@Override
-	public Plans deactivate(final String name, String authorizationToken,final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
-		final Optional<Plans> plans = plansManager.findByNameDoesExists(name,desiredVersion,authorizationToken);
-
-			Plans plans1 = plans.get();
-
-			return plansManager.save(plans1);
-
-	}
-
 }
