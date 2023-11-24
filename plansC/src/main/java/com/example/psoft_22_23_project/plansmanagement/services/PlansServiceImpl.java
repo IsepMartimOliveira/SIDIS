@@ -22,6 +22,7 @@ package com.example.psoft_22_23_project.plansmanagement.services;
 
 import com.example.psoft_22_23_project.plansmanagement.api.CreatePlanRequest;
 import com.example.psoft_22_23_project.plansmanagement.api.EditPlansRequest;
+import com.example.psoft_22_23_project.plansmanagement.api.PlanRequest;
 import com.example.psoft_22_23_project.plansmanagement.api.PlansMapperInverse;
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 import com.example.psoft_22_23_project.rabbitMQ.PlansCOMSender;
@@ -44,8 +45,10 @@ public class PlansServiceImpl implements PlansService {
 	@Override
 	public Iterable<Plans> findAtive() throws URISyntaxException, IOException, InterruptedException {
 		Iterable<Plans> planslocal = plansManager.findByActive_Active(true);
-		Iterable<Plans> plans = plansManager.addNotLocalPlans(planslocal);
-		return plans;
+		PlanRequest plans = plansManager.getAllExternal();
+		Plans newPlan = plansMapperInverse.toPlansView(plans);
+		Iterable<Plans> getAll=plansManager.addPlanToIterable(planslocal,newPlan);
+		return getAll;
 	}
 
 	@Override

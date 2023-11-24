@@ -2,6 +2,7 @@ package com.example.psoft_22_23_project.plansmanagement.services;
 
 import com.example.psoft_22_23_project.plansmanagement.api.CreatePlanRequest;
 import com.example.psoft_22_23_project.plansmanagement.api.EditPlansRequest;
+import com.example.psoft_22_23_project.plansmanagement.api.PlanRequest;
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 import com.example.psoft_22_23_project.plansmanagement.repositories.PlansRepoHttpCustom;
 import com.example.psoft_22_23_project.plansmanagement.repositories.PlansRepositoryDB;
@@ -94,9 +95,14 @@ class PlansManagerImpl implements PlansManager{
     }
 
     @Override
-    public Iterable<Plans> addNotLocalPlans(Iterable<Plans> planslocal) throws URISyntaxException, IOException, InterruptedException {
-        return httpRepository.addLocalPlusNot(planslocal);
+    public PlanRequest getAllExternal()throws URISyntaxException, IOException, InterruptedException {
+        return httpRepository.getAllExternal();
 
+    }
+
+    @Override
+    public Iterable<Plans> addPlanToIterable(Iterable<Plans> plans, Plans newPlan) {
+        return  httpRepository.addPlanToIterable(plans,newPlan);
     }
 
     @Override

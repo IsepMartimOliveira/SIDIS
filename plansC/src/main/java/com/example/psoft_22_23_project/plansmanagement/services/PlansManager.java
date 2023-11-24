@@ -23,6 +23,7 @@ package com.example.psoft_22_23_project.plansmanagement.services;
 
 import com.example.psoft_22_23_project.plansmanagement.api.CreatePlanRequest;
 import com.example.psoft_22_23_project.plansmanagement.api.EditPlansRequest;
+import com.example.psoft_22_23_project.plansmanagement.api.PlanRequest;
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 
 import java.io.IOException;
@@ -40,7 +41,9 @@ public interface PlansManager {
 
 	Iterable<Plans> findByActive_Active(boolean b);
 
-	Iterable<Plans> addNotLocalPlans(Iterable<Plans> planslocal) throws URISyntaxException, IOException, InterruptedException;
+	PlanRequest getAllExternal() throws URISyntaxException, IOException, InterruptedException;
+
+	Iterable<Plans> addPlanToIterable(Iterable<Plans> plans, Plans newPlan);
 
 
 	Plans save(Plans obj);
