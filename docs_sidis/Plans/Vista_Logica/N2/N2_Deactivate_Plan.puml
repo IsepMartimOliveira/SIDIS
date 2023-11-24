@@ -21,8 +21,8 @@ end
 alt Plans exist on another instance
 Auth->Serv: GET plans/external/{planName}
 Serv-->Auth:200
-Auth->Serv:PATCH plans/deactivate/{name}
-Serv-->Auth:200
+Auth-->Auth:Throw error message
+
 end
 Auth-->Ac:200
 
