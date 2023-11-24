@@ -42,9 +42,8 @@ public interface PlansManager {
 
 	Iterable<Plans> addNotLocalPlans(Iterable<Plans> planslocal) throws URISyntaxException, IOException, InterruptedException;
 
-	Plans create(String auth, CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException;
 
-	 Plans save(Plans obj);
+	Plans save(Plans obj);
 
 	Optional<Plans> findByNameName(String planName);
 }

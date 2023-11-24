@@ -33,6 +33,7 @@ class PlansManagerImpl implements PlansManager{
         }
     }
 
+
     @Override
     public void findByNameDoesNotExists(String name) throws IOException, URISyntaxException, InterruptedException {
         // local db
@@ -52,26 +53,14 @@ class PlansManagerImpl implements PlansManager{
     public Optional<Plans> findByNameDoesExistsUpdate(String name, final long desiredVersion, final EditPlansRequest resource, String auth) throws IOException, URISyntaxException, InterruptedException {
         Optional<Plans> resultFromDB = dbRepository.findByName_Name(name);
         if (resultFromDB.isPresent()) {
-            Plans plans1 = resultFromDB.get();
-            //updade localemente
-            plans1.updateData(desiredVersion, resource.getDescription(),
-                    resource.getMaximumNumberOfUsers(),
-                    resource.getNumberOfMinutes(),
-                    resource.getMusicCollection(),
-                    resource.getMusicSuggestion(),
-                    resource.getActive(),
-                    resource.getPromoted());
-            return Optional.of(plans1);
+            return resultFromDB;
         } else {
-            // nao localemente
             Optional<Plans> resultFromHTTP = httpRepository.getPlanByNameNotLocally(name);
-            if (resultFromHTTP.isPresent()){
-                //Plans plans2 = httpRepository.updateNotLocal(resource,name,desiredVersion,auth);
-                //return Optional.ofNullable(plans2);
+            if (resultFromHTTP.isPresent()) {
                 throw new IllegalArgumentException("Plan with name " + name + " exists in other machine!");
-
+            } else {
+                return Optional.empty();
             }
-            throw new IllegalArgumentException("Plan with name " + name + " does not exists!");
         }
     }
 
@@ -87,19 +76,15 @@ class PlansManagerImpl implements PlansManager{
                 throw new IllegalArgumentException("Plan with name " + name + " is already deactivate");
             }
             //des localemente
-            plans1.deactivate(desiredVersion);
-            return Optional.of(plans1);
+            return resultFromDB;
         } else {
             // nao localemente
             Optional<Plans> resultFromHTTP = httpRepository.getPlanByNameNotLocally(name);
-
-            if (resultFromHTTP.isPresent()){
-                //Plans plans2 = httpRepository.deactivateNotLocal(name,desiredVersion,auth);
-                //return Optional.ofNullable(plans2);
+            if (resultFromHTTP.isPresent()) {
                 throw new IllegalArgumentException("Plan with name " + name + " exists in other machine!");
-
+            } else {
+                return Optional.empty();
             }
-            throw new IllegalArgumentException("Plan with name " + name + " does not exists!");
         }
     }
 
@@ -114,10 +99,6 @@ class PlansManagerImpl implements PlansManager{
 
     }
 
-    @Override
-    public Plans create(String auth, CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException {
-        return httpRepository.create(auth,resource);
-    }
     @Override
     public Plans save(Plans obj) {
         return dbRepository.save(obj);

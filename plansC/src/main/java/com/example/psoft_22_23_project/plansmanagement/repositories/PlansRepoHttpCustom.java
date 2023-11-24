@@ -28,7 +28,6 @@ public interface PlansRepoHttpCustom {
 
     Iterable<Plans> addLocalPlusNot(Iterable<Plans> planslocal) throws URISyntaxException, IOException, InterruptedException;
 
-    Plans create(String auth, CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException;
 
     Optional<Plans> getPlanByNameNotLocally(String planName) throws IOException, InterruptedException, URISyntaxException;
 }
@@ -42,14 +41,6 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
     @Value("${port2}")
     private int portTwo;
 
-    @Value("${plans.external}")
-    private String externalPlansUrl;
-    @Value("${plansall.external}")
-    private String externalAllPlansUrl;
-    @Value("${patch.details}")
-    private String patchDetails;
-    @Value("${patch.deactivate}")
-    private String patchDeactivate;
     private int otherPort;
     private final CreatePlansMapper createPlansMapper;
     private final PlansMapperInverse plansMapperInverse;
@@ -147,11 +138,7 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
         return planslocal;
     }
 
-    @Override
-    public Plans create( String auth, CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException {
-        Plans obj = createPlansMapper.create(resource);
-        return obj;
-    }
+
 
 }
 

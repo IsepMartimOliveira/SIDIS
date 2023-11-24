@@ -37,11 +37,10 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class PlansServiceImpl implements PlansService {
-	private final PlansManager plansManager;
+	private final PlansManagerImpl plansManager;
 	private final PlansMapperInverse plansMapperInverse;
-	private  final PlansCOMSender plansCOMSender;
-	@Value("${server.port}")
-	private int currentPort;
+	private final CreatePlansMapper  createPlansMapper;
+	private final PlansCOMSender plansCOMSender;
 	@Override
 	public Iterable<Plans> findAtive() throws URISyntaxException, IOException, InterruptedException {
 		Iterable<Plans> planslocal = plansManager.findByActive_Active(true);
@@ -58,7 +57,7 @@ public class PlansServiceImpl implements PlansService {
 	public Optional<Plans> getPlanByName(String planName) throws URISyntaxException, IOException, InterruptedException {
 		Optional<Plans> plans = plansManager.findByName(planName);
 		return plans;
-    }
+	}
 
 	public Optional<Plans> getPlanByNameExternal(String planName) throws IOException, URISyntaxException, InterruptedException {
 		return plansManager.findByNameName(planName);
@@ -66,29 +65,39 @@ public class PlansServiceImpl implements PlansService {
 	@Override
 	public Plans create(CreatePlanRequest resource, String auth) throws URISyntaxException, IOException, InterruptedException {
 		plansManager.findByNameDoesNotExists(resource.getName());
-		Plans obj = plansManager.create(auth,resource);
 		plansCOMSender.send(resource);
+		Plans obj = createPlansMapper.create(resource);
 		return plansManager.save(obj);
 	}
 	@Override
 	public Plans partialUpdate(final String name, final EditPlansRequest resource, String auth ,final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
 		//ver se existe
-		final Optional<Plans> plans = plansManager.findByNameDoesExistsUpdate(name,desiredVersion,resource,auth);
-		//.orElseThrow(() -> new IllegalArgumentException("Plan with name " + name + " doesn't exists locally!"));
+		final Optional<Plans> plansOptional = plansManager.findByNameDoesExistsUpdate(name,desiredVersion,resource,auth);
 
-		Plans plans1 = plans.get();
+		if(plansOptional.isPresent()){
+			Plans plans=plansOptional.get();
+			plans.updateData(desiredVersion, resource.getDescription(),
+					resource.getMaximumNumberOfUsers(),
+					resource.getNumberOfMinutes(),
+					resource.getMusicCollection(),
+					resource.getMusicSuggestion(),
+					resource.getActive(),
+					resource.getPromoted());
+			return plansManager.save(plans);
 
-		return plansManager.save(plans1);
+
+		}
+		throw new IllegalArgumentException("Plan with name " + name + " doesn´t exist exists!");
 	}
-
 	@Override
 	public Plans deactivate(final String name, String authorizationToken,final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
-		final Optional<Plans> plans = plansManager.findByNameDoesExists(name,desiredVersion,authorizationToken);
-
-			Plans plans1 = plans.get();
-
-			return plansManager.save(plans1);
-
+		final Optional<Plans> plansOptional = plansManager.findByNameDoesExists(name,desiredVersion,authorizationToken);
+		if(plansOptional.isPresent()){
+			Plans plans=plansOptional.get();
+			plans.deactivate(desiredVersion);
+			return plansManager.save(plans);
+		}
+		throw new IllegalArgumentException("Plan with name " + name + " doesn´t exist exists!");
 	}
 
 }
