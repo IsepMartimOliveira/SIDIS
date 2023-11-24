@@ -39,7 +39,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PlansServiceImpl implements PlansService {
 	private final PlansManagerImpl plansManager;
-	private final PlansMapperInverse plansMapperInverse;
 	private final CreatePlansMapper  createPlansMapper;
 	private final PlansCOMSender plansCOMSender;
 
