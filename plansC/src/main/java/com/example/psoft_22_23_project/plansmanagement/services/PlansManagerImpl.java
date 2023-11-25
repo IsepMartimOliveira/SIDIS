@@ -45,18 +45,13 @@ class PlansManagerImpl implements PlansManager{
     }
 
     @Override
-    public Optional<Plans> findByNameDoesExistsUpdate(String name, final long desiredVersion, final EditPlansRequest resource, String auth) throws IOException, URISyntaxException, InterruptedException {
+    public Optional<Plans> findByNameDoesExistsUpdate(String name) {
         Optional<Plans> resultFromDB = dbRepository.findByName_Name(name);
         if (resultFromDB.isPresent()) {
             return resultFromDB;
-        } else {
-            Optional<Plans> resultFromHTTP = httpRepository.getPlanByNameNotLocally(name);
-            if (resultFromHTTP.isPresent()) {
-                throw new IllegalArgumentException("Plan with name " + name + " exists in other machine!");
-            } else {
-                return Optional.empty();
-            }
         }
+        throw new IllegalArgumentException("Plan with name " + name + " doesn´t exists ");
+
     }
 
 

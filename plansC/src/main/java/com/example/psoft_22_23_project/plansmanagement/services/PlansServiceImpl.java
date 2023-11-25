@@ -20,10 +20,7 @@
  */
 package com.example.psoft_22_23_project.plansmanagement.services;
 
-import com.example.psoft_22_23_project.plansmanagement.api.CreatePlanRequest;
-import com.example.psoft_22_23_project.plansmanagement.api.EditPlansRequest;
-import com.example.psoft_22_23_project.plansmanagement.api.PlanRequest;
-import com.example.psoft_22_23_project.plansmanagement.api.PlansMapperInverse;
+import com.example.psoft_22_23_project.plansmanagement.api.*;
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 import com.example.psoft_22_23_project.rabbitMQ.PlansCOMSender;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +38,7 @@ public class PlansServiceImpl implements PlansService {
 	private final PlansManagerImpl plansManager;
 	private final CreatePlansMapper  createPlansMapper;
 	private final PlansCOMSender plansCOMSender;
+	private final  EditPlansUpdate editPlansUpdate;
 
 	@Override
 	public Plans create(CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException {
@@ -58,23 +56,40 @@ public class PlansServiceImpl implements PlansService {
 	@Override
 	public Plans partialUpdate(final String name, final EditPlansRequest resource, String auth ,final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
 		//ver se existe
-		final Optional<Plans> plansOptional = plansManager.findByNameDoesExistsUpdate(name,desiredVersion,resource,auth);
+		final Optional<Plans> plansOptional = plansManager.findByNameDoesExistsUpdate(name);
 
-		if(plansOptional.isPresent()){
-			Plans plans=plansOptional.get();
-			plans.updateData(desiredVersion, resource.getDescription(),
+		Plans plans=plansOptional.get();
+		plans.updateData(desiredVersion, resource.getDescription(),
 					resource.getMaximumNumberOfUsers(),
 					resource.getNumberOfMinutes(),
 					resource.getMusicCollection(),
 					resource.getMusicSuggestion(),
 					resource.getActive(),
 					resource.getPromoted());
-			return plansManager.save(plans);
+
+		EditPlanRequestUpdate obj=editPlansUpdate.toEditRequest(name,resource,desiredVersion);
+		plansCOMSender.sendUpdate(obj);
+
+			return plans;
 
 
-		}
-		throw new IllegalArgumentException("Plan with name " + name + " doesn´t exist exists!");
+
 	}
+	public void storePlanUpdate(EditPlanRequestUpdate resource) {
+		final Optional<Plans> plansOptional = plansManager.findByNameDoesExistsUpdate(resource.getName());
+
+		Plans plans=plansOptional.get();
+		plans.updateData(resource.getDesiredVersion(), resource.getEditPlansRequest().getDescription(),
+				resource.getEditPlansRequest().getMaximumNumberOfUsers(),
+				resource.getEditPlansRequest().getNumberOfMinutes(),
+				resource.getEditPlansRequest().getMusicCollection(),
+				resource.getEditPlansRequest().getMusicSuggestion(),
+				resource.getEditPlansRequest().getActive(),
+				resource.getEditPlansRequest().getPromoted());
+
+		plansManager.save(plans);
+	}
+
 	@Override
 	public Plans deactivate(final String name, String authorizationToken,final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
 		final Optional<Plans> plansOptional = plansManager.findByNameDoesExists(name,desiredVersion,authorizationToken);

@@ -36,7 +36,7 @@ public interface PlansManager {
 
 	void findByNameDoesNotExists(String name) throws IOException, URISyntaxException, InterruptedException;
 
-	Optional<Plans>  findByNameDoesExistsUpdate(String name, final long desiredVersion, final EditPlansRequest resource, String auth) throws IOException, URISyntaxException, InterruptedException;
+	Optional<Plans>  findByNameDoesExistsUpdate(String name);
 	Optional<Plans>  findByNameDoesExists(String name, final long desiredVersion, String auth) throws IOException, URISyntaxException, InterruptedException;
 
 	Iterable<Plans> findByActive_Active(boolean b);

@@ -19,6 +19,16 @@ public class Config {
     public FanoutExchange fanout() {
         return new FanoutExchange("plans_create");
     }
+
+    @Bean
+    public FanoutExchange deleteFanout() {
+        return new FanoutExchange("plans_to_delete");
+    }
+    @Bean
+    public FanoutExchange updateFanout() {
+        return new FanoutExchange("plans_to_update");
+    }
+
     @Bean
     public Queue plansQueue() {
         return new AnonymousQueue();
@@ -36,6 +46,15 @@ public class Config {
     @Bean
     public Queue planQ() {
         return new AnonymousQueue();
+    }
+    @Bean
+    public Queue updateQueue() {
+        return new AnonymousQueue();
+    }
+
+    @Bean
+    public Binding bindingUpdateQueue(FanoutExchange updateFanout, Queue updateQueue) {
+        return BindingBuilder.bind(updateQueue).to(updateFanout);
     }
     @Bean
     public Binding bindingPlansQueue(FanoutExchange fanout, Queue plansQueue) {
@@ -59,18 +78,4 @@ public class Config {
     }
 
 
-    @Bean
-    public Binding bindingPlanQ2(FanoutExchange fanout, Queue planQ2) {
-        return BindingBuilder.bind(planQ2).to(fanout);
-    }
-
-    @Bean
-    public Binding bindingPlanC2(FanoutExchange fanout, Queue planC2) {
-        return BindingBuilder.bind(planC2).to(fanout);
-    }
-
-    @Bean
-    public Binding bindingPlanQ(FanoutExchange fanout, Queue planQ) {
-        return BindingBuilder.bind(planQ).to(fanout);
-    }
 }
