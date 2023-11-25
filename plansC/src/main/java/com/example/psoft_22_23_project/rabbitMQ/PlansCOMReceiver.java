@@ -24,4 +24,9 @@ public class PlansCOMReceiver {
         plansService.storePlanUpdate(plans);
         System.out.println(" [x] Received update message '" + plans + "' from plansQueue");
     }
+    @RabbitListener(queues = "#{deactivateQueue.name}")
+    public void receiveDeactivate(EditPlanRequestUpdate plans) {
+        plansService.storePlanUpdate(plans);
+        System.out.println(" [x] Received update message '" + plans + "' from plansQueue");
+    }
 }
