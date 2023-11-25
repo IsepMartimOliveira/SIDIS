@@ -28,6 +28,10 @@ public class Config {
     public FanoutExchange updateFanout() {
         return new FanoutExchange("plans_to_update");
     }
+    @Bean
+    public FanoutExchange deactivateFanout() {
+        return new FanoutExchange("plans_to_deactivate");
+    }
 
     @Bean
     public Queue plansQueue() {
@@ -53,12 +57,19 @@ public class Config {
     }
 
     @Bean
+    public Queue deactivateQueue(){return new AnonymousQueue();}
+
+    @Bean
     public Binding bindingUpdateQueue(FanoutExchange updateFanout, Queue updateQueue) {
         return BindingBuilder.bind(updateQueue).to(updateFanout);
     }
     @Bean
     public Binding bindingPlansQueue(FanoutExchange fanout, Queue plansQueue) {
         return BindingBuilder.bind(plansQueue).to(fanout);
+    }
+    @Bean
+    public Binding bindingDeactivateQueue(FanoutExchange deactivateFanout,Queue deactivateQueue){
+        return BindingBuilder.bind(deactivateQueue).to(deactivateFanout);
     }
 
     @Bean

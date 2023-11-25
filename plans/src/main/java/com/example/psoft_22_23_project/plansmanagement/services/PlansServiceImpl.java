@@ -84,4 +84,11 @@ public class PlansServiceImpl implements PlansService {
 
 		plansManager.save(plans);
 	}
+	public  void  storePlanDeactivates(DeactivatPlanRequest deactivatPlanRequest){
+		final Optional<Plans> plansOptional = plansManager.findByNameDoesExistsUpdate(deactivatPlanRequest.getName());
+		Plans plans=plansOptional.get();
+		plans.deactivate(deactivatPlanRequest.getDesiredVersion());
+		plansManager.save(plans);
+
+	}
 }
