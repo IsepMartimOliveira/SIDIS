@@ -1,12 +1,9 @@
 package com.example.psoft_22_23_project.subscriptionsmanagement.services;
 
-import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreateSubscriptionsRequest;
-import com.example.psoft_22_23_project.subscriptionsmanagement.model.PlansDetails;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptions;
 import com.example.psoft_22_23_project.subscriptionsmanagement.repositories.SubsRepoHttpCustom;
 import com.example.psoft_22_23_project.subscriptionsmanagement.repositories.SubscriptionsRepositoryDB;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -50,12 +47,15 @@ class SubsManagerImlp implements SubsManager{
                 throw new IllegalArgumentException("User already haves sub");
         }
     }
-
-    public Subscriptions save(Subscriptions obj) {
-        return dbRepository.save(obj);
-    }
     @Override
     public void checkIfPlanExist(String name) throws IOException, URISyntaxException, InterruptedException {
         httpRepository.getPlanByName(name);
     }
+    public Optional<Subscriptions> findByActiveStatus_ActiveAndUser(boolean b, String user) {
+        return dbRepository.findByActiveStatus_ActiveAndUser(b,user);
+    }
+    public Subscriptions save(Subscriptions obj) {
+        return dbRepository.save(obj);
+    }
+
 }

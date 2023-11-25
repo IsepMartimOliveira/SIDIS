@@ -16,7 +16,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-class SubsManagerImlp implements SubsManager{
+class SubsManagerImpl implements SubsManager{
     private final SubscriptionsRepositoryDB dbRepository;
     private final SubsRepoHttpCustom httpRepository;
 
@@ -47,6 +47,9 @@ class SubsManagerImlp implements SubsManager{
 
     public Optional<Subscriptions> findByActiveStatus_ActiveAndUser(boolean b, String user) {
         return dbRepository.findByActiveStatus_ActiveAndUser(b,user);
+    }
+    public Subscriptions save(Subscriptions obj) {
+        return dbRepository.save(obj);
     }
 
 

@@ -12,5 +12,7 @@ public interface SubsManager {
      Optional<Subscriptions> findSub(String auth) throws IOException, URISyntaxException, InterruptedException ;
      Optional<Subscriptions> findByActiveStatus_ActiveAndUser(boolean b, String user);
     Optional<PlansDetails> findPlan(String plan) throws URISyntaxException, IOException, InterruptedException ;
+    Subscriptions save(Subscriptions obj);
 
-    }
+
+}

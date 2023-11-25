@@ -1,5 +1,6 @@
 package com.example.psoft_22_23_project.subscriptionsmanagement.services;
 
+import com.example.psoft_22_23_project.rabbitMQ.SubsCOMSender;
 import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreateSubscriptionsRequest;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.PlansDetails;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptions;
@@ -18,6 +19,7 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
 
     private final SubsManagerImlp subsManager;
     private final CreateSubscriptionsMapper  createSubscriptionsMapper;
+    private final SubsCOMSender subsCOMSender;
 
     private String getUsername() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -37,7 +39,8 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         subsManager.findIfUserDoesNotHavesSub(auth,user);
         subsManager.checkIfPlanExist(resource.getName());
         Subscriptions obj = createSubscriptionsMapper.create(user,resource.getName(),resource);
-        return subsManager.save(obj);
+        subsCOMSender.send(resource);
+        return obj;
     }
 
     @Override
@@ -70,4 +73,10 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
     }
 
 
+    public void storeSub(CreateSubscriptionsRequest subsRequest) {
+        String user = getUsername();
+        subsManager.findByActiveStatus_ActiveAndUser(true,user);
+        Subscriptions obj=createSubscriptionsMapper.create(user,subsRequest.getName(),subsRequest);
+        subsManager.save(obj);
+    }
 }
