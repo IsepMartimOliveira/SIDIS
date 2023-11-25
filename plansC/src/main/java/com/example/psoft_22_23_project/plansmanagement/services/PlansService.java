@@ -35,7 +35,7 @@ public interface PlansService {
 
 	Plans partialUpdate(String name, EditPlansRequest resource,String auth, long parseLong) throws URISyntaxException, IOException, InterruptedException;
 
-	Plans deactivate(String name, String authorizationToken,long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
+	Plans deactivate(String name, String authorizationToken,long desiredVersion);
 
 
 }

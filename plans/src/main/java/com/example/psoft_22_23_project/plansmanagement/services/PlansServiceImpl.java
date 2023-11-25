@@ -20,10 +20,7 @@
  */
 package com.example.psoft_22_23_project.plansmanagement.services;
 
-import com.example.psoft_22_23_project.plansmanagement.api.CreatePlanRequest;
-import com.example.psoft_22_23_project.plansmanagement.api.EditPlansRequest;
-import com.example.psoft_22_23_project.plansmanagement.api.PlanRequest;
-import com.example.psoft_22_23_project.plansmanagement.api.PlansMapperInverse;
+import com.example.psoft_22_23_project.plansmanagement.api.*;
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -71,5 +68,27 @@ public class PlansServiceImpl implements PlansService {
 		Plans newPlan = plansMapperInverse.toPlansView(plans);
 		Iterable<Plans> getAll=plansManager.addPlanToIterable(planslocal,newPlan);
 		return getAll;
+	}
+
+	public void storePlanUpdate(EditPlanRequestUpdate resource) {
+		final Optional<Plans> plansOptional = plansManager.findByNameDoesExistsUpdate(resource.getName());
+
+		Plans plans=plansOptional.get();
+		plans.updateData(resource.getDesiredVersion(), resource.getEditPlansRequest().getDescription(),
+				resource.getEditPlansRequest().getMaximumNumberOfUsers(),
+				resource.getEditPlansRequest().getNumberOfMinutes(),
+				resource.getEditPlansRequest().getMusicCollection(),
+				resource.getEditPlansRequest().getMusicSuggestion(),
+				resource.getEditPlansRequest().getActive(),
+				resource.getEditPlansRequest().getPromoted());
+
+		plansManager.save(plans);
+	}
+	public  void  storePlanDeactivates(DeactivatPlanRequest deactivatPlanRequest){
+		final Optional<Plans> plansOptional = plansManager.findByNameDoesExistsUpdate(deactivatPlanRequest.getName());
+		Plans plans=plansOptional.get();
+		plans.deactivate(deactivatPlanRequest.getDesiredVersion());
+		plansManager.save(plans);
+
 	}
 }

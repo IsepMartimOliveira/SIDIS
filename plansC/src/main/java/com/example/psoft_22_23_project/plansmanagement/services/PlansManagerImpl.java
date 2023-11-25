@@ -56,27 +56,6 @@ class PlansManagerImpl implements PlansManager{
 
 
 
-    @Override
-    public Optional<Plans> findByNameDoesExists(String name, final long desiredVersion,String auth) throws IOException, URISyntaxException, InterruptedException {
-        Optional<Plans> resultFromDB = dbRepository.findByName_Name(name);
-        if (resultFromDB.isPresent()) {
-            Plans plans1 = resultFromDB.get();
-
-            if(!plans1.getActive().getActive()){
-                throw new IllegalArgumentException("Plan with name " + name + " is already deactivate");
-            }
-            //des localemente
-            return resultFromDB;
-        } else {
-            // nao localemente
-            Optional<Plans> resultFromHTTP = httpRepository.getPlanByNameNotLocally(name);
-            if (resultFromHTTP.isPresent()) {
-                throw new IllegalArgumentException("Plan with name " + name + " exists in other machine!");
-            } else {
-                return Optional.empty();
-            }
-        }
-    }
 
     @Override
     public Iterable<Plans> findByActive_Active(boolean b) {

@@ -91,14 +91,21 @@ public class PlansServiceImpl implements PlansService {
 	}
 
 	@Override
-	public Plans deactivate(final String name, String authorizationToken,final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
-		final Optional<Plans> plansOptional = plansManager.findByNameDoesExists(name,desiredVersion,authorizationToken);
-		if(plansOptional.isPresent()){
+	public Plans deactivate(final String name, String authorizationToken,final long desiredVersion) {
+		final Optional<Plans> plansOptional = plansManager.findByNameDoesExistsUpdate(name);
 			Plans plans=plansOptional.get();
 			plans.deactivate(desiredVersion);
-			return plansManager.save(plans);
-		}
-		throw new IllegalArgumentException("Plan with name " + name + " doesn´t exist exists!");
-	}
+			DeactivatPlanRequest deactivatPlanRequest=new DeactivatPlanRequest(name,desiredVersion);
+			plansCOMSender.sendDeactivate(deactivatPlanRequest);
+			return plans;
 
+
+	}
+public  void  storePlanDeactivates(DeactivatPlanRequest deactivatPlanRequest){
+	final Optional<Plans> plansOptional = plansManager.findByNameDoesExistsUpdate(deactivatPlanRequest.getName());
+	Plans plans=plansOptional.get();
+	plans.deactivate(deactivatPlanRequest.getDesiredVersion());
+	plansManager.save(plans);
+
+}
 }
