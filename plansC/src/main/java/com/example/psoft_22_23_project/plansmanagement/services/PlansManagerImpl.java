@@ -36,13 +36,12 @@ class PlansManagerImpl implements PlansManager{
 
 
     @Override
-    public void findByNameDoesNotExists(String name) throws IOException, URISyntaxException, InterruptedException {
-        // local db
+    public void findByNameDoesNotExists(String name) {
         Optional<Plans> resultFromDB = dbRepository.findByName_Name(name);
         if (resultFromDB.isPresent()) {
-            throw new IllegalArgumentException("Plan with name " + name + " already exists locally!");
-        }
+            throw new IllegalArgumentException("Plan with name " + name + " already exists!");
 
+        }
     }
 
     @Override

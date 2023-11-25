@@ -39,16 +39,21 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PlansServiceImpl implements PlansService {
 	private final PlansManagerImpl plansManager;
-	private final PlansMapperInverse plansMapperInverse;
 	private final CreatePlansMapper  createPlansMapper;
 	private final PlansCOMSender plansCOMSender;
 
 	@Override
 	public Plans create(CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException {
 		plansManager.findByNameDoesNotExists(resource.getName());
-		plansCOMSender.send(resource);
 		Plans obj = createPlansMapper.create(resource);
-		return plansManager.save(obj);
+		plansCOMSender.send(resource);
+		return obj;
+	}
+
+	public void storePlan(CreatePlanRequest resource){
+	plansManager.findByNameDoesNotExists(resource.getName());
+	Plans obj=createPlansMapper.create(resource);
+	plansManager.save(obj);
 	}
 	@Override
 	public Plans partialUpdate(final String name, final EditPlansRequest resource, String auth ,final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {

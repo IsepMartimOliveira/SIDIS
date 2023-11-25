@@ -23,7 +23,20 @@ public class Config {
     public Queue plansQueue() {
         return new AnonymousQueue();
     }
+    @Bean
+    public Queue planQ2() {
+        return new AnonymousQueue();
+    }
 
+    @Bean
+    public Queue planC2() {
+        return new AnonymousQueue();
+    }
+
+    @Bean
+    public Queue planQ() {
+        return new AnonymousQueue();
+    }
     @Bean
     public Binding bindingPlansQueue(FanoutExchange fanout, Queue plansQueue) {
         return BindingBuilder.bind(plansQueue).to(fanout);
@@ -45,4 +58,19 @@ public class Config {
         return new PlansCOMReceiver();
     }
 
+
+    @Bean
+    public Binding bindingPlanQ2(FanoutExchange fanout, Queue planQ2) {
+        return BindingBuilder.bind(planQ2).to(fanout);
+    }
+
+    @Bean
+    public Binding bindingPlanC2(FanoutExchange fanout, Queue planC2) {
+        return BindingBuilder.bind(planC2).to(fanout);
+    }
+
+    @Bean
+    public Binding bindingPlanQ(FanoutExchange fanout, Queue planQ) {
+        return BindingBuilder.bind(planQ).to(fanout);
+    }
 }

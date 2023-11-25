@@ -59,5 +59,14 @@ class PlansManagerImpl implements PlansManager{
         return dbRepository.findByName_Name(planName);
     }
 
+    @Override
+    public void findByNameDoesNotExists(String name) {
+        Optional<Plans> resultFromDB = dbRepository.findByName_Name(name);
+        if (resultFromDB.isPresent()) {
+            throw new IllegalArgumentException("Plan with name " + name + " already exists!");
+
+        }
+    }
+
 
 }

@@ -39,6 +39,7 @@ import java.util.Optional;
 public class PlansServiceImpl implements PlansService {
 	private final PlansManagerImpl plansManager;
 	private final PlansMapperInverse plansMapperInverse;
+	private  final CreatePlansMapper createPlansMapper;
 
 	@Override
 	public Iterable<Plans> findAtiveExternal(){
@@ -54,6 +55,15 @@ public class PlansServiceImpl implements PlansService {
 	public Optional<Plans> getPlanByNameExternal(String planName) throws IOException, URISyntaxException, InterruptedException {
 		return plansManager.findByNameName(planName);
 	}
+
+
+	public void storePlan(CreatePlanRequest resource) {
+		plansManager.findByNameDoesNotExists(resource.getName());
+		Plans obj=createPlansMapper.create(resource);
+		plansManager.save(obj);
+
+	}
+
 	@Override
 	public Iterable<Plans> findAtive() throws URISyntaxException, IOException, InterruptedException {
 		Iterable<Plans> planslocal = plansManager.findByActive_Active(true);

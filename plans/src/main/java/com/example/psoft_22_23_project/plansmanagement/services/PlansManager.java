@@ -45,4 +45,6 @@ public interface PlansManager {
 	Plans save(Plans obj);
 
 	Optional<Plans> findByNameName(String planName);
+
+    void findByNameDoesNotExists(String name);
 }
