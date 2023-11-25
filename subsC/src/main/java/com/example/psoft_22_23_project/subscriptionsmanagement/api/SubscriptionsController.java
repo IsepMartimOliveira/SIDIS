@@ -28,14 +28,9 @@ import java.util.Optional;
 @RequestMapping("/api/subscriptions")
 public class SubscriptionsController {
 
-    private static final Logger logger = LoggerFactory.getLogger(SubscriptionsController.class);
-
     private final SubscriptionsService service;
 
-
     private final SubscriptionsViewMapper subscriptionsViewMapper;
-
-    private final PlansDetailsViewMapper plansDetailsViewMapper;
 
     private Long getVersionFromIfMatchHeader(final String ifMatchHeader) {
         if (ifMatchHeader.startsWith("\"")) {
@@ -43,13 +38,6 @@ public class SubscriptionsController {
         }
         return Long.parseLong(ifMatchHeader);
     }
-
-    @Operation(summary = "Gets all subscriptions")
-    @GetMapping(value = "/list")
-    public Iterable<SubscriptionsView> findAll() {
-        return subscriptionsViewMapper.toSubscriptionsView(service.findAll());
-    }
-
 
     @PostMapping(value = "/create")
     @ResponseStatus(HttpStatus.CREATED)
@@ -79,27 +67,6 @@ public class SubscriptionsController {
         return ResponseEntity.ok().eTag(Long.toString(subscriptions.getVersion())).body(subscriptionsViewMapper.toSubscriptionView(subscriptions));
     }
 
-
-    @Operation(summary = "Give detailed information about a plan")
-    @GetMapping
-    public ResponseEntity<PlansDetailsView> planDetails(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken) {
-
-        final PlansDetails plan = service.planDetails(authorizationToken);
-
-        return ResponseEntity.ok(plansDetailsViewMapper.toPlansDetailsView(plan));
-    }
-    @GetMapping("/external/{user}")
-    public ResponseEntity<SubscriptionsView> getSubsByUserExternal(@PathVariable String user) throws IOException, URISyntaxException, InterruptedException {
-        Optional<Subscriptions> subsOptional = service.findSubByUserExternal(user);
-        if (subsOptional.isPresent()) {
-            Subscriptions subs = subsOptional.get();
-            SubscriptionsView plansView = subscriptionsViewMapper.toSubscriptionView(subs);
-            return ResponseEntity.ok(plansView);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
     @Operation(summary = "Renew annual subscription")
     @PatchMapping(value = "/renew")
     public ResponseEntity<SubscriptionsView> renewAnualSubscription(final WebRequest request,@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken) throws URISyntaxException, IOException, InterruptedException {
@@ -113,7 +80,6 @@ public class SubscriptionsController {
         return ResponseEntity.ok().eTag(Long.toString(subscriptions.getVersion())).body(subscriptionsViewMapper.toSubscriptionView(subscriptions));
     }
 
-
     @Operation(summary = "Change plan of my subscription")
     @PatchMapping(value = "/change/{name}")
     public ResponseEntity<SubscriptionsView> changePlan(final WebRequest request, @Valid @PathVariable final String name,@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken) throws URISyntaxException, IOException, InterruptedException {
@@ -125,18 +91,6 @@ public class SubscriptionsController {
 
         final var subscriptions = service.changePlan(getVersionFromIfMatchHeader(ifMatchValue), name,authorizationToken);
         return ResponseEntity.ok().eTag(Long.toString(subscriptions.getVersion())).body(subscriptionsViewMapper.toSubscriptionView(subscriptions));
-    }
-
-    @Operation(summary = "Change plan of my subscription")
-    @PatchMapping(value = "/change/{actualPlan}/{newPlan}")
-    public void migrateAllToPlan(final WebRequest request,@Valid @PathVariable final String actualPlan, @Valid @PathVariable final String newPlan) {
-        final String ifMatchValue = request.getHeader("If-Match");
-        if (ifMatchValue == null || ifMatchValue.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "You must issue a conditional PATCH using 'if-match'");
-        }
-
-        service.migrateAllToPlan(getVersionFromIfMatchHeader(ifMatchValue), actualPlan, newPlan);
     }
 
 

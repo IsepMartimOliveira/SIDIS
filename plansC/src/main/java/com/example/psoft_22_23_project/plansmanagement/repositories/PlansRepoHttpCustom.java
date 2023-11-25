@@ -22,12 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PlansRepoHttpCustom {
-    HttpResponse<String> getPlansFromOtherAPI(String name, String auth) throws URISyntaxException, IOException, InterruptedException;
-
-    HttpResponse<String> getPlansFromOtherAPI() throws URISyntaxException, IOException, InterruptedException;
-
      PlanRequest getAllExternal() throws URISyntaxException, IOException, InterruptedException;
-
     Optional<Plans> getPlanByNameNotLocally(String planName) throws IOException, InterruptedException, URISyntaxException;
     Iterable<Plans> addPlanToIterable(Iterable<Plans> plans, Plans newPlan);
 }
@@ -72,7 +67,6 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
         }
         return combinedPlans;
     }
-    @Override
     public HttpResponse<String> getPlansFromOtherAPI(String name, String auth) throws URISyntaxException, IOException, InterruptedException {
 
         otherPort = (currentPort==portTwo) ? portOne : portTwo;
@@ -91,7 +85,7 @@ class PlansRepoHttpCustomImpl implements PlansRepoHttpCustom {
         return response;
 
     }
-    @Override
+
     public HttpResponse<String> getPlansFromOtherAPI() throws URISyntaxException, IOException, InterruptedException {
         otherPort = (currentPort==portTwo) ? portOne : portTwo;
         URI uri = new URI("http://localhost:" + otherPort + "/api/plans/external");
