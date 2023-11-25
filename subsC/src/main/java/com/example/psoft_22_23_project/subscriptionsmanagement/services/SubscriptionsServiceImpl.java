@@ -1,7 +1,7 @@
 package com.example.psoft_22_23_project.subscriptionsmanagement.services;
 
 import com.example.psoft_22_23_project.rabbitMQ.SubsCOMSender;
-import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreateSubscriptionsRequest;
+import com.example.psoft_22_23_project.subscriptionsmanagement.api.*;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.PlansDetails;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptions;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +20,8 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
     private final SubsManagerImlp subsManager;
     private final CreateSubscriptionsMapper  createSubscriptionsMapper;
     private final SubsCOMSender subsCOMSender;
+    private final SubsByRabbitMapper subsByRabbitMapper;
+    private final UpdateSubsByRabbitMapper updateSubsByRabbitMapper;
 
     private String getUsername() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -39,44 +41,75 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         subsManager.findIfUserDoesNotHavesSub(auth,user);
         subsManager.checkIfPlanExist(resource.getName());
         Subscriptions obj = createSubscriptionsMapper.create(user,resource.getName(),resource);
-        subsCOMSender.send(resource);
+        CreateSubsByRabbitRequest rabbitRequest = subsByRabbitMapper.toSubsRabbit(resource,user);
+        subsCOMSender.send(rabbitRequest);
         return obj;
     }
-
+    public void storeSub(CreateSubsByRabbitRequest subsRequest) {
+        subsManager.findByActiveStatus_ActiveAndUser(true,subsRequest.getUser());
+        Subscriptions obj=createSubscriptionsMapper.create(subsRequest.getUser(),subsRequest.getCreateSubscriptionsRequest().getName(),subsRequest.getCreateSubscriptionsRequest());
+        subsManager.save(obj);
+    }
     @Override
-    public Subscriptions cancelSubscription(String auth,final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
+    public Subscriptions cancelSubscription(String auth,final long desiredVersion){
         String user = getUsername();
         Optional<Subscriptions> subscriptions = subsManager.findIfUserHavesSub(auth,user);
         Subscriptions subscriptions1 = subscriptions.get();
         subscriptions1.cancelSubscription(desiredVersion);
-        return subsManager.save(subscriptions1);
 
+        UpdateSubsRabbitRequest updateSubsRabbitRequest = updateSubsByRabbitMapper.toSubsRabbit(auth, desiredVersion,user);
+        subsCOMSender.sendCancel(updateSubsRabbitRequest);
+
+        return subscriptions1;
+
+    }
+    public void storeCancel(UpdateSubsRabbitRequest sub){
+        Optional<Subscriptions> subscriptions = subsManager.findIfUserHavesSub(sub.getAuth(),sub.getUser());
+        Subscriptions subscriptions1 = subscriptions.get();
+        subscriptions1.cancelSubscription(sub.getDesiredVersion());
+        subsManager.save(subscriptions1);
     }
 
     @Override
-    public Subscriptions renewAnualSubscription(String auth,final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
+    public Subscriptions renewAnualSubscription(String auth,final long desiredVersion) {
         String user = getUsername();
         Optional<Subscriptions> subscriptions = subsManager.findIfUserHavesSub(auth,user);
         Subscriptions subscriptions1 = subscriptions.get();
         subscriptions1.renewSub(desiredVersion);
-        return subsManager.save(subscriptions1);
+
+        UpdateSubsRabbitRequest updateSubsRabbitRequest = updateSubsByRabbitMapper.toSubsRabbit(auth, desiredVersion,user);
+        subsCOMSender.sendRenew(updateSubsRabbitRequest);
+
+        return subscriptions1;
+
+    }
+
+    public void storeRenew(UpdateSubsRabbitRequest sub){
+        Optional<Subscriptions> subscriptions = subsManager.findIfUserHavesSub(sub.getAuth(),sub.getUser());
+        Subscriptions subscriptions1 = subscriptions.get();
+        subscriptions1.renewSub(sub.getDesiredVersion());
+        subsManager.save(subscriptions1);
 
     }
     @Override
-    public Subscriptions changePlan(final long desiredVersion, final String name,final String auth) throws URISyntaxException, IOException, InterruptedException {
-
+    public Subscriptions changePlan(final long desiredVersion, final String name,final String auth){
         String user = getUsername();
         Optional<Subscriptions> subscriptions = subsManager.findIfUserHavesSub(auth,user);
         Subscriptions subscriptions1 = subscriptions.get();
         subscriptions1.changePlan(desiredVersion,name);
-        return subsManager.save(subscriptions1);
+
+        UpdateSubsRabbitRequest updateSubsRabbitRequest = updateSubsByRabbitMapper.toSubsRabbit(auth, desiredVersion,user,name);
+        subsCOMSender.sendUpdatePlan(updateSubsRabbitRequest);
+
+        return subscriptions1;
+    }
+    public void storePlanUpdate(UpdateSubsRabbitRequest sub){
+
+        Optional<Subscriptions> subscriptions = subsManager.findIfUserHavesSub(sub.getAuth(),sub.getUser());
+        Subscriptions subscriptions1 = subscriptions.get();
+        subscriptions1.changePlan(sub.getDesiredVersion(),sub.getName());
+        subsManager.save(subscriptions1);
+
     }
 
-
-    public void storeSub(CreateSubscriptionsRequest subsRequest) {
-        String user = getUsername();
-        subsManager.findByActiveStatus_ActiveAndUser(true,user);
-        Subscriptions obj=createSubscriptionsMapper.create(user,subsRequest.getName(),subsRequest);
-        subsManager.save(obj);
-    }
 }
