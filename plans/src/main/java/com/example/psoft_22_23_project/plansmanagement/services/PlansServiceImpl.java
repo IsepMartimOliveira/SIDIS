@@ -62,12 +62,9 @@ public class PlansServiceImpl implements PlansService {
 	}
 
 	@Override
-	public Iterable<Plans> findAtive() throws URISyntaxException, IOException, InterruptedException {
+	public Iterable<Plans> findAtive()  {
 		Iterable<Plans> planslocal = plansManager.findByActive_Active(true);
-		PlanRequest plans = plansManager.getAllExternal();
-		Plans newPlan = plansMapperInverse.toPlansView(plans);
-		Iterable<Plans> getAll=plansManager.addPlanToIterable(planslocal,newPlan);
-		return getAll;
+		return planslocal;
 	}
 
 	public void storePlanUpdate(EditPlanRequestUpdate resource) {

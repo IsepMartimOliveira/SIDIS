@@ -30,7 +30,7 @@ import java.net.URISyntaxException;
 import java.util.Optional;
 
 public interface PlansService {
-	Iterable<Plans> findAtive() throws URISyntaxException, IOException, InterruptedException;
+	Iterable<Plans> findAtive();
 	Iterable<Plans> findAtiveExternal();
 
 	Optional<Plans> getPlanByName(String planName) throws URISyntaxException, IOException, InterruptedException;
