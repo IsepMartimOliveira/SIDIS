@@ -40,7 +40,7 @@ public class PlansBootstrapper implements CommandLineRunner {
 
 	@Override
 	public void run(final String... args) throws Exception {
-		if (currentPort == 8084){
+
 			if (plansRepo.findByName_Name("Free").isEmpty()) {
 
 				final Name name = new Name();
@@ -148,4 +148,4 @@ public class PlansBootstrapper implements CommandLineRunner {
 		}
 	}
 
-}
+

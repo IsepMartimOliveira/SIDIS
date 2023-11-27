@@ -91,7 +91,7 @@ public class AuthApi {
 		}
 	}
 	@PostMapping("/register")
-	public UserView create(@RequestBody @Valid final CreateUserRequest request) throws IOException, URISyntaxException, InterruptedException {
+	public UserView create(@RequestBody @Valid final CreateUserRequest request){
 		final User user = userService.create(request);
 		return userViewMapper.toUserView(user);
 	}

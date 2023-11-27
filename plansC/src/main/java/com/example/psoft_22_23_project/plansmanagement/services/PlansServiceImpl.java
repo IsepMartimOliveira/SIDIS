@@ -49,9 +49,9 @@ public class PlansServiceImpl implements PlansService {
 	}
 
 	public void storePlan(CreatePlanRequest resource){
-	plansManager.findByNameDoesNotExists(resource.getName());
-	Plans obj=createPlansMapper.create(resource);
-	plansManager.save(obj);
+		plansManager.findByNameDoesNotExists(resource.getName());
+		Plans obj=createPlansMapper.create(resource);
+		plansManager.save(obj);
 	}
 	@Override
 	public Plans partialUpdate(final String name, final EditPlansRequest resource, String auth ,final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {

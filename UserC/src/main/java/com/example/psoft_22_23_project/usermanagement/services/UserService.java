@@ -21,6 +21,7 @@
 package com.example.psoft_22_23_project.usermanagement.services;
 
 import com.example.psoft_22_23_project.exceptions.ConflictException;
+import com.example.psoft_22_23_project.rabbitMQ.UserCOMSender;
 import com.example.psoft_22_23_project.usermanagement.api.UserEditMapper;
 import com.example.psoft_22_23_project.usermanagement.api.UserMapperInverse;
 import com.example.psoft_22_23_project.usermanagement.api.UserRequest;
@@ -48,23 +49,14 @@ public class UserService implements UserDetailsService {
 	private final PasswordEncoder passwordEncoder;
 	private final UserEditMapper userEditMapper;
 	private final UserRepository userRepository;
-
+	private final UserCOMSender userCOMSender;
 	@Transactional
-	public User create(final CreateUserRequest request) throws URISyntaxException, IOException, InterruptedException {
+	public User create(final CreateUserRequest request) {
 
-		Optional<User> user2 = userRepository.findByUsername(request.getUsername());
+		Optional<User> User= userRepository.findByUsername(request.getUsername());
 
-		if (user2.isPresent()) {
+		if (User.isPresent()) {
 			throw new ConflictException("Username already exists locally!");
-		}
-
-		HttpResponse<String> response = userRepository.getUserFromOtherAPI(request.getUsername());
-
-		if (response.statusCode() == 200) {
-			throw new IllegalArgumentException("Username with name " + request.getUsername() + " already exists on another machine!");
-		}
-		else if(response.statusCode()==401){
-			throw new IllegalArgumentException("Authentication failed. Please check your credentials or login to access this resource.");
 		}
 
 		if (!request.getPassword().equals(request.getRePassword())) {
@@ -73,8 +65,9 @@ public class UserService implements UserDetailsService {
 
 		final User user = userEditMapper.create(request);
 		user.setPassword(passwordEncoder.encode(request.getPassword()));
+		userCOMSender.send(request);
 
-		return userRepository.save(user);
+		return user;
 	}
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -106,4 +99,22 @@ public class UserService implements UserDetailsService {
 
 	}
 
+	public void storeUser(CreateUserRequest userRequest) {
+		Optional<User> User= userRepository.findByUsername(userRequest.getUsername());
+
+		if (User.isPresent()) {
+			throw new ConflictException("Username already exists locally!");
+		}
+
+
+
+		if (!userRequest.getPassword().equals(userRequest.getRePassword())) {
+			throw new ValidationException("Passwords don't match!");
+		}
+
+		final User user = userEditMapper.create(userRequest);
+		user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+
+		 userRepository.save(user);
+	}
 }
