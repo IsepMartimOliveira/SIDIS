@@ -45,37 +45,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 
-	private final PasswordEncoder passwordEncoder;
-	private final UserEditMapper userEditMapper;
 	private final UserRepository userRepository;
 
-	@Transactional
-	public User create(final CreateUserRequest request) throws URISyntaxException, IOException, InterruptedException {
 
-		Optional<User> user2 = userRepository.findByUsername(request.getUsername());
-
-		if (user2.isPresent()) {
-			throw new ConflictException("Username already exists locally!");
-		}
-
-		HttpResponse<String> response = userRepository.getUserFromOtherAPI(request.getUsername());
-
-		if (response.statusCode() == 200) {
-			throw new IllegalArgumentException("Username with name " + request.getUsername() + " already exists on another machine!");
-		}
-		else if(response.statusCode()==401){
-			throw new IllegalArgumentException("Authentication failed. Please check your credentials or login to access this resource.");
-		}
-
-		if (!request.getPassword().equals(request.getRePassword())) {
-			throw new ValidationException("Passwords don't match!");
-		}
-
-		final User user = userEditMapper.create(request);
-		user.setPassword(passwordEncoder.encode(request.getPassword()));
-
-		return userRepository.save(user);
-	}
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		return null;

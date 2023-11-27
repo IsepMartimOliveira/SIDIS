@@ -30,7 +30,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserView {
 
-	private String id;
 	private String username;
 
 	@JsonInclude(JsonInclude.Include.NON_NULL)
