@@ -112,4 +112,8 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
 
     }
 
+    public void getPlanDetails(String name) throws URISyntaxException, IOException, InterruptedException {
+        Optional<PlansDetails> objLocal = subsManager.findPlan(name);
+        subsCOMSender.sendPlanDetails(objLocal.get());
+    }
 }

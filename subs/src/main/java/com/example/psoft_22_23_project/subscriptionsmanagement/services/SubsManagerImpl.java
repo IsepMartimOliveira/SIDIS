@@ -21,28 +21,13 @@ class SubsManagerImpl implements SubsManager{
     private final SubsRepoHttpCustom httpRepository;
 
     @Transactional
-    public Optional<Subscriptions> findSub( String auth) throws IOException, URISyntaxException, InterruptedException {
-
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        int commaIndex = username.indexOf(",");
-        String newString;
-        if (commaIndex != -1) {
-            newString = username.substring(commaIndex + 1);
-        } else {
-            newString = username;
-        }
-
+    public Optional<Subscriptions> findSub( String auth,String name) {
         // local db
-        Optional<Subscriptions> resultFromDB = dbRepository.findByActiveStatus_ActiveAndUser(true ,newString);
+        Optional<Subscriptions> resultFromDB = dbRepository.findByActiveStatus_ActiveAndUser(true ,name);
         if (resultFromDB.isPresent()) {
             return resultFromDB;
         }
-        // n local db
-        Optional<Subscriptions> resultFromHTTP = httpRepository.getSubsByNameNotLocally(newString,auth);
-        if (resultFromHTTP != null) {
-            return resultFromHTTP;
-        }
-        throw new IllegalArgumentException("Sub of user with name " + newString + " does not exist");
+        throw new IllegalArgumentException("Sub of user with name " + name + " does not exist");
     }
 
     public Optional<Subscriptions> findByActiveStatus_ActiveAndUser(boolean b, String user) {

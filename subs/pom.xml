@@ -133,8 +133,14 @@
 			<artifactId>spring-web</artifactId>
 			<version>5.3.16</version>
 		</dependency>
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>demoOrm</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
 
-	</dependencies>
+    </dependencies>
 
 	<build>
 		<plugins>

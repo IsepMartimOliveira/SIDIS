@@ -2,9 +2,12 @@ package com.example.psoft_22_23_project.rabbitMQ;
 
 import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreateSubsByRabbitRequest;
 import com.example.psoft_22_23_project.subscriptionsmanagement.api.UpdateSubsRabbitRequest;
+import com.example.psoft_22_23_project.subscriptionsmanagement.model.PlansDetails;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class SubsCOMSender {
@@ -16,7 +19,7 @@ public class SubsCOMSender {
     private String fanoutUpdate="sub_to_update";
     private String fanoutRenew="sub_to_renew";
     private String fanoutCancel="sub_to_cancel";
-
+    private String fanoutSendPlan="send_plan_detail";
 
     public void send(CreateSubsByRabbitRequest subRequest) {
         template.convertAndSend(fanout, "", subRequest);
@@ -33,6 +36,10 @@ public class SubsCOMSender {
     public void sendCancel(UpdateSubsRabbitRequest updatedSub) {
         template.convertAndSend(fanoutCancel, "", updatedSub);
         System.out.println(" [x] Sent '" + updatedSub + "' to update a sub");
+    }
+    public void sendPlanDetails(PlansDetails plansDetails) {
+        template.convertAndSend(fanoutSendPlan, "", plansDetails);
+        System.out.println(" [x] Sent '" + plansDetails + "' plan details");
     }
 
 }

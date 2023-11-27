@@ -1,8 +1,10 @@
 package com.example.psoft_22_23_project.subscriptionsmanagement.model;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class PlansDetails {
     private String name;
     private String description;

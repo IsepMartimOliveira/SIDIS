@@ -17,24 +17,30 @@ public class SubsCOMReceiver {
     @RabbitListener(queues = "#{subQueue.name}")
     public void receiveSub(CreateSubsByRabbitRequest subRequest){
         subscriptionsService.storeSub(subRequest);
-        System.out.println(" [x] Received '" + subRequest + "' from sub_queue");
+        System.out.println(" [x] Received '" + subRequest + "' from subsQ");
     }
 
     @RabbitListener(queues = "#{updateQueue.name}")
     public void receiveUpdate(UpdateSubsRabbitRequest sub){
         subscriptionsService.storePlanUpdate(sub);
-        System.out.println(" [x] Received update message '" + sub + "' from plansQueue");
+        System.out.println(" [x] Received update message '" + sub + "' from subsQ");
     }
     @RabbitListener(queues = "#{cancelQueue.name}")
     public void receiveCancel(UpdateSubsRabbitRequest sub){
         subscriptionsService.storeCancel(sub);
-        System.out.println(" [x] Received update message '" + sub + "' from plansQueue");
+        System.out.println(" [x] Received update message '" + sub + "' from subsQ");
     }
 
     @RabbitListener(queues = "#{renewQueue.name}")
     public void receiveRenew(UpdateSubsRabbitRequest sub){
         subscriptionsService.storeRenew(sub);
-        System.out.println(" [x] Received update message '" + sub + "' from plansQueue");
+        System.out.println(" [x] Received update message '" + sub + "' from subsQ");
+    }
+
+    @RabbitListener(queues = "#{getPlanNameQueue.name}")
+    public void getPlanDetails(String name) throws URISyntaxException, IOException, InterruptedException {
+        subscriptionsService.getPlanDetails(name);
+        System.out.println(" [x] Received message to Get plan:'" + name + " 'details from subsQ ");
     }
 
 }

@@ -30,7 +30,6 @@ public interface SubsRepoHttpCustom {
 
     Optional<PlansDetails> findPlan(String plan) throws URISyntaxException, IOException, InterruptedException;
 
-    Optional<Subscriptions> getSubsByNameNotLocally(String name,String auth) throws IOException, InterruptedException, URISyntaxException;
 
     Optional<PlansDetails> getPlanByName(String name) throws IOException, InterruptedException, URISyntaxException;
 }
@@ -139,21 +138,7 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
                 planjsonArray.getString("promoted"));
 
         return Optional.of(plansDetails);
-        }
-
-    @Override
-    public Optional<Subscriptions> getSubsByNameNotLocally(String name,String auth) throws IOException, InterruptedException, URISyntaxException {
-        HttpResponse<String> sub = getSubsFromOtherApi(name,auth);
-        //buscar a sub ao rep fora
-        if (sub.statusCode() == 200) {
-            JSONObject subjsonArray = new JSONObject(sub.body());
-            CreateSubscriptionsRequest request = new CreateSubscriptionsRequest(subjsonArray.getString("planName"),subjsonArray.getString("paymentType"));
-            Subscriptions subwithplan = createSubscriptionsMapper.create(name,subjsonArray.getString("planName"),request);
-            return Optional.ofNullable(subwithplan);
-        }
-        return null;
     }
-
 
 }
 

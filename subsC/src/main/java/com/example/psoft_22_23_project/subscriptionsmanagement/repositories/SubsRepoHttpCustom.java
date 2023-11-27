@@ -26,6 +26,8 @@ public interface SubsRepoHttpCustom {
     Optional<Subscriptions> getSubsByNameNotLocally(String name,String auth) throws IOException, InterruptedException, URISyntaxException;
 
     Optional<PlansDetails> getPlanByName(String name) throws IOException, InterruptedException, URISyntaxException;
+
+    Optional<PlansDetails> findPlan(String name) throws URISyntaxException, IOException, InterruptedException;
 }
 
 @RequiredArgsConstructor
@@ -69,6 +71,26 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
 
     }
 
+    @Override
+    public Optional<PlansDetails> findPlan(String planName) throws URISyntaxException, IOException, InterruptedException {
+        HttpResponse<String> plan = getPlansFromOtherAPI(planName);
+
+        JSONObject planjsonArray = new JSONObject(plan.body());
+
+        PlansDetails plansDetails = new PlansDetails(
+                planjsonArray.getString("name"),
+                planjsonArray.getString("description"),
+                planjsonArray.getString("numberOfMinutes"),
+                planjsonArray.getString("maximumNumberOfUsers"),
+                planjsonArray.getString("musicCollection"),
+                planjsonArray.getString("musicSuggestion"),
+                planjsonArray.getString("annualFee"),
+                planjsonArray.getString("monthlyFee"),
+                planjsonArray.getString("active"),
+                planjsonArray.getString("promoted"));
+
+        return Optional.of(plansDetails);
+    }
 
     public HttpResponse<String> getSubsFromOtherApi(String userName,String auth) throws URISyntaxException, IOException, InterruptedException {
         // 82 91 subs

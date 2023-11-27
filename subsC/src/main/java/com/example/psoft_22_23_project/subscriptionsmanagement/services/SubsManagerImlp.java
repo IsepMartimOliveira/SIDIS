@@ -1,5 +1,6 @@
 package com.example.psoft_22_23_project.subscriptionsmanagement.services;
 
+import com.example.psoft_22_23_project.subscriptionsmanagement.model.PlansDetails;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptions;
 import com.example.psoft_22_23_project.subscriptionsmanagement.repositories.SubsRepoHttpCustom;
 import com.example.psoft_22_23_project.subscriptionsmanagement.repositories.SubscriptionsRepositoryDB;
@@ -64,4 +65,7 @@ class SubsManagerImlp implements SubsManager{
         return dbRepository.save(obj);
     }
 
+    public Optional<PlansDetails> findPlan(String name) throws URISyntaxException, IOException, InterruptedException {
+        return httpRepository.findPlan(name);
+    }
 }

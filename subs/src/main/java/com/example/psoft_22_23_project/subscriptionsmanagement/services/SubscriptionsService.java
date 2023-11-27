@@ -11,6 +11,4 @@ import java.util.Optional;
 public interface SubscriptionsService {
 
     Optional<PlansDetails> planDetails(String auth);
-
-    Optional<Subscriptions> findSubByUserExternal(String user) throws IOException, URISyntaxException, InterruptedException;
 }
