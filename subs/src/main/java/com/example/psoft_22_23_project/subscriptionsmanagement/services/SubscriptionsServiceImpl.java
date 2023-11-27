@@ -20,8 +20,6 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
 
     private final SubsManager subsManager;
     private final CreateSubscriptionsMapper createSubscriptionsMapper;
-    private final SubsByRabbitMapper subsByRabbitMapper;
-
     private final SubsQSender sender;
     private PlansDetails plansDetails = new PlansDetails();
 
@@ -31,7 +29,14 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         String name = getUsername();
         Optional<Subscriptions> subscription = subsManager.findSub(auth,name);
         sender.send(subscription.get().getPlan());
-        return Optional.ofNullable(plansDetails);
+
+        try {
+            Thread.sleep(2500); // 2500 milliseconds = 2.5 seconds
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            // Handle the interruption if needed
+        }
+        return Optional.of(plansDetails);
 
     }
     private String getUsername() {
@@ -53,8 +58,7 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
 
 
     public void createPlanDetail(PlansDetails plansDetailss) {
-        this.plansDetails = plansDetailss;
-
+        plansDetails=plansDetailss;
     }
 }
 
