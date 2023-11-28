@@ -20,43 +20,23 @@ class SubsManagerImlp implements SubsManager{
 
     @Transactional
     public Optional<Subscriptions> findIfUserHavesSub( String auth,String newString){
-
-        // local db
         Optional<Subscriptions> resultFromDB = dbRepository.findByActiveStatus_ActiveAndUser(true ,newString);
         if (resultFromDB.isPresent()) {
             return resultFromDB;
         }
-        /*
-        // n local db
-        Optional<Subscriptions> resultFromHTTP = httpRepository.getSubsByNameNotLocally(newString,auth);
-        if (resultFromHTTP != null) {
-            return resultFromHTTP;
-        }
-
-         */
         throw new IllegalArgumentException("Sub of user with name " + newString + " does not exist");
     }
     @Transactional
     public void findIfUserDoesNotHavesSub(String auth,String newString) {
-
-        // local db
         Optional<Subscriptions> resultFromDB = dbRepository.findByActiveStatus_ActiveAndUser(true ,newString);
         if (resultFromDB.isPresent()) {
             throw new IllegalArgumentException("User already haves sub");
         }
-        // n local db
-        /*
-        Optional<Subscriptions> resultFromHTTP = httpRepository.getSubsByNameNotLocally(newString,auth);
-        if (resultFromHTTP != null) {
-            if (resultFromHTTP.get().getActiveStatus().isActive())
-                throw new IllegalArgumentException("User already haves sub");
-        }
 
-         */
     }
     @Override
     public void checkIfPlanExist(String name) throws IOException, URISyntaxException, InterruptedException {
-        httpRepository.getPlanByName(name);
+        httpRepository.findPlan(name);
     }
     public Optional<Subscriptions> findByActiveStatus_ActiveAndUser(boolean b, String user) {
         return dbRepository.findByActiveStatus_ActiveAndUser(b,user);

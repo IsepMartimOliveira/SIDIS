@@ -38,9 +38,6 @@ class SubsManagerImpl implements SubsManager{
     }
 
 
-    public Optional<PlansDetails> findPlan(String plan) throws URISyntaxException, IOException, InterruptedException {
-        return httpRepository.findPlan(plan);
-    }
 
 
 }

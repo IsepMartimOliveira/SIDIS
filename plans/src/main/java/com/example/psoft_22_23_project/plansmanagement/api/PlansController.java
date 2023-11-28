@@ -54,14 +54,8 @@ public class PlansController {
 
 	@Operation(summary = "Gets all plans")
 	@GetMapping
-	public Iterable<PlansView> findActive() throws URISyntaxException, IOException, InterruptedException {
+	public Iterable<PlansView> findActive(){
 		return plansViewMapper.toPlansView(service.findAtive());
-	}
-
-	@Operation(summary = "Gets all plans")
-	@GetMapping("/external")
-	public Iterable<PlansView> findActiveExternal(){
-		return plansViewMapper.toPlansView(service.findAtiveExternal());
 	}
 
 	@Operation(summary = "Get Plan by name")
@@ -77,19 +71,6 @@ public class PlansController {
 		}
 	}
 
-	@Operation(summary = "Get Plan by name")
-	@GetMapping("/external/{planName}")
-	public ResponseEntity<PlansView> getPlanByNameExternal(@PathVariable String planName) throws IOException, URISyntaxException, InterruptedException {
-		Optional<Plans> planOptional = service.getPlanByNameExternal(planName);
-
-		if (planOptional.isPresent()) {
-			Plans plan = planOptional.get();
-			PlansView plansView = plansViewMapper.toPlansView(plan);
-			return ResponseEntity.ok(plansView);
-		} else {
-			return ResponseEntity.notFound().build();
-		}
-	}
 
 
 }

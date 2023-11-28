@@ -39,7 +39,12 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
     public Subscriptions create(final CreateSubscriptionsRequest resource,String auth) throws URISyntaxException, IOException, InterruptedException {
         String user = getUsername();
         subsManager.findIfUserDoesNotHavesSub(auth,user);
+
+        //
         subsManager.checkIfPlanExist(resource.getName());
+
+        //
+
         Subscriptions obj = createSubscriptionsMapper.create(user,resource.getName(),resource);
         CreateSubsByRabbitRequest rabbitRequest = subsByRabbitMapper.toSubsRabbit(resource,user);
         subsCOMSender.send(rabbitRequest);
@@ -113,7 +118,11 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
     }
 
     public void getPlanDetails(String name) throws URISyntaxException, IOException, InterruptedException {
+
+        //
         Optional<PlansDetails> objLocal = subsManager.findPlan(name);
+
+        //
         subsCOMSender.sendPlanDetails(objLocal.get());
     }
 }

@@ -35,24 +35,13 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PlansServiceImpl implements PlansService {
 	private final PlansManagerImpl plansManager;
-	private final PlansMapperInverse plansMapperInverse;
 	private  final CreatePlansMapper createPlansMapper;
 
-	@Override
-	public Iterable<Plans> findAtiveExternal(){
-		Iterable<Plans> planslocal = plansManager.findByActive_Active(true);
-		return planslocal;
-	}
 
-	public Optional<Plans> getPlanByName(String planName) throws URISyntaxException, IOException, InterruptedException {
+	public Optional<Plans> getPlanByName(String planName){
 		Optional<Plans> plans = plansManager.findByName(planName);
 		return plans;
     }
-
-	public Optional<Plans> getPlanByNameExternal(String planName) throws IOException, URISyntaxException, InterruptedException {
-		return plansManager.findByNameName(planName);
-	}
-
 
 	public void storePlan(CreatePlanRequest resource) {
 		plansManager.findByNameDoesNotExists(resource.getName());

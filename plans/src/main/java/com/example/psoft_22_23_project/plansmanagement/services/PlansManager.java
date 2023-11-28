@@ -32,19 +32,12 @@ import java.util.Optional;
 
 public interface PlansManager {
 
-	Optional<Plans> findByName(String name)throws IOException, URISyntaxException, InterruptedException;
+	Optional<Plans> findByName(String name);
 
 
 	Iterable<Plans> findByActive_Active(boolean b);
 
-	PlanRequest getAllExternal() throws URISyntaxException, IOException, InterruptedException;
-
-	Iterable<Plans> addPlanToIterable(Iterable<Plans> plans, Plans newPlan);
-
-
 	Plans save(Plans obj);
-
-	Optional<Plans> findByNameName(String planName);
 
     void findByNameDoesNotExists(String name);
 }

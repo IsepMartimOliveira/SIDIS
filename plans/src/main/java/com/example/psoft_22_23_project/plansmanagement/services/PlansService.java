@@ -31,9 +31,7 @@ import java.util.Optional;
 
 public interface PlansService {
 	Iterable<Plans> findAtive();
-	Iterable<Plans> findAtiveExternal();
 
 	Optional<Plans> getPlanByName(String planName) throws URISyntaxException, IOException, InterruptedException;
-	Optional<Plans> getPlanByNameExternal(String planName) throws IOException, URISyntaxException, InterruptedException;
 
 }

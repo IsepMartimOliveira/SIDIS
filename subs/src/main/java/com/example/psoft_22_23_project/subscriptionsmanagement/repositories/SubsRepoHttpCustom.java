@@ -24,14 +24,6 @@ import java.util.Optional;
 
 public interface SubsRepoHttpCustom {
 
-    HttpResponse<String> getPlansFromOtherAPI(String name) throws URISyntaxException, IOException, InterruptedException;
-
-    HttpResponse<String> getSubsFromOtherApi(String name,String auth) throws URISyntaxException, IOException, InterruptedException;
-
-    Optional<PlansDetails> findPlan(String plan) throws URISyntaxException, IOException, InterruptedException;
-
-
-    Optional<PlansDetails> getPlanByName(String name) throws IOException, InterruptedException, URISyntaxException;
 }
 
 @RequiredArgsConstructor
@@ -56,89 +48,8 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
 
 
 
-    @Override
-    public Optional<PlansDetails> getPlanByName(String name) throws IOException, InterruptedException, URISyntaxException {
-        HttpResponse<String> plan = getPlansFromOtherAPI(name);
-        JSONObject planjsonArray = new JSONObject(plan.body());
-        if (plan.statusCode() == 200) {
-            return Optional.of(new PlansDetails(planjsonArray.getString("name"),
-                    planjsonArray.getString("description"),
-                    planjsonArray.getString("numberOfMinutes"),
-                    planjsonArray.getString("maximumNumberOfUsers"),
-                    planjsonArray.getString("musicCollection"),
-                    planjsonArray.getString("musicSuggestion"),
-                    planjsonArray.getString("annualFee"),
-                    planjsonArray.getString("monthlyFee"),
-                    planjsonArray.getString("active"),
-                    planjsonArray.getString("promoted")));
-        }
-        throw new IllegalArgumentException("Plan with name:"+ name+" does not exist!");
-    }
 
-    @Override
-    public HttpResponse<String> getSubsFromOtherApi(String userName,String auth) throws URISyntaxException, IOException, InterruptedException {
-        // 82 91 subs
-        // 81 90 plans
-        // 83 92 users
-       // String urlWithDynamicName = externalSubscriptionUrl.replace("{username}", userName);
-       // URI uri = new URI(urlWithDynamicName);
-        // URI uri = new URI("http://localhost:" + otherPort + "/api/subscriptions/external/" + userName);
-        otherPort = (currentPort==portTwo) ? portOne : portTwo;
-        URI uri = new URI("http://localhost:" + otherPort + "/api/subscriptions/external/"+userName);
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(uri)
-                .GET()
-                .header("Authorization", auth)
-                .build();
 
-        HttpClient client = HttpClient.newHttpClient();
-
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        return response;
-
-    }
-    @Override
-    public HttpResponse<String> getPlansFromOtherAPI(String name) throws URISyntaxException, IOException, InterruptedException {
-        // 82 91 subs
-        // 81 90 plans
-        // 83 92 users
-        //int otherPort = (currentPort == 8082) ? 8081 : 8090;
-        URI uri = new URI("http://localhost:" + planPort + "/api/plans/" + name);
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(uri)
-                .GET()
-                .build();
-
-        HttpClient client = HttpClient.newHttpClient();
-
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        return response;
-
-    }
-
-    @Override
-    public Optional<PlansDetails> findPlan(String planName) throws URISyntaxException, IOException, InterruptedException {
-        HttpResponse<String> plan = getPlansFromOtherAPI(planName);
-
-        JSONObject planjsonArray = new JSONObject(plan.body());
-
-        PlansDetails plansDetails = new PlansDetails(
-                planjsonArray.getString("name"),
-                planjsonArray.getString("description"),
-                planjsonArray.getString("numberOfMinutes"),
-                planjsonArray.getString("maximumNumberOfUsers"),
-                planjsonArray.getString("musicCollection"),
-                planjsonArray.getString("musicSuggestion"),
-                planjsonArray.getString("annualFee"),
-                planjsonArray.getString("monthlyFee"),
-                planjsonArray.getString("active"),
-                planjsonArray.getString("promoted"));
-
-        return Optional.of(plansDetails);
-    }
 
 }
 
