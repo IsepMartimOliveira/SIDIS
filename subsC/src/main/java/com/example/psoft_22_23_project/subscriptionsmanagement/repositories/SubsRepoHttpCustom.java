@@ -30,22 +30,11 @@ public interface SubsRepoHttpCustom {
 @RequiredArgsConstructor
 @Configuration
 class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
-    @Value("${server.port}")
-    private int currentPort;
+
     @Value("${port1}")
     private int portOne;
     @Value("${port2}")
     private int portTwo;
-    private int otherPort;
-    @Value("${plan.server.port}")
-    private int planPort;
-    @Value("${user.server.port}")
-    private int userPort;
-
-    @Value("${subscription.external}")
-    private String externalSubscriptionUrl;
-    private final CreateSubscriptionsMapper createSubscriptionsMapper;
-    private final SubscriptionsRepositoryDB subscriptionsRepositoryDB;
 
     @Override
     public Optional<PlansDetails> findPlan(String planName) throws URISyntaxException, IOException, InterruptedException {
@@ -72,19 +61,36 @@ class SubsRepoHttpCustomImpl implements SubsRepoHttpCustom {
         // 82 91 subs
         // 81 90 plans
         // 83 92 users
-        int otherPort = (currentPort == 8082) ? 8081 : 8090;
-        URI uri = new URI("http://localhost:" + otherPort + "/api/plans/" + name);
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(uri)
-                .GET()
-                .build();
-
         HttpClient client = HttpClient.newHttpClient();
+        try {
+            URI uri = new URI("http://localhost:" + portOne + "/api/plans/" + name);
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(uri)
+                    .GET()
+                    .build();
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        return response;
+            if (response.statusCode() == 200) {
+                return response;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            URI uri2 = new URI("http://localhost:" + portTwo + "/api/plans/" + name);
+            HttpRequest request2 = HttpRequest.newBuilder()
+                    .uri(uri2)
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response2 = client.send(request2, HttpResponse.BodyHandlers.ofString());
+            return response2;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return (HttpResponse<String>) HttpResponse.BodyHandlers.ofString();
 
     }
 

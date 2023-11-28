@@ -1,0 +1,42 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Get Subscription plan details
+
+autonumber
+
+actor "Client" as Ac
+participant ":SubscriptionController" as Auth
+participant ":SubscriptionService" as SService
+participant ":SubscriptionManager" as UManager
+database ":SubsHTTP" as SHTTP
+database ":SubsDB" as SDB
+participant ":PlanController" as Plan
+participant ":PlanService" as PService
+participant ":PlanManager" as PManager
+database ":PlanDB" as PDB
+
+Ac->Auth: GET /subscriptions/
+Auth->SService: planDetails
+SService->UManager: findSub
+UManager->SDB: checkDataBase
+SDB-->UManager:sub
+UManager --> SService:sub
+SService->UManager: findPlan
+UManager -> SHTTP: findPlan
+SHTTP -> Plan:GET /plans/{PlanName}
+Plan-> PService: findPlan
+PService->PManager: findPlan
+PManager->PDB:checkDataBase
+PDB-->PManager:plan
+PManager-->PService:plan
+PService-->Plan:plan
+Plan-->SHTTP: 200
+SHTTP-->UManager:plan
+UManager--> SService:plan
+SService --> SService: planDetails
+SService -->Auth:sub
+Auth --> Ac : 201
+
+@enduml
