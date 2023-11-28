@@ -1,0 +1,15 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+actor "User" as MD
+title  Software Design Document / As a new customer I want to know all existing plans
+
+activate MD
+MD -> ":System" : POST public/login
+":System" --> ":System" : Authenticates data
+":System" --> ":System" : generates and encodes JWT token
+alt successful case - data is accepted
+
+":System" -> MD: Shows user
+
+deactivate MD
+@enduml

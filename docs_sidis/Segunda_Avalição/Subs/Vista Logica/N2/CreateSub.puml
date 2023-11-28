@@ -1,0 +1,34 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Create  a new Subscription
+
+autonumber
+
+actor "Client" as Ac
+participant ":Subscription" as Auth
+participant ":Subscription1" as Serv
+participant ":Plans" as Plans
+participant ":Plans1" as Plans1
+
+
+Ac->Auth: POST /subscriptions/create
+Auth -> Plans: Get/api/plans/name
+alt plans exist in 1º instance
+    Plans -> Plans: checkLocal
+    Plans --> Plans: plan
+end
+alt plans exist in 2º instance
+    Plans -> Plans1: GET/api/plans/external/name
+    Plans1 -> Plans1: checkLocal
+    Plans1 --> Plans1: 200
+    Plans1 --> Plans: plan
+end
+Plans --> Auth: 200
+Auth->Auth:checkLocal
+Auth->Serv: GET /subscriptions/external/{username}
+Serv-->Auth:404
+Auth->Auth:save
+Auth-->Ac:201
+@enduml

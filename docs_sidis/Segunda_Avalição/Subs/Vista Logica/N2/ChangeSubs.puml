@@ -1,0 +1,39 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title   Pland details from a  Subscription
+
+autonumber
+
+actor "Client" as Ac
+participant ":Subscription" as Auth
+participant ":Subscription1" as Serv
+
+
+Ac->Auth: PATCH /subscriptions/change/{name}
+Auth -> Plans: Get/api/plans/name
+alt plans exist in 1º instance
+    Plans -> Plans: checkLocal
+    Plans --> Plans: plan
+end
+alt plans exist in 2º instance
+    Plans -> Plans1: GET/api/plans/external/name
+    Plans1 -> Plans1: checkLocal
+    Plans1 --> Plans1: 200
+    Plans1 --> Plans: plan
+end
+Plans --> Auth: 200
+Auth->Auth:checkLocal
+alt Subscription exist locally
+Auth-->Auth:deactivate(desiredVersion)
+Auth-->Auth:save
+end
+alt Subscription doesn´t exist locally
+
+Auth->Serv: GET /subscriptions/external/{username}
+Serv-->Auth:200
+Auth-->Auth:Throw error message
+end
+Auth-->Ac:200
+@enduml

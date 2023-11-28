@@ -1,0 +1,26 @@
+@startuml
+'https://plantuml.com/class-diagram
+hide circle
+
+
+title Class Diagram / Bootstraping the plans
+
+class Plans{
+    -name
+    - description
+    - numberOfMinutes
+    -maximumNumberOfUsers
+    -musicCollection
+     -musicSuggestion
+     -annualFee
+     -monthlyFee
+     -active
+     -promoted
+}
+
+class PlansBootstraper{
++ CommandLineRuner
+}
+PlansBootstraper"1"..down>"0"Plans: creates
+
+@enduml

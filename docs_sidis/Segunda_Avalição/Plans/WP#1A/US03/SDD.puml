@@ -1,0 +1,35 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+actor "Marketing Director" as MD
+title Software Design Document/ As Marketing director, I want to define a new Plan detailing the monthly and annual cost, the maximum number of devices and other characteristics of the plan
+
+activate MD
+
+MD -> ":System" : PATCH /plans/update/{name}
+":System" --> ":System" : Gets data from Patch
+
+alt successful case - data is accepted
+
+":System" --> ":System" : Checks if Plan exists
+alt successful case - Plan exists
+":System" --> ":System" : Apply data on plan
+":System" --> MD : Tells users plan haves been updated and shows it
+
+
+end
+
+alt Plan doesn´t exist on instance 1-HTPP API CALL
+":System"-->":System":Returns a 200
+":System" --> ":System" : Updates the plan
+":System" -> MD: Shows plan haves been updated and shows it
+
+end
+end
+
+alt failure case - data is not accepted or Plan doesn´t exist
+activate ":System"
+":System" --> MD : Shows error message
+
+end
+deactivate MD
+@enduml

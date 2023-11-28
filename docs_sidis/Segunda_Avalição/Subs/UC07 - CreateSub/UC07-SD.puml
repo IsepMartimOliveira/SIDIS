@@ -1,0 +1,66 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+actor "New Costumer" as Ac
+participant ":SubscriptionsController" as Ctrl
+participant ":SubscriptionsService" as Serv
+participant ":SubscriptionsRepository" as SubRepo
+participant ":CreateSubscriptionsMapper" as Mapper
+Ac -> Ctrl : POST /subscriptions/create
+Ctrl -> Serv : subscriptions obj = create(final CreateSubscriptionsRequest resource, final String auth)
+Serv -> SubRepo : HttpResponse<String> getPlansFromOtherAPI(String planName)
+SubRepo --> Serv : plan
+note right
+  In this point, its made a call to
+  the Plans Machines that will check if
+  plan exists, if not will throw a
+  EntityNotFoundException
+end note
+Serv -> SubRepo: Subscriptions obj = planExists(plan,auth,resource);
+
+SubRepo --> SubRepo : HttpResponse<String> user =getUserFromOtherAPI(String name)
+
+
+note right
+  In this point, its made a call to
+  the User Machines that will check if
+  user exists, if not will throw a
+  EntityNotFoundException
+end note
+
+SubRepo --> SubRepo :HttpResponse<String> subscriptions= getSubsFromOtherApi(String name,String auth)
+note right
+  In this point, its made a call to
+  the other Subs Machines that will check if
+  user haves a subs, if yes it will throw a
+  EntityNotFoundException
+end note
+
+
+note left
+  If plan exists and user exists
+  and user does not have a subscription
+  in both machines it will create one
+  in this machine
+end note
+SubRepo -> Mapper :Subscriptions obj = create(user, plan, resource);
+Mapper --> SubRepo: obj
+
+SubRepo --> Serv: obj
+
+
+Serv -> SubRepo: save(obj)
+SubRepo --> Serv: obj
+Serv --> Ctrl: obj
+
+
+note left
+ The controller here also
+ creates an ResponseEntity
+ to show the user the obj with
+ "subscriptionsViewMapper" as objView
+end note
+Ac <-- Ctrl : objView
+
+@enduml
