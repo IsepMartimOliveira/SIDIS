@@ -36,6 +36,46 @@ public class Config {
         return new FanoutExchange("send_plan_detail");
     }
 
+
+    @Bean
+    public FanoutExchange updateFanout() {
+        return new FanoutExchange("sub_to_update");
+    }
+    @Bean
+    public FanoutExchange cancelFanout() {
+        return new FanoutExchange("sub_to_cancel");
+    }
+    @Bean
+    public FanoutExchange renewFanout() {
+        return new FanoutExchange("sub_to_renew");
+    }
+
+    @Bean
+    public Queue updateQueue() {
+        return new AnonymousQueue();
+    }
+    @Bean
+    public Queue renewQueue() {
+        return new AnonymousQueue();
+    }
+    @Bean
+    public Queue cancelQueue() {
+        return new AnonymousQueue();
+    }
+
+
+    @Bean
+    public Binding bindingUpdateQueue(FanoutExchange updateFanout, Queue updateQueue) {
+        return BindingBuilder.bind(updateQueue).to(updateFanout);
+    }
+    @Bean
+    public Binding bindingCancelQueue(FanoutExchange cancelFanout, Queue cancelQueue) {
+        return BindingBuilder.bind(cancelQueue).to(cancelFanout);
+    }
+    @Bean
+    public Binding bindingRenewQueue(FanoutExchange renewFanout, Queue renewQueue) {
+        return BindingBuilder.bind(renewQueue).to(renewFanout);
+    }
     @Bean
     public Queue sendPlanDetailsQueue() {
         return new AnonymousQueue();
@@ -49,6 +89,11 @@ public class Config {
     public Queue subsQueryQueue() {
         return new AnonymousQueue();
     }
+
+
+
+
+
 
     @Bean
     public Binding bindingGetPlanNameQueue(FanoutExchange getPlanNameFanout, Queue getPlanNameQueue) {

@@ -9,6 +9,9 @@ import lombok.Getter;
 import org.hibernate.StaleObjectStateException;
 
 import javax.persistence.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 
 @Entity
@@ -77,7 +80,47 @@ public class Subscriptions {
 
 
     }
+    public void cancelSubscription(final long desiredVersion) {
+        deactivate(desiredVersion);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate startDate = LocalDate.parse(getStartDate().getStartDate(), formatter);
 
+        if (Objects.equals(getPaymentType().getPaymentType(), "monthly")) {
+            if (startDate.getMonthValue() == LocalDate.now().getMonthValue()) {
+                if (startDate.getYear() != LocalDate.now().getYear()) {
+                    getEndDate().setEndDate(String.valueOf(startDate.plusMonths(1).plusYears(LocalDate.now().getYear() - startDate.getYear())));
+                } else {
+                    getEndDate().setEndDate(String.valueOf(startDate.plusMonths(1)));
+                }
+
+            } else if (startDate.getDayOfMonth() >= LocalDate.now().getDayOfMonth()) {
+                if (startDate.getYear() != LocalDate.now().getYear()) {
+                    getEndDate().setEndDate(String.valueOf(startDate.plusMonths(1).plusYears(LocalDate.now().getYear() - startDate.getYear())));
+                } else {
+                    getEndDate().setEndDate(String.valueOf(startDate.plusMonths(1)));
+                }
+
+            } else {
+                if (startDate.getYear() != LocalDate.now().getYear()) {
+                    getEndDate().setEndDate(String.valueOf(startDate.plusMonths((LocalDate.now().getMonthValue() - startDate.getMonthValue()) + 1).plusYears(LocalDate.now().getYear() - startDate.getYear())));
+                } else {
+                    getEndDate().setEndDate(String.valueOf(startDate.plusMonths((LocalDate.now().getMonthValue() - startDate.getMonthValue()) + 1)));
+                }
+            }
+        }
+    }
+
+    public void renewSub(long desiredVersion) {
+        if (Objects.equals(getPaymentType().getPaymentType(), "monthly")) {
+
+            throw new IllegalArgumentException("You can not renew a monthly subscription");
+        } else {
+            checkChange(desiredVersion);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate endDate = LocalDate.parse(getEndDate().getEndDate(), formatter);
+            getEndDate().setEndDate(String.valueOf(endDate.plusYears(1)));
+        }
+    }
 
 
 }

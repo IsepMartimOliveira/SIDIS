@@ -5,6 +5,7 @@ import com.example.psoft_22_23_project.rabbitMQ.SubsQSender;
 import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreateSubsByRabbitRequest;
 import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreateSubscriptionsRequest;
 import com.example.psoft_22_23_project.subscriptionsmanagement.api.SubsByRabbitMapper;
+import com.example.psoft_22_23_project.subscriptionsmanagement.api.UpdateSubsRabbitRequest;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.PlansDetails;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptions;
 import lombok.RequiredArgsConstructor;
@@ -51,6 +52,29 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         subsManager.findByActiveStatus_ActiveAndUser(true,subsRequest.getUser());
         Subscriptions obj=createSubscriptionsMapper.create(subsRequest.getUser(),subsRequest.getCreateSubscriptionsRequest().getName(),subsRequest);
         subsManager.save(obj);
+    }
+
+    public void storePlanUpdate(UpdateSubsRabbitRequest sub){
+
+        Optional<Subscriptions> subscriptions = subsManager.findByActiveStatus_ActiveAndUser(true,sub.getUser());
+        Subscriptions subscriptions1 = subscriptions.get();
+        subscriptions1.changePlan(sub.getDesiredVersion(),sub.getName());
+        subsManager.save(subscriptions1);
+
+    }
+
+    public void storeRenew(UpdateSubsRabbitRequest sub){
+        Optional<Subscriptions> subscriptions = subsManager.findByActiveStatus_ActiveAndUser(true,sub.getUser());
+        Subscriptions subscriptions1 = subscriptions.get();
+        subscriptions1.renewSub(sub.getDesiredVersion());
+        subsManager.save(subscriptions1);
+
+    }
+    public void storeCancel(UpdateSubsRabbitRequest sub){
+        Optional<Subscriptions> subscriptions = subsManager.findByActiveStatus_ActiveAndUser(true,sub.getUser());
+        Subscriptions subscriptions1 = subscriptions.get();
+        subscriptions1.cancelSubscription(sub.getDesiredVersion());
+        subsManager.save(subscriptions1);
     }
 
 
