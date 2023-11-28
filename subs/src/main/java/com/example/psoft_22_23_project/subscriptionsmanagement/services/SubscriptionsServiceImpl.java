@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -21,22 +22,18 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
     private final SubsManager subsManager;
     private final CreateSubscriptionsMapper createSubscriptionsMapper;
     private final SubsQSender sender;
-    private PlansDetails plansDetails = new PlansDetails();
+    private CompletableFuture<PlansDetails> plansDetailsFuture = new CompletableFuture<>();
+
 
     @SneakyThrows
     @Override
     public Optional<PlansDetails> planDetails(String auth) {
         String name = getUsername();
         Optional<Subscriptions> subscription = subsManager.findSub(auth,name);
+        plansDetailsFuture = new CompletableFuture<>();
         sender.send(subscription.get().getPlan());
-
-        try {
-            Thread.sleep(2500); // 2500 milliseconds = 2.5 seconds
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            // Handle the interruption if needed
-        }
-        return Optional.of(plansDetails);
+        PlansDetails receivedPlansDetails = plansDetailsFuture.get();
+        return Optional.of(receivedPlansDetails);
 
     }
     private String getUsername() {
@@ -57,8 +54,8 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
     }
 
 
-    public void createPlanDetail(PlansDetails plansDetailss) {
-        plansDetails=plansDetailss;
+    public void notifyAboutReceivedPlanDetails(PlansDetails plansDetails) {
+        plansDetailsFuture.complete(plansDetails);
     }
 }
 

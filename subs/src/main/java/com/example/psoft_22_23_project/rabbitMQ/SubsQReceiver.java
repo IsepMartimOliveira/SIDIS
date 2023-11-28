@@ -22,7 +22,7 @@ public class SubsQReceiver {
 
     @RabbitListener(queues = "#{sendPlanDetailsQueue.name}")
     public void receivePlanDetails(PlansDetails plansDetails) {
-        subsService.createPlanDetail(plansDetails);
+        subsService.notifyAboutReceivedPlanDetails(plansDetails);
         System.out.println(" [x] Received "+plansDetails+" from subs_queue");
     }
 
