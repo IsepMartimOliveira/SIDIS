@@ -23,7 +23,7 @@ class PlansManagerImpl implements PlansManager{
     }
 
     @Override
-    public Optional<Plans> findByNameDoesExistsUpdate(String name) {
+    public Optional<Plans> findByNameDoesExists(String name) {
         Optional<Plans> resultFromDB = dbRepository.findByName_Name(name);
         if (resultFromDB.isPresent()) {
             return resultFromDB;

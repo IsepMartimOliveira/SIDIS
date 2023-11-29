@@ -35,7 +35,8 @@ public interface PlansManager {
 
 	void findByNameDoesNotExists(String name) throws IOException, URISyntaxException, InterruptedException;
 
-	Optional<Plans>  findByNameDoesExistsUpdate(String name);
+	Optional<Plans>  findByNameDoesExists(String name);
+
 
 
 	Plans save(Plans obj);

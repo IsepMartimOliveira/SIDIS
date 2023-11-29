@@ -5,49 +5,44 @@ autonumber
 title  Deactivate a Plan
 
 autonumber
-
 actor "Client" as Ac
-participant ":User" as User
-database ":UserDB" as Udb
-
-participant ":Plan" as Plan
-database ":PlanDB" as PDB
-database ":PlanHTTP" as PHTTP
-participant ":Plan1" as Plan1
-database "Plan1DB" as PDB1
+participant ":PlanController" as PlanController
+participant ":PlanService" as PService
+participant ":PlanManager" as PManager
+participant ":PlanDB" as PDB
+participant ":Plans" as Plan
+participant ":MS Broker" as Broker
 
 
-Ac->User: POST public/login
-User->Udb:checkLocal
-Udb-->User:user
-User-->User:generates JWT Token
-User-->Ac:200
-Ac->Plan:PATCH plans/deactivate/{name}
-Plan->PDB:checkLocal
-PDB-->Plan:plan
-alt plan exists
-Plan->Plan:Deactivate
-Plan->Plan:save
 
-end
 
-alt plan isEmpty
-Plan->PHTTP:GET plans/external/{planName}
-PHTTP->Plan1:checkInstance
-Plan1->PDB1:checkLocal
 
-PDB1-->Plan1:200
-deactivate PDB1
 
-Plan1-->PHTTP:200
-PHTTP-->Plan:200
-end
 
-Plan-->Ac:200
+Ac->PlanController:PATCH plans/deactivate/{name}
+PlanController->PService:Deactivate
+
+PService->PManager:findByNameDoesExists()
+PManager->PDB:CheckPlan By Name
+PDB-->PManager:plan
+PManager-->PService:plan
+PService->PService:plan.get
+PService->Plan:Deactivate plan
+Plan-->PService:Plan is deactivated
+PService->PService:DeactivateRequest deactivateRequest
+PService->Broker:Publish request to deactivate(deactivateRequest)
+Broker-->PService:Notify
 note right
-If alt "plan inEmpty" is true
-Plan trows: Plan exist in other machine
+Broker Notifies PlanQ and PlanC about the plan deactivate
 end note
+PService->PService:save deactivated plan
+
+PService-->PlanController:plan
+PlanController-->Ac:200
+
+
+
+
 
 
 

@@ -56,7 +56,7 @@ public class PlansServiceImpl implements PlansService {
 	@Override
 	public Plans partialUpdate(final String name, final EditPlansRequest resource, String auth ,final long desiredVersion) throws URISyntaxException, IOException, InterruptedException {
 		//ver se existe
-		final Optional<Plans> plansOptional = plansManager.findByNameDoesExistsUpdate(name);
+		final Optional<Plans> plansOptional = plansManager.findByNameDoesExists(name);
 
 		Plans plans=plansOptional.get();
 		plans.updateData(desiredVersion, resource.getDescription(),
@@ -76,7 +76,7 @@ public class PlansServiceImpl implements PlansService {
 
 	}
 	public void storePlanUpdate(EditPlanRequestUpdate resource) {
-		final Optional<Plans> plansOptional = plansManager.findByNameDoesExistsUpdate(resource.getName());
+		final Optional<Plans> plansOptional = plansManager.findByNameDoesExists(resource.getName());
 
 		Plans plans=plansOptional.get();
 		plans.updateData(resource.getDesiredVersion(), resource.getEditPlansRequest().getDescription(),
@@ -92,7 +92,7 @@ public class PlansServiceImpl implements PlansService {
 
 	@Override
 	public Plans deactivate(final String name, String authorizationToken,final long desiredVersion) {
-		final Optional<Plans> plansOptional = plansManager.findByNameDoesExistsUpdate(name);
+		final Optional<Plans> plansOptional = plansManager.findByNameDoesExists(name);
 			Plans plans=plansOptional.get();
 			plans.deactivate(desiredVersion);
 			DeactivatPlanRequest deactivatPlanRequest=new DeactivatPlanRequest(name,desiredVersion);
@@ -102,7 +102,7 @@ public class PlansServiceImpl implements PlansService {
 
 	}
 public  void  storePlanDeactivates(DeactivatPlanRequest deactivatPlanRequest){
-	final Optional<Plans> plansOptional = plansManager.findByNameDoesExistsUpdate(deactivatPlanRequest.getName());
+	final Optional<Plans> plansOptional = plansManager.findByNameDoesExists(deactivatPlanRequest.getName());
 	Plans plans=plansOptional.get();
 	plans.deactivate(deactivatPlanRequest.getDesiredVersion());
 	plansManager.save(plans);
