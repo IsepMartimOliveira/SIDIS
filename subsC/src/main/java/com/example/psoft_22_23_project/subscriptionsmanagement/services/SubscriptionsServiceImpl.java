@@ -39,12 +39,7 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
     public Subscriptions create(final CreateSubscriptionsRequest resource,String auth) throws URISyntaxException, IOException, InterruptedException {
         String user = getUsername();
         subsManager.findIfUserDoesNotHavesSub(auth,user);
-
-        //
         subsManager.checkIfPlanExist(resource.getName());
-
-        //
-
         Subscriptions obj = createSubscriptionsMapper.create(user,resource.getName(),resource);
         CreateSubsByRabbitRequest rabbitRequest = subsByRabbitMapper.toSubsRabbit(resource,user);
         subsCOMSender.send(rabbitRequest);
@@ -61,12 +56,9 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         Optional<Subscriptions> subscriptions = subsManager.findIfUserHavesSub(auth,user);
         Subscriptions subscriptions1 = subscriptions.get();
         subscriptions1.cancelSubscription(desiredVersion);
-
         UpdateSubsRabbitRequest updateSubsRabbitRequest = updateSubsByRabbitMapper.toSubsRabbit(auth, desiredVersion,user);
         subsCOMSender.sendCancel(updateSubsRabbitRequest);
-
         return subscriptions1;
-
     }
     public void storeCancel(UpdateSubsRabbitRequest sub){
         Optional<Subscriptions> subscriptions = subsManager.findIfUserHavesSub(sub.getAuth(),sub.getUser());
@@ -81,12 +73,9 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         Optional<Subscriptions> subscriptions = subsManager.findIfUserHavesSub(auth,user);
         Subscriptions subscriptions1 = subscriptions.get();
         subscriptions1.renewSub(desiredVersion);
-
         UpdateSubsRabbitRequest updateSubsRabbitRequest = updateSubsByRabbitMapper.toSubsRabbit(auth, desiredVersion,user);
         subsCOMSender.sendRenew(updateSubsRabbitRequest);
-
         return subscriptions1;
-
     }
 
     public void storeRenew(UpdateSubsRabbitRequest sub){
@@ -94,7 +83,6 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         Subscriptions subscriptions1 = subscriptions.get();
         subscriptions1.renewSub(sub.getDesiredVersion());
         subsManager.save(subscriptions1);
-
     }
     @Override
     public Subscriptions changePlan(final long desiredVersion, final String name,final String auth){
@@ -102,27 +90,19 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         Optional<Subscriptions> subscriptions = subsManager.findIfUserHavesSub(auth,user);
         Subscriptions subscriptions1 = subscriptions.get();
         subscriptions1.changePlan(desiredVersion,name);
-
         UpdateSubsRabbitRequest updateSubsRabbitRequest = updateSubsByRabbitMapper.toSubsRabbit(auth, desiredVersion,user,name);
         subsCOMSender.sendUpdatePlan(updateSubsRabbitRequest);
-
         return subscriptions1;
     }
     public void storePlanUpdate(UpdateSubsRabbitRequest sub){
-
         Optional<Subscriptions> subscriptions = subsManager.findIfUserHavesSub(sub.getAuth(),sub.getUser());
         Subscriptions subscriptions1 = subscriptions.get();
         subscriptions1.changePlan(sub.getDesiredVersion(),sub.getName());
         subsManager.save(subscriptions1);
-
     }
 
     public void getPlanDetails(String name) throws URISyntaxException, IOException, InterruptedException {
-
-        //
         Optional<PlansDetails> objLocal = subsManager.findPlan(name);
-
-        //
         subsCOMSender.sendPlanDetails(objLocal.get());
     }
 }

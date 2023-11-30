@@ -2,26 +2,26 @@
 'https://plantuml.com/sequence-diagram
 autoactivate on
 autonumber
-title   Renew a  Subscription
+title  Renew Sub
 
 autonumber
 
 actor "Client" as Ac
-participant ":Subscription" as Auth
-participant ":Subscription1" as Serv
 
+participant ":SubscriptionC" as SubC
+participant ":SubscriptionQ" as SubQ
+participant ":Message Broker" as Broker
 
-Ac->Auth:  PATCH /subscriptions/renew
-Auth->Auth:checkLocal
-alt Subscription exist locally
-Auth-->Auth:add a year
-Auth-->Auth:save
-end
-alt Subscription doesn´t exist locally
+Ac->SubC:PATCH subscriptions/renew
 
-Auth->Serv: GET /subscriptions/external/{username}
-Serv-->Auth:200
-Auth-->Auth:Throw error message
-end
-Auth-->Ac:200
+SubC->Broker: publish(subs_renew,UpdateSubsRabbitRequest update)
+SubC-->Ac:201
+
+Broker->SubC:notify(subs_renew,UpdateSubsRabbitRequest update)
+SubC-->SubC:renewSub(Subscriptions sub)
+Broker->SubQ:notify(subs_renew,UpdateSubsRabbitRequest update)
+deactivate Broker
+
+SubQ-->SubQ:renewSub(Subscriptions sub)
+
 @enduml
