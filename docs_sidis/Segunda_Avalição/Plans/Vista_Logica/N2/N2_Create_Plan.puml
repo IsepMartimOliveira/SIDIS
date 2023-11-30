@@ -7,16 +7,20 @@ title  Create  a new Plan
 autonumber
 
 actor "Client" as Ac
-participant ":Plan" as Auth
-participant ":Plan1" as Serv
+participant ":PlanC" as Auth
+participant ":PlanQ" as Serv
+
+participant ":Message Broker" as Broker
 
 
 Ac->Auth:POST /plans
-Auth->Auth:checkLocal
-Auth->Serv: GET plans/external/{planName}
-Serv-->Auth:404
-Auth->Auth:save
+Auth->Auth:storePlan(Plan plan)
 Auth-->Ac:201
+Auth->Broker: publish(plans_to_update,PlanDetails plandetails)
+Broker-->Serv:notify(plans_to_update,PlanDetails plandetails)
+Serv->Serv:storePlan(Plan plan)
+
+
 
 
 

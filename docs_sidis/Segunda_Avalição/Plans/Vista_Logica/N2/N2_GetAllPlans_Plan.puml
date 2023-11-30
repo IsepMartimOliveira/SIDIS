@@ -7,27 +7,11 @@ title  Deactivate  a  Plan
 autonumber
 
 actor "Client" as Ac
-participant ":Plan" as Auth
-participant ":Plan1" as Serv
-
-
+participant ":PlanQ" as Auth
+participant ":PlanDB" as DB
 Ac->Auth:GET /plans/
-Auth->Auth:checkLocal
-
-
-alt Plans exist on another instance
-Auth->Serv: GET /plans/external
-Serv-->Auth:200
-
-end
+Auth->DB:findByNameDoesExists()
+DB->DB:checkLocal
+DB-->Auth:plan
 Auth-->Ac:200
-
-
-
-
-
-
-
-
-
 @enduml

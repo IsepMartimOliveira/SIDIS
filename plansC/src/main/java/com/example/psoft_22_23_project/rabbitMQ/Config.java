@@ -37,20 +37,7 @@ public class Config {
     public Queue plansQueue() {
         return new AnonymousQueue();
     }
-    @Bean
-    public Queue planQ2() {
-        return new AnonymousQueue();
-    }
 
-    @Bean
-    public Queue planC2() {
-        return new AnonymousQueue();
-    }
-
-    @Bean
-    public Queue planQ() {
-        return new AnonymousQueue();
-    }
     @Bean
     public Queue updateQueue() {
         return new AnonymousQueue();
