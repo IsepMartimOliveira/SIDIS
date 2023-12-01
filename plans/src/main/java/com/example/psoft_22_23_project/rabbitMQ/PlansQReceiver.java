@@ -9,12 +9,13 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+
 @Component
 public class PlansQReceiver {
     @Autowired
     private PlansServiceImpl plansService;
-    private PlansManager plansManager;
-
     @RabbitListener(queues = "#{plansQueryQueue.name}")
     public void receivePlan(CreatePlanRequest planRequest) {
         plansService.storePlan(planRequest);
@@ -31,4 +32,11 @@ public class PlansQReceiver {
         plansService.storePlanDeactivates(plans);
         System.out.println(" [x] Received update message '" + plans + "' from plansQueue");
     }
+
+    @RabbitListener(queues = "#{getPlanNameQueue.name}")
+    public void getPlanDetails(String name){
+        plansService.getPlanDetails(name);
+        System.out.println(" [x] Received message to Get plan:'" + name + " 'details from subsQ ");
+    }
+
 }

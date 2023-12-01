@@ -1,6 +1,7 @@
 package com.example.psoft_22_23_project.plansmanagement.services;
 
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
+import com.example.psoft_22_23_project.plansmanagement.model.PlansDetails;
 import com.example.psoft_22_23_project.plansmanagement.repositories.PlansRepositoryDB;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ class PlansManagerImpl implements PlansManager{
         return resultFromDB;
 
     }
+
 
     @Override
     public Iterable<Plans> findByActive_Active(boolean b) {

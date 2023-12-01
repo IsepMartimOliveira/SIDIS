@@ -8,20 +8,20 @@ autonumber
 
 actor "Client" as Ac
 
-participant ":SubscriptionC" as SubC
-participant ":SubscriptionQ" as SubQ
+participant ":SubscriptionQ" as SubC
+participant ":PlansQ" as SubQ
 participant ":Message Broker" as Broker
 
-Ac->SubC:PATCH subscriptions/
+Ac->SubC:GET subscriptions/
 
-SubC->Broker: publish(subs_cancel,UpdateSubsRabbitRequest update)
-SubC-->Ac:201
+SubC->Broker: publish(get_planDetails,String planName)
 
-Broker->SubC:notify(subs_cancel,UpdateSubsRabbitRequest update)
-SubC-->SubC:cancelSub(Subscriptions sub)
-Broker->SubQ:notify(subs_cancel,UpdateSubsRabbitRequest update)
+Broker->SubQ:notify(get_planDetails,String planName)
+SubQ-->SubQ: getPlanDetails
+
+SubQ->Broker: publish(give_planDetails, PlanDetails details)
+Broker->SubC:notify(give_planDetails, PlanDetails details)
+SubC-->Ac:200
 deactivate Broker
-
-SubQ-->SubQ:cancelSub(Subscriptions sub)
 
 @enduml

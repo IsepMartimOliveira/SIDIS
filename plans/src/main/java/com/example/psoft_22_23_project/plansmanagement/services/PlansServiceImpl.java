@@ -22,6 +22,8 @@ package com.example.psoft_22_23_project.plansmanagement.services;
 
 import com.example.psoft_22_23_project.plansmanagement.api.*;
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
+import com.example.psoft_22_23_project.plansmanagement.model.PlansDetails;
+import com.example.psoft_22_23_project.rabbitMQ.PlansCOMSender;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -36,7 +38,8 @@ import java.util.Optional;
 public class PlansServiceImpl implements PlansService {
 	private final PlansManagerImpl plansManager;
 	private  final CreatePlansMapper createPlansMapper;
-
+	private final PlansCOMSender plansCOMSender;
+	private final PlansDetailsMapper plansDetailsMapper;
 
 	public Optional<Plans> getPlanByName(String planName){
 		Optional<Plans> plans = plansManager.findByName(planName);
@@ -76,5 +79,11 @@ public class PlansServiceImpl implements PlansService {
 		plans.deactivate(deactivatPlanRequest.getDesiredVersion());
 		plansManager.save(plans);
 
+	}
+
+	public void getPlanDetails(String name){
+		Optional<Plans> objLocal = plansManager.findByName(name);
+		PlansDetails plansDetails = plansDetailsMapper.toPlansDetails(objLocal.get());
+		plansCOMSender.sendPlanDetails(plansDetails);
 	}
 }

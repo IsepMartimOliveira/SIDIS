@@ -23,6 +23,15 @@ public class Config {
         return rabbitTemplate;
     }
     @Bean
+    public FanoutExchange getPlanNameFanout() {
+        return new FanoutExchange("get_plan");
+    }
+    @Bean
+    public FanoutExchange sendPlanDetailsFanout() {
+        return new FanoutExchange("send_plan_detail");
+    }
+
+    @Bean
     public FanoutExchange fanout() {
         return new FanoutExchange("plans_create");
     }
@@ -44,6 +53,24 @@ public class Config {
     }
     @Bean
     public Queue deactivateQueue(){return new AnonymousQueue();}
+
+    @Bean
+    public Queue sendPlanDetailsQueue() {
+        return new AnonymousQueue();
+    }
+    @Bean
+    public Queue getPlanNameQueue() {
+        return new AnonymousQueue();
+    }
+
+    @Bean
+    public Binding bindingGetPlanNameQueue(FanoutExchange getPlanNameFanout, Queue getPlanNameQueue) {
+        return BindingBuilder.bind(getPlanNameQueue).to(getPlanNameFanout);
+    }
+    @Bean
+    public Binding bindingSendPlanDetailsQueue(FanoutExchange sendPlanDetailsFanout, Queue sendPlanDetailsQueue) {
+        return BindingBuilder.bind(sendPlanDetailsQueue).to(sendPlanDetailsFanout);
+    }
 
     @Bean
     public Binding bindingPlansQueryQueue(FanoutExchange fanout, Queue plansQueryQueue) {

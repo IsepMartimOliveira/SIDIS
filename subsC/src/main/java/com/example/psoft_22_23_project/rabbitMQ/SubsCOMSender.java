@@ -19,7 +19,6 @@ public class SubsCOMSender {
     private String fanoutUpdate="sub_to_update";
     private String fanoutRenew="sub_to_renew";
     private String fanoutCancel="sub_to_cancel";
-    private String fanoutSendPlan="send_plan_detail";
 
     public void send(CreateSubsByRabbitRequest subRequest) {
         template.convertAndSend(fanout, "", subRequest);
@@ -37,9 +36,6 @@ public class SubsCOMSender {
         template.convertAndSend(fanoutCancel, "", updatedSub);
         System.out.println(" [x] Sent '" + updatedSub + "' to update a sub");
     }
-    public void sendPlanDetails(PlansDetails plansDetails) {
-        template.convertAndSend(fanoutSendPlan, "", plansDetails);
-        System.out.println(" [x] Sent '" + plansDetails + "' plan details");
-    }
+
 
 }

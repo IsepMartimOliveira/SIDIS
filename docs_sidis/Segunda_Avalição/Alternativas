@@ -1,0 +1,11 @@
+Alternativa:
+Considerando a necessidade de otimizar recursos, uma alternativa seria consolidar as bases de dados dos Commands,
+    permitindo que compartilhem o mesmo base de dados. Isso permite optimizar o uso dos recursos, sendo que não ocorre duplicações.
+No entanto, é importante salientar que, ao optar por essa abordagem, existe o risco potencial de um problema na base de dados afetar todos os serviços associados. Caso ocorram problemas, como falhas de conexão ou interrupções na base de dados, todos os serviços podem ser impactados simultaneamente, resultando em uma queda geral do sistema.
+Essa decisão envolve um equilíbrio delicado entre otimização de recursos e a mitigação de riscos.
+Recomenda-se uma análise cuidadosa dos requisitos do sistema
+    e a implementação de medidas de segurança robustas para lidar com possíveis falhas na base de dados, minimizando assim os impactos negativos no serviço.
+
+Alternativa para Plan Details:
+Na perspetiva do objetivo e função de uma instância do tipo query, parece que a abordagem de consulta direta à base de dados pode ser mais eficiente.
+Ao ter acesso direto à base de dados, a instância query pode recuperar as informações necessárias de maneira mais rápida e direta, sem depender de interações adicionais entre os componentes.

@@ -37,10 +37,4 @@ public class SubsCOMReceiver {
         System.out.println(" [x] Received update message '" + sub + "' from subsQ");
     }
 
-    @RabbitListener(queues = "#{getPlanNameQueue.name}")
-    public void getPlanDetails(String name) throws URISyntaxException, IOException, InterruptedException {
-        subscriptionsService.getPlanDetails(name);
-        System.out.println(" [x] Received message to Get plan:'" + name + " 'details from subsQ ");
-    }
-
 }
