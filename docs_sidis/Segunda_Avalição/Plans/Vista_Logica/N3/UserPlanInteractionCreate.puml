@@ -10,7 +10,7 @@ actor "Client" as Ac
 participant ":PlanController" as PlanController
 participant ":PlanService" as PService
 participant ":PlanManager" as PManager
-participant ":PlanDB" as PDB
+database ":PlanDB" as PDB
 participant ":CreatePlansMapper" as MP
 
 

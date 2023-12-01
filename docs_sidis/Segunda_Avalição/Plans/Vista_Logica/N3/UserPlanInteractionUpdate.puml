@@ -10,7 +10,7 @@ actor "Client" as Ac
 participant ":PlanController" as PlanController
 participant ":PlanService" as PService
 participant ":PlanManager" as PManager
-participant ":PlanDB" as PDB
+database ":PlanDB" as PDB
 participant ":Plans" as Plan
 participant ":MS Broker" as Broker
 
@@ -31,6 +31,7 @@ Plan-->PService:Plan is updated
 PService->PService: Create a EditPlanRequestUpdate editPlanRequest
 PService->Broker:Publish editPlanRequest
 Broker->PService:Notify
+deactivate Broker
 note right
 Broker Notifies PlanQ and PlanC about the plan update
 end note

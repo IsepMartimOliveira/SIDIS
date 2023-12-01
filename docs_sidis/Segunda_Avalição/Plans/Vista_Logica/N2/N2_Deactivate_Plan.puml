@@ -15,11 +15,15 @@ participant ":Message Broker" as Broker
 
 
 Ac->Auth:PATCH plans/deactivate/{name}
-Auth->Auth:storePlan(Plan plan)
+Auth->Broker: publish(plans_to_deactivate,PlanDetails plandetails)
+
 Auth-->Ac:200
-Auth->Broker: publish(plans_to_update,PlanDetails plandetails)
-Broker-->Serv:notify(plans_to_update,PlanDetails plandetails)
-Serv->Serv:storePlan(Plan plan)
+Broker-->Auth:notify(plans_to_deactivate,DeactivatPlanRequest plandetails)
+Auth->Auth:storePlanDeactivates(Plan plan)
+
+Broker-->Serv:notify(plans_to_deactivate,DeactivatPlanRequest plandetails)
+
+Serv->Serv:storePlanDeactivates(Plan plan)
 
 
 

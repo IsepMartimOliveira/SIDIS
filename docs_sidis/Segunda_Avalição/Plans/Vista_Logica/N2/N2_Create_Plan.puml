@@ -14,10 +14,15 @@ participant ":Message Broker" as Broker
 
 
 Ac->Auth:POST /plans
-Auth->Auth:storePlan(Plan plan)
+Auth->Broker: publish(plans_to_update,CreatePlanRequest planRequest)
+
 Auth-->Ac:201
-Auth->Broker: publish(plans_to_update,PlanDetails plandetails)
+Broker-->Auth:notify(plans_to_update,CreatePlanRequest planRequest)
+Auth->Auth:storePlan(Plan plan)
+
 Broker-->Serv:notify(plans_to_update,PlanDetails plandetails)
+
+
 Serv->Serv:storePlan(Plan plan)
 
 
