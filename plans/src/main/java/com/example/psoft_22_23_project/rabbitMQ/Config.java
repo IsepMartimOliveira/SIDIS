@@ -49,6 +49,10 @@ public class Config {
         return new FanoutExchange("send_check_plan");
     }
     @Bean
+    public FanoutExchange deactivateFanout() {
+        return new FanoutExchange("plans_to_deactivate");
+    }
+    @Bean
     public Queue plansQueryQueue() {
         return new AnonymousQueue();
     }
@@ -56,10 +60,7 @@ public class Config {
     public Queue updateQueue() {
         return new AnonymousQueue();
     }
-    @Bean
-    public FanoutExchange deactivateFanout() {
-        return new FanoutExchange("plans_to_deactivate");
-    }
+
     @Bean
     public Queue deactivateQueue(){return new AnonymousQueue();}
 
