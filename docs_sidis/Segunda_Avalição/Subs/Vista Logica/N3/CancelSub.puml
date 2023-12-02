@@ -23,9 +23,10 @@ UManager->SDB: checkDataBase
 SDB-->UManager:sub
 UManager --> SService:sub
 SService->Broker: publish
-Broker--> SService: notify
-SService --> SService: cancel
 SService -->Auth:sub
 Auth --> Ac : 200
+
+Broker-> SService: notify
+SService --> SService: cancel
 
 @enduml

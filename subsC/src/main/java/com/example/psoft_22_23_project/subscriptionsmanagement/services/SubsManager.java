@@ -13,7 +13,6 @@ public interface SubsManager {
      Optional<Subscriptions> findIfUserHavesSub(String auth,String user) throws IOException, URISyntaxException, InterruptedException ;
      void findIfUserDoesNotHavesSub(String auth, String user) throws IOException, URISyntaxException, InterruptedException ;
      Subscriptions save(Subscriptions obj);
-     void checkIfPlanExist(String name) throws IOException, URISyntaxException, InterruptedException;
      Optional<Subscriptions> findByActiveStatus_ActiveAndUser(boolean b, String user);
 
 }

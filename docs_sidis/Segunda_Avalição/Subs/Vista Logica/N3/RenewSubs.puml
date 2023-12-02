@@ -19,8 +19,9 @@ UManager->SDB: checkDataBase
 SDB-->UManager:sub
 UManager --> SService:sub
 SService->Broker: publish
-Broker--> SService: notify
-SService --> SService: renew
 SService -->Auth:sub
 Auth --> Ac : 200
+Broker-> SService: notify
+SService --> SService: renew
+
 @enduml

@@ -10,10 +10,15 @@ actor "Client" as Ac
 
 participant ":SubscriptionC" as SubC
 participant ":SubscriptionQ" as SubQ
+participant ":PlansQ" as Plans
 participant ":Message Broker" as Broker
 
 Ac->SubC:PATCH subscriptions/change/{planName}
+SubC->Broker: publish(checkPlanName,String planName)
+Broker->Plans:notify(checkPlanName,String planName)
+Plans-->Broker: publish(sendCheckPlanName,Boolean fact)
 
+Broker-->SubC: notify(sendCheckPlanName,Boolean fact)
 SubC->Broker: publish(subs_change,UpdateSubsRabbitRequest update)
 SubC-->Ac:201
 

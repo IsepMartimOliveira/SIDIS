@@ -10,7 +10,6 @@ actor "Client" as Ac
 participant ":SubscriptionController" as Auth
 participant ":SubscriptionService" as SService
 participant ":SubscriptionManager" as UManager
-database ":SubsHTTP" as SHTTP
 database ":SubsDB" as SDB
 participant ":PlanController" as Plan
 participant ":PlanService" as PService
@@ -20,26 +19,23 @@ participant ":MS Broker" as Broker
 
 Ac->Auth: POST /subscriptions/change/{planName}
 Auth->SService: change
-SService->UManager: findPlan
-UManager -> SHTTP: findPlan
-SHTTP -> Plan:GET /plans/{PlanName}
-Plan-> PService: findPlan
-PService->PManager: findPlan
-PManager->PDB:checkDataBase
+SService->Broker: publish
+Broker->PService: notify
+PService-> PManager: checkByName
+PManager-> PDB: checkDataBase
 PDB-->PManager:plan
 PManager-->PService:plan
-PService-->Plan:plan
-Plan-->SHTTP: 200
-SHTTP-->UManager:plan
-UManager--> SService:plan
+PService-->Broker: publish
+Broker->SService:notify
 SService->UManager: findSub
 UManager->SDB: checkDataBase
 SDB-->UManager:sub
 UManager --> SService:sub
-SService->Broker: publish
-Broker--> SService: notify
-SService --> SService: change
+SService-->Broker: publish
 SService -->Auth:sub
 Auth --> Ac : 201
+Broker-> SService: notify
+SService --> SService: change
+
 
 @enduml

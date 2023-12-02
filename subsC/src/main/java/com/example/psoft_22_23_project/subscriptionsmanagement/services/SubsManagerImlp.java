@@ -34,10 +34,6 @@ class SubsManagerImlp implements SubsManager{
         }
 
     }
-    @Override
-    public void checkIfPlanExist(String name) throws IOException, URISyntaxException, InterruptedException {
-        httpRepository.findPlan(name);
-    }
     public Optional<Subscriptions> findByActiveStatus_ActiveAndUser(boolean b, String user) {
         return dbRepository.findByActiveStatus_ActiveAndUser(b,user);
     }
@@ -45,7 +41,4 @@ class SubsManagerImlp implements SubsManager{
         return dbRepository.save(obj);
     }
 
-    public Optional<PlansDetails> findPlan(String name) throws URISyntaxException, IOException, InterruptedException {
-        return httpRepository.findPlan(name);
-    }
 }
