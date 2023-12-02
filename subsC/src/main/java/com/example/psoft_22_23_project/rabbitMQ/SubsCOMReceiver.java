@@ -2,6 +2,7 @@ package com.example.psoft_22_23_project.rabbitMQ;
 import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreateSubsByRabbitRequest;
 import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreateSubscriptionsRequest;
 import com.example.psoft_22_23_project.subscriptionsmanagement.api.UpdateSubsRabbitRequest;
+import com.example.psoft_22_23_project.subscriptionsmanagement.model.PlansDetails;
 import com.example.psoft_22_23_project.subscriptionsmanagement.services.SubscriptionsServiceImpl;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,12 @@ public class SubsCOMReceiver {
     public void receiveRenew(UpdateSubsRabbitRequest sub){
         subscriptionsService.storeRenew(sub);
         System.out.println(" [x] Received update message '" + sub + "' from subsQ");
+    }
+
+    @RabbitListener(queues = "#{checkSendPlanQueue.name}")
+    public void receivePlanDetails(boolean b) {
+        subscriptionsService.notifyAboutReceivedPlanDetails(b);
+        System.out.println(" [x] Received "+b+" from subs_queue");
     }
 
 }

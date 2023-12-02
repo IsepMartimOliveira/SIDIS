@@ -21,6 +21,7 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 @Tag(name = "Subscriptions", description = "Endpoints for managing subscriptions")
 @RestController
@@ -42,7 +43,7 @@ public class SubscriptionsController {
     @PostMapping(value = "/create")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<SubscriptionsView> create(@Valid @RequestBody final CreateSubscriptionsRequest resource,
-                                                    @RequestHeader(HttpHeaders.AUTHORIZATION) final String authorizationToken) throws URISyntaxException, IOException, InterruptedException {
+                                                    @RequestHeader(HttpHeaders.AUTHORIZATION) final String authorizationToken) throws URISyntaxException, IOException, InterruptedException, ExecutionException {
 
         final var subscriptions = service.create(resource,authorizationToken);
 
@@ -82,7 +83,7 @@ public class SubscriptionsController {
 
     @Operation(summary = "Change plan of my subscription")
     @PatchMapping(value = "/change/{name}")
-    public ResponseEntity<SubscriptionsView> changePlan(final WebRequest request, @Valid @PathVariable final String name,@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken) throws URISyntaxException, IOException, InterruptedException {
+    public ResponseEntity<SubscriptionsView> changePlan(final WebRequest request, @Valid @PathVariable final String name,@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken) throws URISyntaxException, IOException, InterruptedException, ExecutionException {
         final String ifMatchValue = request.getHeader("If-Match");
         if (ifMatchValue == null || ifMatchValue.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,

@@ -38,5 +38,10 @@ public class PlansQReceiver {
         plansService.getPlanDetails(name);
         System.out.println(" [x] Received message to Get plan:'" + name + " 'details from subsQ ");
     }
+    @RabbitListener(queues = "#{checkPlanQueue.name}")
+    public void receiveCheckPlan(String planName) {
+        plansService.checkPlan(planName);
+        System.out.println(" [x] Receive msg to check plan with name: '" + planName );
+    }
 
 }

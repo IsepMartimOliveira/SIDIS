@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +24,7 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
     private final SubsCOMSender subsCOMSender;
     private final SubsByRabbitMapper subsByRabbitMapper;
     private final UpdateSubsByRabbitMapper updateSubsByRabbitMapper;
-
+    private CompletableFuture<Boolean> plansDetailsFuture = new CompletableFuture<>();
     private String getUsername() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         int commaIndex = username.indexOf(",");
@@ -36,10 +38,17 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
     }
 
     @Override
-    public Subscriptions create(final CreateSubscriptionsRequest resource,String auth) throws URISyntaxException, IOException, InterruptedException {
+    public Subscriptions create(final CreateSubscriptionsRequest resource,String auth) throws URISyntaxException, IOException, InterruptedException, ExecutionException {
         String user = getUsername();
         subsManager.findIfUserDoesNotHavesSub(auth,user);
-        subsManager.checkIfPlanExist(resource.getName());
+        //
+        plansDetailsFuture = new CompletableFuture<>();
+        subsCOMSender.checkPlan(resource.getName());
+        Boolean receivedPlansDetails = plansDetailsFuture.get();
+        if (!receivedPlansDetails.booleanValue()){
+            throw new IOException("Plan with name "+resource.getName()+"does not existe");
+        }
+        //
         Subscriptions obj = createSubscriptionsMapper.create(user,resource.getName(),resource);
         CreateSubsByRabbitRequest rabbitRequest = subsByRabbitMapper.toSubsRabbit(resource,user);
         subsCOMSender.send(rabbitRequest);
@@ -85,9 +94,17 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         subsManager.save(subscriptions1);
     }
     @Override
-    public Subscriptions changePlan(final long desiredVersion, final String name,final String auth){
+    public Subscriptions changePlan(final long desiredVersion, final String name,final String auth) throws IOException, URISyntaxException, InterruptedException, ExecutionException {
         String user = getUsername();
         Optional<Subscriptions> subscriptions = subsManager.findIfUserHavesSub(auth,user);
+        //
+        plansDetailsFuture = new CompletableFuture<>();
+        subsCOMSender.checkPlan(name);
+        Boolean receivedPlansDetails = plansDetailsFuture.get();
+        if (!receivedPlansDetails.booleanValue()){
+            throw new IOException("Plan with name "+name+"does not existe");
+        }
+        //
         Subscriptions subscriptions1 = subscriptions.get();
         subscriptions1.changePlan(desiredVersion,name);
         UpdateSubsRabbitRequest updateSubsRabbitRequest = updateSubsByRabbitMapper.toSubsRabbit(auth, desiredVersion,user,name);
@@ -99,6 +116,9 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         Subscriptions subscriptions1 = subscriptions.get();
         subscriptions1.changePlan(sub.getDesiredVersion(),sub.getName());
         subsManager.save(subscriptions1);
+    }
+    public void notifyAboutReceivedPlanDetails(boolean b) {
+        plansDetailsFuture.complete(b);
     }
 
 }

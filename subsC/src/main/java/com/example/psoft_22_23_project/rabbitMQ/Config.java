@@ -35,6 +35,33 @@ public class Config {
     public FanoutExchange renewFanout() {
         return new FanoutExchange("sub_to_renew");
     }
+    @Bean
+    public FanoutExchange checkPlanFanout() {
+        return new FanoutExchange("checkPlan");
+    }
+
+    @Bean
+    public FanoutExchange checkSendPlanFanout() {
+        return new FanoutExchange("send_check_plan");
+    }
+    @Bean
+    public FanoutExchange getPlanNameFanout() {
+        return new FanoutExchange("get_plan");
+    }
+    @Bean
+    public FanoutExchange sendPlanDetailsFanout() {
+        return new FanoutExchange("send_plan_detail");
+    }
+
+    @Bean
+    public Queue sendPlanDetailsQueue() {
+        return new AnonymousQueue();
+    }
+    @Bean
+    public Queue getPlanNameQueue() {
+        return new AnonymousQueue();
+    }
+
 
     @Bean
     public Queue subQueue() {
@@ -66,7 +93,32 @@ public class Config {
     public Queue cancelQueue() {
         return new AnonymousQueue();
     }
+    @Bean
+    public Queue checkPlanQueue() {
+        return new AnonymousQueue();
+    }
+    @Bean
+    public Queue checkSendPlanQueue() {
+        return new AnonymousQueue();
+    }
+    @Bean
+    public Binding bindingSendCheckPlanQueue(FanoutExchange checkSendPlanFanout, Queue checkSendPlanQueue) {
+        return BindingBuilder.bind(checkSendPlanQueue).to(checkSendPlanFanout);
+    }
 
+    @Bean
+    public Binding bindingCheckPlanQueue(FanoutExchange checkPlanFanout, Queue checkPlanQueue) {
+        return BindingBuilder.bind(checkPlanQueue).to(checkPlanFanout);
+    }
+
+    @Bean
+    public Binding bindingGetPlanNameQueue(FanoutExchange getPlanNameFanout, Queue getPlanNameQueue) {
+        return BindingBuilder.bind(getPlanNameQueue).to(getPlanNameFanout);
+    }
+    @Bean
+    public Binding bindingSendPlanDetailsQueue(FanoutExchange sendPlanDetailsFanout, Queue sendPlanDetailsQueue) {
+        return BindingBuilder.bind(sendPlanDetailsQueue).to(sendPlanDetailsFanout);
+    }
 
     @Bean
     public Binding bindingUpdateQueue(FanoutExchange updateFanout, Queue updateQueue) {

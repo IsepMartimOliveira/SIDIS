@@ -75,7 +75,11 @@ public class Subscriptions {
         if (this.version != desiredVersion) {
             throw new StaleObjectStateException("Object was already modified by another user", this.id);
         }
+        if (Objects.equals(this.plan, plan))
+        {
+            throw new IllegalArgumentException("Can not change to same plan");
 
+        }
         this.plan = plan;
 
 

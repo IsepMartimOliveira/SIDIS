@@ -23,13 +23,10 @@ package com.example.psoft_22_23_project.plansmanagement.services;
 import com.example.psoft_22_23_project.plansmanagement.api.*;
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 import com.example.psoft_22_23_project.plansmanagement.model.PlansDetails;
-import com.example.psoft_22_23_project.rabbitMQ.PlansCOMSender;
+import com.example.psoft_22_23_project.rabbitMQ.PlansQSender;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.Optional;
 
 
@@ -38,7 +35,7 @@ import java.util.Optional;
 public class PlansServiceImpl implements PlansService {
 	private final PlansManagerImpl plansManager;
 	private  final CreatePlansMapper createPlansMapper;
-	private final PlansCOMSender plansCOMSender;
+	private final PlansQSender plansQSender;
 	private final PlansDetailsMapper plansDetailsMapper;
 
 	public Optional<Plans> getPlanByName(String planName){
@@ -84,6 +81,20 @@ public class PlansServiceImpl implements PlansService {
 	public void getPlanDetails(String name){
 		Optional<Plans> objLocal = plansManager.findByName(name);
 		PlansDetails plansDetails = plansDetailsMapper.toPlansDetails(objLocal.get());
-		plansCOMSender.sendPlanDetails(plansDetails);
+		plansQSender.sendPlanDetails(plansDetails);
+	}
+
+	public void checkPlan(String planName) {
+		Optional<Plans> resultFromDB = plansManager.findByNameDoesExists(planName);
+		if (resultFromDB.isPresent()){
+			//plano existe
+			Boolean b = true;
+			plansQSender.sendPlanCheck(b);
+		}else {
+			//plano n existe
+			Boolean b = false;
+			plansQSender.sendPlanCheck(b);
+		}
+
 	}
 }

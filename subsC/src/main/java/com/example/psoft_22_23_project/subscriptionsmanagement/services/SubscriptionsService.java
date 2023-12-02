@@ -7,15 +7,16 @@ import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptio
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 public interface SubscriptionsService {
 
-    Subscriptions create(CreateSubscriptionsRequest resource, String auth) throws URISyntaxException, IOException, InterruptedException;
+    Subscriptions create(CreateSubscriptionsRequest resource, String auth) throws URISyntaxException, IOException, InterruptedException, ExecutionException;
 
     Subscriptions cancelSubscription(String auth,long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
 
     Subscriptions renewAnualSubscription(String auth,long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
 
-    Subscriptions changePlan(long desiredVersion, String name, String auth) throws URISyntaxException, IOException, InterruptedException;
+    Subscriptions changePlan(long desiredVersion, String name, String auth) throws URISyntaxException, IOException, InterruptedException, ExecutionException;
 
 }

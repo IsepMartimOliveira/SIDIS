@@ -19,6 +19,8 @@ public class SubsCOMSender {
     private String fanoutUpdate="sub_to_update";
     private String fanoutRenew="sub_to_renew";
     private String fanoutCancel="sub_to_cancel";
+    private String checkPlan="checkPlan";
+
 
     public void send(CreateSubsByRabbitRequest subRequest) {
         template.convertAndSend(fanout, "", subRequest);
@@ -38,4 +40,8 @@ public class SubsCOMSender {
     }
 
 
+    public void checkPlan(String name) {
+        template.convertAndSend(checkPlan, "", name);
+        System.out.println(" [x] Sent Check Plan'" + name + "'");
+    }
 }

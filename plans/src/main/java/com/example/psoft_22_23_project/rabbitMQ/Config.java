@@ -39,6 +39,15 @@ public class Config {
     public FanoutExchange updateFanout() {
         return new FanoutExchange("plans_to_update");
     }
+
+    @Bean
+    public FanoutExchange checkPlanFanout() {
+        return new FanoutExchange("checkPlan");
+    }
+    @Bean
+    public FanoutExchange checkSendPlanFanout() {
+        return new FanoutExchange("send_check_plan");
+    }
     @Bean
     public Queue plansQueryQueue() {
         return new AnonymousQueue();
@@ -62,7 +71,23 @@ public class Config {
     public Queue getPlanNameQueue() {
         return new AnonymousQueue();
     }
+    @Bean
+    public Queue checkPlanQueue() {
+        return new AnonymousQueue();
+    }
+    @Bean
+    public Queue checkSendPlanQueue() {
+        return new AnonymousQueue();
+    }
 
+    @Bean
+    public Binding bindingCheckPlanQueue(FanoutExchange checkPlanFanout, Queue checkPlanQueue) {
+        return BindingBuilder.bind(checkPlanQueue).to(checkPlanFanout);
+    }
+    @Bean
+    public Binding bindingSendCheckPlanQueue(FanoutExchange checkSendPlanFanout, Queue checkSendPlanQueue) {
+        return BindingBuilder.bind(checkSendPlanQueue).to(checkSendPlanFanout);
+    }
     @Bean
     public Binding bindingGetPlanNameQueue(FanoutExchange getPlanNameFanout, Queue getPlanNameQueue) {
         return BindingBuilder.bind(getPlanNameQueue).to(getPlanNameFanout);
