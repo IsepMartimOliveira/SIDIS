@@ -6,6 +6,12 @@ Essa decisão envolve um equilíbrio delicado entre otimização de recursos e a
 Recomenda-se uma análise cuidadosa dos requisitos do sistema
     e a implementação de medidas de segurança robustas para lidar com possíveis falhas na base de dados, minimizando assim os impactos negativos no serviço.
 
-Alternativa para Plan Details:
-Na perspetiva do objetivo e função de uma instância do tipo query, parece que a abordagem de consulta direta à base de dados pode ser mais eficiente.
-Ao ter acesso direto à base de dados, a instância query pode recuperar as informações necessárias de maneira mais rápida e direta, sem depender de interações adicionais entre os componentes.
+
+Alternativa para gestão das Subscriptions:
+
+Utilizamos o RabbitMQ para verificar a existência do plano ao criar uma assinatura, também para exibir os detalhes do plano e, por fim, para alterar a assinatura do plano.
+Diante dessa situação, surge uma alternativa: armazenar o plano em memória, reduzindo assim o número de solicitações e utilizando menos recursos da máquina.
+
+Embora haja pontos positivos nesta abordagem, alguns pontos negativos se destacam. Por exemplo, se a instância da assinatura falhar, a criação dos planos não os armazenará
+na memória. Isso ocorre porque a persistência ocorre por meio de eventos, ou seja, quando o RabbitMQ envia a mensagem "plans_created", os planos são registrados. No entanto,
+essa estratégia falha quando a subscrição e suas instâncias não estão operacionais no momento do evento.

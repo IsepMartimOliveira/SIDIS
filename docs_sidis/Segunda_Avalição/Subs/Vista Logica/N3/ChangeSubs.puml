@@ -17,7 +17,7 @@ participant ":PlanManager" as PManager
 database ":PlanDB" as PDB
 participant ":MS Broker" as Broker
 
-Ac->Auth: POST /subscriptions/change/{planName}
+Ac->Auth: PATCH /subscriptions/change/{planName}
 Auth->SService: change
 SService->Broker: publish
 Broker->PService: notify
@@ -33,7 +33,7 @@ SDB-->UManager:sub
 UManager --> SService:sub
 SService-->Broker: publish
 SService -->Auth:sub
-Auth --> Ac : 201
+Auth --> Ac : 200
 Broker-> SService: notify
 SService --> SService: change
 

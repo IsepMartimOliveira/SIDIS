@@ -8,7 +8,6 @@ autonumber
 
 actor "Client" as Ac
 participant ":PlanQ" as Auth
-participant ":PlanDB" as DB
 Ac->Auth:GET /plans/
 Auth->Auth:findByNameDoesExists()
 Auth-->Ac:200

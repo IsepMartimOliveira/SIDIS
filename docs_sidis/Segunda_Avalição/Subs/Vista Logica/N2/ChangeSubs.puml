@@ -20,7 +20,7 @@ Plans-->Broker: publish(sendCheckPlanName,Boolean fact)
 
 Broker-->SubC: notify(sendCheckPlanName,Boolean fact)
 SubC->Broker: publish(subs_change,UpdateSubsRabbitRequest update)
-SubC-->Ac:201
+SubC-->Ac:200
 
 Broker->SubC:notify(subs_change,UpdateSubsRabbitRequest update)
 SubC-->SubC:changeSub(Subscriptions sub)

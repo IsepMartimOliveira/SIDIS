@@ -6,17 +6,24 @@ title  Create  a new User
 
 autonumber
 
+
+
+
 actor "Client" as Ac
-participant ":User" as Auth
-participant ":User1" as Serv
+participant ":UserC" as Auth
+
+participant ":Message Broker" as Broker
 
 
 Ac->Auth:POST /public/register
-Auth->Auth:checkLocal
-Auth->Serv: GET /user/external/{name}
-Serv-->Auth:404
-Auth->Auth:save
+Auth->Broker: publish(user_create,CreateUserRequest planRequest)
+
 Auth-->Ac:201
+Broker->Auth:notify(user_create,CreateUserRequest planRequest)
+Auth->Auth:storeUser(User user)
+
+
+
 
 
 
