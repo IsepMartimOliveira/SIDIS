@@ -28,13 +28,9 @@ import java.util.Optional;
 public interface PlansManager {
 
 	Optional<Plans> findByName(String name);
-
-
 	Iterable<Plans> findByActive_Active(boolean b);
-
 	Plans save(Plans obj);
-
     void findByNameDoesNotExists(String name);
+	Optional<Plans> findByNameDoesExistsSubs(String name);
 	Optional<Plans> findByNameDoesExists(String name);
-
 }

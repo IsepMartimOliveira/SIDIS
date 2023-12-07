@@ -1,12 +1,11 @@
-package com.example.psoft_22_23_project.subscriptionsmanagement.services;
+package com.example.psoft_22_23_project.subscriptionsmanagement.repositories;
 
-import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreateSubscriptionsRequest;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.PlansDetails;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptions;
 import com.example.psoft_22_23_project.subscriptionsmanagement.repositories.SubsRepoHttpCustom;
 import com.example.psoft_22_23_project.subscriptionsmanagement.repositories.SubscriptionsRepositoryDB;
+import com.example.psoft_22_23_project.subscriptionsmanagement.services.SubsManager;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -16,28 +15,30 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-class SubsManagerImpl implements SubsManager{
+class SubsManagerImlp implements SubsManager {
     private final SubscriptionsRepositoryDB dbRepository;
-    private final SubsRepoHttpCustom httpRepository;
 
     @Transactional
-    public Optional<Subscriptions> findSub( String auth,String name) {
-        // local db
-        Optional<Subscriptions> resultFromDB = dbRepository.findByActiveStatus_ActiveAndUser(true ,name);
+    public Optional<Subscriptions> findIfUserHavesSub( String auth,String newString){
+        Optional<Subscriptions> resultFromDB = dbRepository.findByActiveStatus_ActiveAndUser(true ,newString);
         if (resultFromDB.isPresent()) {
             return resultFromDB;
         }
-        throw new IllegalArgumentException("Sub of user with name " + name + " does not exist");
+        throw new IllegalArgumentException("Sub of user with name " + newString + " does not exist");
     }
+    @Transactional
+    public void findIfUserDoesNotHavesSub(String auth,String newString) {
+        Optional<Subscriptions> resultFromDB = dbRepository.findByActiveStatus_ActiveAndUser(true ,newString);
+        if (resultFromDB.isPresent()) {
+            throw new IllegalArgumentException("User already haves sub");
+        }
 
+    }
     public Optional<Subscriptions> findByActiveStatus_ActiveAndUser(boolean b, String user) {
         return dbRepository.findByActiveStatus_ActiveAndUser(b,user);
     }
     public Subscriptions save(Subscriptions obj) {
         return dbRepository.save(obj);
     }
-
-
-
 
 }

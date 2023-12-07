@@ -1,7 +1,8 @@
-package com.example.psoft_22_23_project.plansmanagement.services;
+package com.example.psoft_22_23_project.plansmanagement.repositories;
 
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 import com.example.psoft_22_23_project.plansmanagement.repositories.PlansRepositoryDB;
+import com.example.psoft_22_23_project.plansmanagement.services.PlansManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,18 +11,14 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-class PlansManagerImpl implements PlansManager{
+class PlansManagerImpl implements PlansManager {
     private final PlansRepositoryDB dbRepository;
 
     @Transactional
     public Optional<Plans> findByName(String name){
-
         Optional<Plans> resultFromDB = dbRepository.findByName_Name(name);
-
         return resultFromDB;
-
     }
-
 
     @Override
     public Iterable<Plans> findByActive_Active(boolean b) {
@@ -40,11 +37,10 @@ class PlansManagerImpl implements PlansManager{
         Optional<Plans> resultFromDB = dbRepository.findByName_Name(name);
         if (resultFromDB.isPresent()) {
             throw new IllegalArgumentException("Plan with name " + name + " already exists!");
-
         }
     }
     @Override
-    public Optional<Plans> findByNameDoesExists(String name) {
+    public Optional<Plans> findByNameDoesExistsSubs(String name) {
         Optional<Plans> resultFromDB = dbRepository.findByName_Name(name);
         if (resultFromDB.isPresent()) {
             return resultFromDB;
@@ -53,7 +49,7 @@ class PlansManagerImpl implements PlansManager{
     }
 
 
-    public Optional<Plans> findByNameDoesExistsUpdate(String name) {
+    public Optional<Plans> findByNameDoesExists(String name) {
         Optional<Plans> resultFromDB = dbRepository.findByName_Name(name);
         if (resultFromDB.isPresent()) {
             return resultFromDB;

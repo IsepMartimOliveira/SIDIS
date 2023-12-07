@@ -27,7 +27,8 @@ PService-> PManager: checkByName
 PManager-> PDB: checkDataBase
 PDB-->PManager:plan
 PManager-->PService:plan
-PService-->Broker: publish
+PService->Broker: publish
+deactivate PService
 Broker->SService:notify
 
 
@@ -35,7 +36,8 @@ SService->UManager:findSub
 UManager->SDB: checkDataBase
 SDB-->UManager:empty
 UManager --> SService:empty
-SService-->Broker: publish
+SService->Broker: publish
+deactivate SService
 SService -->Auth:sub
 Auth --> Ac : 201
 Broker-> SService: notify

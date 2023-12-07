@@ -24,7 +24,6 @@ import com.example.psoft_22_23_project.plansmanagement.api.*;
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 import com.example.psoft_22_23_project.rabbitMQ.PlansCOMSender;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -35,7 +34,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class PlansServiceImpl implements PlansService {
-	private final PlansManagerImpl plansManager;
+	private final PlansManager plansManager;
 	private final CreatePlansMapper  createPlansMapper;
 	private final PlansCOMSender plansCOMSender;
 	private final  EditPlansUpdate editPlansUpdate;

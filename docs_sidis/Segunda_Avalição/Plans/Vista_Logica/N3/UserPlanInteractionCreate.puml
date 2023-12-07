@@ -11,7 +11,6 @@ participant ":PlanController" as PlanController
 participant ":PlanService" as PService
 participant ":PlanManager" as PManager
 database ":PlanDB" as PDB
-participant ":CreatePlansMapper" as MP
 
 
 
@@ -27,13 +26,12 @@ PService->PManager:findByNameDoesNotExists()
 PManager->PDB:check if exist in DB
 PDB-->PManager:empty
 PManager-->PService:empty
-PService->MP:createPlansMapper.create(resource)
-MP-->PService:Plans obj
+
 PService->Broker:Publish resource
 note right
 Broker Notifies PlanQ and PlanC about the plan created
 end note
-PService<--Broker:Notify
+PService<-Broker:Notify
 PService->PService:save plan created
 PService-->PlanController:plans
 PlanController-->Ac:201

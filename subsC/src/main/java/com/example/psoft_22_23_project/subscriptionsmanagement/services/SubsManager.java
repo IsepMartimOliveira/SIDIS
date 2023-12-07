@@ -10,8 +10,8 @@ import java.util.Optional;
 
 public interface SubsManager {
 
-     Optional<Subscriptions> findIfUserHavesSub(String auth,String user) throws IOException, URISyntaxException, InterruptedException ;
-     void findIfUserDoesNotHavesSub(String auth, String user) throws IOException, URISyntaxException, InterruptedException ;
+     Optional<Subscriptions> findIfUserHavesSub(String auth,String user) ;
+     void findIfUserDoesNotHavesSub(String auth, String user);
      Subscriptions save(Subscriptions obj);
      Optional<Subscriptions> findByActiveStatus_ActiveAndUser(boolean b, String user);
 

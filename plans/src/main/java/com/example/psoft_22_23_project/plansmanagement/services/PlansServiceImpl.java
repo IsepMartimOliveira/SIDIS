@@ -33,7 +33,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class PlansServiceImpl implements PlansService {
-	private final PlansManagerImpl plansManager;
+	private final PlansManager plansManager;
 	private  final CreatePlansMapper createPlansMapper;
 	private final PlansQSender plansQSender;
 	private final PlansDetailsMapper plansDetailsMapper;
@@ -57,7 +57,7 @@ public class PlansServiceImpl implements PlansService {
 	}
 
 	public void storePlanUpdate(EditPlanRequestUpdate resource) {
-		final Optional<Plans> plansOptional = plansManager.findByNameDoesExistsUpdate(resource.getName());
+		final Optional<Plans> plansOptional = plansManager.findByNameDoesExists(resource.getName());
 
 		Plans plans=plansOptional.get();
 		plans.updateData(resource.getDesiredVersion(), resource.getEditPlansRequest().getDescription(),
@@ -71,7 +71,7 @@ public class PlansServiceImpl implements PlansService {
 		plansManager.save(plans);
 	}
 	public  void  storePlanDeactivates(DeactivatPlanRequest deactivatPlanRequest){
-		final Optional<Plans> plansOptional = plansManager.findByNameDoesExistsUpdate(deactivatPlanRequest.getName());
+		final Optional<Plans> plansOptional = plansManager.findByNameDoesExists(deactivatPlanRequest.getName());
 		Plans plans=plansOptional.get();
 		plans.deactivate(deactivatPlanRequest.getDesiredVersion());
 		plansManager.save(plans);
@@ -85,7 +85,7 @@ public class PlansServiceImpl implements PlansService {
 	}
 
 	public void checkPlan(String planName) {
-		Optional<Plans> resultFromDB = plansManager.findByNameDoesExists(planName);
+		Optional<Plans> resultFromDB = plansManager.findByNameDoesExistsSubs(planName);
 		if (resultFromDB.isPresent()){
 			//plano existe
 			Boolean b = true;

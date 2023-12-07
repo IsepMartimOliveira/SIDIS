@@ -1,8 +1,9 @@
-package com.example.psoft_22_23_project.plansmanagement.services;
+package com.example.psoft_22_23_project.plansmanagement.repositories;
 
 
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 import com.example.psoft_22_23_project.plansmanagement.repositories.PlansRepositoryDB;
+import com.example.psoft_22_23_project.plansmanagement.services.PlansManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +11,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-class PlansManagerImpl implements PlansManager{
+class PlansManagerImpl implements PlansManager {
     private final PlansRepositoryDB dbRepository;
 
     @Override

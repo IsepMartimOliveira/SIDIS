@@ -32,13 +32,8 @@ import java.util.Optional;
 
 public interface PlansManager {
 
-
-	void findByNameDoesNotExists(String name) throws IOException, URISyntaxException, InterruptedException;
-
+	void findByNameDoesNotExists(String name);
 	Optional<Plans>  findByNameDoesExists(String name);
-
-
-
 	Plans save(Plans obj);
 
 }

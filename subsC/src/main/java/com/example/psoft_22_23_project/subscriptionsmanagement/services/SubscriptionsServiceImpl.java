@@ -2,10 +2,8 @@ package com.example.psoft_22_23_project.subscriptionsmanagement.services;
 
 import com.example.psoft_22_23_project.rabbitMQ.SubsCOMSender;
 import com.example.psoft_22_23_project.subscriptionsmanagement.api.*;
-import com.example.psoft_22_23_project.subscriptionsmanagement.model.PlansDetails;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptions;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +17,7 @@ import java.util.concurrent.ExecutionException;
 @RequiredArgsConstructor
 public class SubscriptionsServiceImpl implements SubscriptionsService {
 
-    private final SubsManagerImlp subsManager;
+    private final SubsManager subsManager;
     private final CreateSubscriptionsMapper  createSubscriptionsMapper;
     private final SubsCOMSender subsCOMSender;
     private final SubsByRabbitMapper subsByRabbitMapper;

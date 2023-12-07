@@ -2,7 +2,7 @@
 'https://plantuml.com/sequence-diagram
 autoactivate on
 autonumber
-title  Create  a  Plan
+title  Get  all  Plans
 
 autonumber
 
