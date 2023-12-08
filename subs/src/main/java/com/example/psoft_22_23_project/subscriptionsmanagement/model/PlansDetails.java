@@ -2,6 +2,7 @@ package com.example.psoft_22_23_project.subscriptionsmanagement.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.StaleObjectStateException;
 
 import javax.persistence.*;
 
@@ -35,6 +36,53 @@ public class PlansDetails {
         this.monthlyFee = monthlyFee;
         this.active = active;
         this.promoted = promoted;
+    }
+    @Version
+    private long version;
+
+    public void updateData(long desiredVersion, String description,
+                           Integer maximumNumberOfUsers,
+                           String numberOfMinutes , Integer musicCollections,
+                           String musicSuggestions, Boolean active, Boolean promoted) {
+
+        if (this.version != desiredVersion) {
+            throw new StaleObjectStateException("Object was already modified by another user", this.id);
+        }
+        if(description != null){
+            this.description = (description);
+        }
+
+        if(maximumNumberOfUsers != null){
+            this.maximumNumberOfUsers = String.valueOf((maximumNumberOfUsers));
+        }
+
+        if(musicCollections != null){
+            this.musicCollection = String.valueOf((musicCollections));
+        }
+
+        if(numberOfMinutes != null){
+            this.numberOfMinutes = (numberOfMinutes);
+        }
+
+        if(musicSuggestions != null){
+            this.musicSuggestion = (musicSuggestions);
+        }
+        if(active != null){
+            this.active = String.valueOf((active));
+        }
+        if(promoted != null){
+            this.promoted = String.valueOf((promoted));
+        }
+
+
+    }
+    public void deactivate(final long desiredVersion) {
+        // check current version
+        if (this.version != desiredVersion) {
+            throw new StaleObjectStateException("Object was already modified by another user", this.id);
+        }
+
+        this.active = String.valueOf((false));
     }
 
 }

@@ -118,6 +118,14 @@ public class Plans {
 
 
     }
+    public void deactivate(final long desiredVersion) {
+        // check current version
+        if (this.version != desiredVersion) {
+            throw new StaleObjectStateException("Object was already modified by another user", this.id);
+        }
+
+        this.active.setActive(false);
+    }
     public void moneyData(long desiredVersion, Double annualFee, Double monthlyFee, String name) {
         if (this.version != desiredVersion) {
             throw new StaleObjectStateException("Object was already modified by another user", this.id);
@@ -139,14 +147,7 @@ public class Plans {
 
     }
 
-    public void deactivate(final long desiredVersion) {
-        // check current version
-        if (this.version != desiredVersion) {
-            throw new StaleObjectStateException("Object was already modified by another user", this.id);
-        }
 
-        this.active.setActive(false);
-    }
 
     public void promote(final long desiredVersion) {
         // check current version
