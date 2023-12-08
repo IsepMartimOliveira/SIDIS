@@ -73,27 +73,6 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         PlansDetails plansDetail = plansDetailsMapper.toPlansDetails(planRequest);
         subsManager.storePlan(plansDetail);
     }
-
-    public void storePlanEdit(EditPlanRequestUpdate resource) {
-        final Optional<PlansDetails> plansOptional = subsManager.findPlan(resource.getName());
-
-        PlansDetails plans=plansOptional.get();
-        plans.updateData(resource.getDesiredVersion(), resource.getEditPlansRequest().getDescription(),
-                resource.getEditPlansRequest().getMaximumNumberOfUsers(),
-                resource.getEditPlansRequest().getNumberOfMinutes(),
-                resource.getEditPlansRequest().getMusicCollection(),
-                resource.getEditPlansRequest().getMusicSuggestion(),
-                resource.getEditPlansRequest().getActive(),
-                resource.getEditPlansRequest().getPromoted());
-
-        subsManager.storePlan(plans);
-    }
-    public  void  storePlanDeactivates(DeactivatPlanRequest deactivatPlanRequest){
-        final Optional<PlansDetails> plansOptional = subsManager.findPlan(deactivatPlanRequest.getName());
-        PlansDetails plans=plansOptional.get();
-        plans.deactivate(deactivatPlanRequest.getDesiredVersion());
-        subsManager.storePlan(plans);
-    }
 }
 
 
