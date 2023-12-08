@@ -1,8 +1,5 @@
 package com.example.psoft_22_23_project.rabbitMQ;
-import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreatePlanRequest;
-import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreateSubsByRabbitRequest;
-import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreateSubscriptionsRequest;
-import com.example.psoft_22_23_project.subscriptionsmanagement.api.UpdateSubsRabbitRequest;
+import com.example.psoft_22_23_project.subscriptionsmanagement.api.*;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.PlansDetails;
 import com.example.psoft_22_23_project.subscriptionsmanagement.services.SubscriptionsServiceImpl;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -22,12 +19,16 @@ public class SubsQReceiver {
         System.out.println(" [x] Received '" + subsRequest + "' from subs_queue");
     }
 
+    @RabbitListener(queues = "#{plansQueryQueueUpdate.name}")
+    public void receivePlanUpdate(EditPlanRequestUpdate planRequest) {
+        subsService.updatePlan(planRequest);
+        System.out.println(" [x] Received '" + planRequest + "' from plans_queue");
+    }
     @RabbitListener(queues = "#{plansQueryQueue.name}")
     public void receivePlan(CreatePlanRequest planRequest) {
         subsService.storePlan(planRequest);
         System.out.println(" [x] Received '" + planRequest + "' from plans_queue");
     }
-
     @RabbitListener(queues = "#{updateQueue.name}")
     public void receiveUpdate(UpdateSubsRabbitRequest sub){
         subsService.storePlanUpdate(sub);

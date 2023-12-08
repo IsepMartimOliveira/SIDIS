@@ -36,5 +36,45 @@ public class PlansDetails {
         this.active = active;
         this.promoted = promoted;
     }
+    public void updateDetails(String description, String numberOfMinutes,
+                              String maximumNumberOfUsers, String musicCollection,
+                              String musicSuggestion, String annualFee, String monthlyFee,
+                              String active, String promoted) {
+        if (description != null) {
+            this.description = description;
+        }
+
+        if (numberOfMinutes != null) {
+            this.numberOfMinutes = numberOfMinutes;
+        }
+
+        if (maximumNumberOfUsers != null) {
+            this.maximumNumberOfUsers = maximumNumberOfUsers;
+        }
+
+        if (musicCollection != null) {
+            this.musicCollection = musicCollection;
+        }
+
+        if (musicSuggestion != null) {
+            this.musicSuggestion = musicSuggestion;
+        }
+
+        if (annualFee != null) {
+            this.annualFee = annualFee;
+        }
+
+        if (monthlyFee != null) {
+            this.monthlyFee = monthlyFee;
+        }
+
+        if (active != null) {
+            this.active = active;
+        }
+
+        if (promoted != null) {
+            this.promoted = promoted;
+        }
+    }
 
 }

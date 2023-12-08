@@ -28,41 +28,30 @@ public class Config {
     }
     @Bean
     public FanoutExchange fanoutPlan() {return new FanoutExchange("plans_create");}
-    @Bean
-    public FanoutExchange updateFanout() {
-        return new FanoutExchange("sub_to_update");
-    }
-    @Bean
-    public FanoutExchange cancelFanout() {
-        return new FanoutExchange("sub_to_cancel");
-    }
-    @Bean
-    public FanoutExchange renewFanout() {
-        return new FanoutExchange("sub_to_renew");
-    }
 
     @Bean
-    public Queue updateQueue() {
-        return new AnonymousQueue();
-    }
+    public FanoutExchange fanoutPlanUpdate() {return new FanoutExchange("plans_to_update");}
     @Bean
-    public Queue renewQueue() {
-        return new AnonymousQueue();
-    }
+    public FanoutExchange updateFanout() {return new FanoutExchange("sub_to_update");}
     @Bean
-    public Queue cancelQueue() {
-        return new AnonymousQueue();
-    }
+    public FanoutExchange cancelFanout() {return new FanoutExchange("sub_to_cancel");}
+    @Bean
+    public FanoutExchange renewFanout() {return new FanoutExchange("sub_to_renew");}
 
     @Bean
-    public Queue plansQueryQueue() {
-        return new AnonymousQueue();
-    }
+    public Queue updateQueue() {return new AnonymousQueue();}
+    @Bean
+    public Queue renewQueue() {return new AnonymousQueue();}
+    @Bean
+    public Queue cancelQueue() {return new AnonymousQueue();}
 
     @Bean
-    public Queue subsQueryQueue() {
-        return new AnonymousQueue();
-    }
+    public Queue plansQueryQueue() {return new AnonymousQueue();}
+    @Bean
+    public Queue plansQueryQueueUpdate() {return new AnonymousQueue();}
+
+    @Bean
+    public Queue subsQueryQueue() {return new AnonymousQueue();}
 
     @Bean
     public Binding bindingSubsQueryQueue(FanoutExchange fanout, Queue subsQueryQueue) {
@@ -84,6 +73,10 @@ public class Config {
     @Bean
     public Binding bindingPlansQueryQueue(FanoutExchange fanoutPlan, Queue plansQueryQueue) {
         return BindingBuilder.bind(plansQueryQueue).to(fanoutPlan);
+    }
+    @Bean
+    public Binding bindingPlansQueryQueueUpdate(FanoutExchange fanoutPlanUpdate, Queue plansQueryQueueUpdate) {
+        return BindingBuilder.bind(plansQueryQueueUpdate).to(fanoutPlanUpdate);
     }
 
     @Bean
