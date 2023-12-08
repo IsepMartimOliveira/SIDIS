@@ -76,5 +76,8 @@ public class PlansDetails {
             this.promoted = promoted;
         }
     }
+    public void deactivate(final long desiredVersion) {
+        this.active = "false";
+    }
 
 }

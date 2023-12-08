@@ -93,6 +93,13 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         subsManager.storePlan(existingPlanDetails);
 
     }
+
+    public void storePlanDeactivates(DeactivatPlanRequest plans) {
+        PlansDetails existingPlanDetails = subsManager.findPlan(plans.getName())
+                .orElseThrow(() -> new NotFoundException("PlanDetails with name " + plans.getName() + " not found"));
+            existingPlanDetails.deactivate(plans.getDesiredVersion());
+            subsManager.storePlan(existingPlanDetails);
+    }
 }
 
 

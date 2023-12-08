@@ -24,6 +24,11 @@ public class SubsQReceiver {
         subsService.updatePlan(planRequest);
         System.out.println(" [x] Received '" + planRequest + "' from plans_queue");
     }
+    @RabbitListener(queues = "#{plansQueryQueueDeactivate.name}")
+    public void receiveDeactivate(DeactivatPlanRequest plans) {
+        subsService.storePlanDeactivates(plans);
+        System.out.println(" [x] Received deactivate message '" + plans + "' from deactivateQueue");
+    }
     @RabbitListener(queues = "#{plansQueryQueue.name}")
     public void receivePlan(CreatePlanRequest planRequest) {
         subsService.storePlan(planRequest);
