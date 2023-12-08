@@ -21,7 +21,7 @@ UManager --> SService:sub
 SService->Broker: publish
 SService -->Auth:sub
 Auth --> Ac : 200
-Broker-> SService: notify
+Broker-> SService: consumes
 SService --> SService: renew
 
 @enduml

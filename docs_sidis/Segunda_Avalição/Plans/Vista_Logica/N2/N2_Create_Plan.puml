@@ -17,10 +17,10 @@ Ac->Auth:POST /plans
 Auth->Broker: publish(plans_create,CreatePlanRequest planRequest)
 
 Auth-->Ac:201
-Broker->Auth:notify(plans_create,CreatePlanRequest planRequest)
+Broker->Auth:consumes(plans_create,CreatePlanRequest planRequest)
 Auth->Auth:storePlan(Plan plan)
 
-Broker->Serv:notify(plans_create,PlanDetails plandetails)
+Broker->Serv:consumes(plans_create,PlanDetails plandetails)
 
 
 Serv->Serv:storePlan(Plan plan)

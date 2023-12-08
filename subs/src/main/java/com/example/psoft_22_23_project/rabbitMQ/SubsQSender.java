@@ -10,10 +10,6 @@ public class SubsQSender {
 
     @Autowired
     private AmqpTemplate template;
-    private String fanout = "get_plan";
-    public void send(String name) {
-        template.convertAndSend(fanout, "", name);
-        System.out.println(" [x] Get '" + name + "' plan details from subsQ (Sender)");
-    }
+
 
 }

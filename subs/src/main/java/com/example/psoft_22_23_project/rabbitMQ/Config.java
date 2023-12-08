@@ -26,17 +26,8 @@ public class Config {
     public FanoutExchange fanout() {
         return new FanoutExchange("sub_to_create");
     }
-
     @Bean
-    public FanoutExchange getPlanNameFanout() {
-        return new FanoutExchange("get_plan");
-    }
-    @Bean
-    public FanoutExchange sendPlanDetailsFanout() {
-        return new FanoutExchange("send_plan_detail");
-    }
-
-
+    public FanoutExchange fanoutPlan() {return new FanoutExchange("plans_create");}
     @Bean
     public FanoutExchange updateFanout() {
         return new FanoutExchange("sub_to_update");
@@ -63,7 +54,20 @@ public class Config {
         return new AnonymousQueue();
     }
 
+    @Bean
+    public Queue plansQueryQueue() {
+        return new AnonymousQueue();
+    }
 
+    @Bean
+    public Queue subsQueryQueue() {
+        return new AnonymousQueue();
+    }
+
+    @Bean
+    public Binding bindingSubsQueryQueue(FanoutExchange fanout, Queue subsQueryQueue) {
+        return BindingBuilder.bind(subsQueryQueue).to(fanout);
+    }
     @Bean
     public Binding bindingUpdateQueue(FanoutExchange updateFanout, Queue updateQueue) {
         return BindingBuilder.bind(updateQueue).to(updateFanout);
@@ -76,38 +80,12 @@ public class Config {
     public Binding bindingRenewQueue(FanoutExchange renewFanout, Queue renewQueue) {
         return BindingBuilder.bind(renewQueue).to(renewFanout);
     }
-    @Bean
-    public Queue sendPlanDetailsQueue() {
-        return new AnonymousQueue();
-    }
-    @Bean
-    public Queue getPlanNameQueue() {
-        return new AnonymousQueue();
-    }
 
     @Bean
-    public Queue subsQueryQueue() {
-        return new AnonymousQueue();
+    public Binding bindingPlansQueryQueue(FanoutExchange fanoutPlan, Queue plansQueryQueue) {
+        return BindingBuilder.bind(plansQueryQueue).to(fanoutPlan);
     }
 
-
-
-
-
-
-    @Bean
-    public Binding bindingGetPlanNameQueue(FanoutExchange getPlanNameFanout, Queue getPlanNameQueue) {
-        return BindingBuilder.bind(getPlanNameQueue).to(getPlanNameFanout);
-    }
-    @Bean
-    public Binding bindingSendPlanDetailsQueue(FanoutExchange sendPlanDetailsFanout, Queue sendPlanDetailsQueue) {
-        return BindingBuilder.bind(sendPlanDetailsQueue).to(sendPlanDetailsFanout);
-    }
-
-    @Bean
-    public Binding bindingPlansQueryQueue(FanoutExchange fanout, Queue subsQueryQueue) {
-        return BindingBuilder.bind(subsQueryQueue).to(fanout);
-    }
     @Bean
     public SubsQSender sender() {
         return new SubsQSender();

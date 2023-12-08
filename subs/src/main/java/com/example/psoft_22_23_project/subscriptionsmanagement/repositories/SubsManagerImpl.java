@@ -1,25 +1,22 @@
 package com.example.psoft_22_23_project.subscriptionsmanagement.repositories;
 
-import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreateSubscriptionsRequest;
+import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreatePlanRequest;
+import com.example.psoft_22_23_project.subscriptionsmanagement.api.PlansDetailsMapper;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.PlansDetails;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptions;
-import com.example.psoft_22_23_project.subscriptionsmanagement.repositories.SubsRepoHttpCustom;
-import com.example.psoft_22_23_project.subscriptionsmanagement.repositories.SubscriptionsRepositoryDB;
 import com.example.psoft_22_23_project.subscriptionsmanagement.services.SubsManager;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.io.IOException;
-import java.net.URISyntaxException;
+
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 class SubsManagerImpl implements SubsManager {
     private final SubscriptionsRepositoryDB dbRepository;
-
+    private final PlansRepositoryDB plansRepositoryDB;
     @Transactional
     public Optional<Subscriptions> findSub( String auth,String name) {
         // local db
@@ -37,7 +34,15 @@ class SubsManagerImpl implements SubsManager {
         return dbRepository.save(obj);
     }
 
+    public void storePlan(PlansDetails planRequest) {
+        plansRepositoryDB.save(planRequest);
+    }
 
+    @Override
+    public Optional<PlansDetails> findPlan(String plan) {
+        Optional<PlansDetails> plansDetails = plansRepositoryDB.findByName(plan);
+        return plansDetails;
+    }
 
 
 }

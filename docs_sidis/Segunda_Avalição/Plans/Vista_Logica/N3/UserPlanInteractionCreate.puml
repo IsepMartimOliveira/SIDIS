@@ -31,7 +31,7 @@ PService->Broker:Publish resource
 note right
 Broker Notifies PlanQ and PlanC about the plan created
 end note
-PService<-Broker:Notify
+PService<-Broker:consumes
 PService->PService:save plan created
 PService-->PlanController:plans
 PlanController-->Ac:201

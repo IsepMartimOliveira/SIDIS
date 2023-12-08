@@ -18,9 +18,9 @@ Auth->Broker: publish(plans_to_update,EditPlanRequestUpdate planRequest)
 Auth-->Ac:200
 
 
-Broker->Auth:notify(plans_to_update,EditPlanRequestUpdate planRequest)
+Broker->Auth:consumes(plans_to_update,EditPlanRequestUpdate planRequest)
 Auth->Auth:storePlanUpdate(Plan plan)
 
-Broker->Serv:notify(plans_to_update,EditPlanRequestUpdate plandetails)
+Broker->Serv:consumes(plans_to_update,EditPlanRequestUpdate plandetails)
 Serv->Serv:storePlanUpdate(Plan plan)
 @enduml

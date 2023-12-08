@@ -17,9 +17,9 @@ Ac->SubC:PATCH subscriptions/renew
 SubC->Broker: publish(subs_renew,UpdateSubsRabbitRequest update)
 SubC-->Ac:201
 
-Broker->SubC:notify(subs_renew,UpdateSubsRabbitRequest update)
+Broker->SubC:consumes(subs_renew,UpdateSubsRabbitRequest update)
 SubC-->SubC:renewSub(Subscriptions sub)
-Broker->SubQ:notify(subs_renew,UpdateSubsRabbitRequest update)
+Broker->SubQ:consumes(subs_renew,UpdateSubsRabbitRequest update)
 deactivate Broker
 
 SubQ-->SubQ:renewSub(Subscriptions sub)

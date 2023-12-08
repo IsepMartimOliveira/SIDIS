@@ -11,23 +11,16 @@ participant ":SubscriptionController" as Auth
 participant ":SubscriptionService" as SService
 participant ":SubscriptionManager" as UManager
 database ":SubsDB" as SDB
-participant ":PlanController" as Plan
-participant ":PlanService" as PService
-participant ":PlanManager" as PManager
-database ":PlanDB" as PDB
+participant ":PlanQ" as Plan
 participant ":MS Broker" as Broker
 
 Ac->Auth: PATCH /subscriptions/change/{planName}
 Auth->SService: change
 SService->Broker: publish
-Broker->PService: notify
-PService-> PManager: checkByName
-PManager-> PDB: checkDataBase
-PDB-->PManager:plan
-PManager-->PService:plan
-PService->Broker: publish
-deactivate PService
-Broker->SService:notify
+Broker->Plan: notify
+
+Plan->Broker: publish
+Broker->SService:consumes
 SService->UManager: findSub
 UManager->SDB: checkDataBase
 SDB-->UManager:sub
@@ -36,7 +29,7 @@ SService->Broker: publish
 deactivate SService
 SService -->Auth:sub
 Auth --> Ac : 200
-Broker-> SService: notify
+Broker-> SService: consumes
 SService --> SService: change
 
 

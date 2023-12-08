@@ -15,16 +15,16 @@ participant ":Message Broker" as Broker
 
 Ac->SubC:POST subscriptions/create
 SubC->Broker: publish(checkPlanName,String planName)
-Broker->Plans:notify(checkPlanName,String planName)
+Broker->Plans:consumes(checkPlanName,String planName)
 Plans-->Broker: publish(sendCheckPlanName,Boolean fact)
 
-Broker-->SubC: notify(sendCheckPlanName,Boolean fact)
+Broker-->SubC: consumes(sendCheckPlanName,Boolean fact)
 SubC->Broker:publish(subs_create,CreateSubByRabbit sub)
 SubC-->Ac:201
 
-Broker->SubC:notify(subs_create,CreateSubByRabbit sub)
+Broker->SubC:consumes(subs_create,CreateSubByRabbit sub)
 SubC-->SubC:storeSub(Subscriptions sub)
-Broker->SubQ:notify(subs_create,CreateSubByRabbit sub)
+Broker->SubQ:consumes(subs_create,CreateSubByRabbit sub)
 deactivate Broker
 
 SubQ-->SubQ:storeSub(Subscriptions sub)

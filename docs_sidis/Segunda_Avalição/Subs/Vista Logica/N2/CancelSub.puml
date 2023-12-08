@@ -17,9 +17,9 @@ Ac->SubC:PATCH subscriptions/
 SubC->Broker: publish(subs_cancel,UpdateSubsRabbitRequest update)
 SubC-->Ac:201
 
-Broker->SubC:notify(subs_cancel,UpdateSubsRabbitRequest update)
+Broker->SubC:consumes(subs_cancel,UpdateSubsRabbitRequest update)
 SubC-->SubC:cancelSub(Subscriptions sub)
-Broker->SubQ:notify(subs_cancel,UpdateSubsRabbitRequest update)
+Broker->SubQ:consumes(subs_cancel,UpdateSubsRabbitRequest update)
 deactivate Broker
 
 SubQ-->SubQ:cancelSub(Subscriptions sub)

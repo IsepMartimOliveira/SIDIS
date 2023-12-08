@@ -15,16 +15,16 @@ participant ":Message Broker" as Broker
 
 Ac->SubC:PATCH subscriptions/change/{planName}
 SubC->Broker: publish(checkPlanName,String planName)
-Broker->Plans:notify(checkPlanName,String planName)
+Broker->Plans:consumes(checkPlanName,String planName)
 Plans-->Broker: publish(sendCheckPlanName,Boolean fact)
 
-Broker-->SubC: notify(sendCheckPlanName,Boolean fact)
+Broker-->SubC: consumes(sendCheckPlanName,Boolean fact)
 SubC->Broker: publish(subs_change,UpdateSubsRabbitRequest update)
 SubC-->Ac:200
 
-Broker->SubC:notify(subs_change,UpdateSubsRabbitRequest update)
+Broker->SubC:consumes(subs_change,UpdateSubsRabbitRequest update)
 SubC-->SubC:changeSub(Subscriptions sub)
-Broker->SubQ:notify(subs_change,UpdateSubsRabbitRequest update)
+Broker->SubQ:consumes(subs_change,UpdateSubsRabbitRequest update)
 deactivate Broker
 
 SubQ-->SubQ:changeSub(Subscriptions sub)

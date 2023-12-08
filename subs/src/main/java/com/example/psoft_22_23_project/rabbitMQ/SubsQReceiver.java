@@ -1,4 +1,5 @@
 package com.example.psoft_22_23_project.rabbitMQ;
+import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreatePlanRequest;
 import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreateSubsByRabbitRequest;
 import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreateSubscriptionsRequest;
 import com.example.psoft_22_23_project.subscriptionsmanagement.api.UpdateSubsRabbitRequest;
@@ -21,10 +22,10 @@ public class SubsQReceiver {
         System.out.println(" [x] Received '" + subsRequest + "' from subs_queue");
     }
 
-    @RabbitListener(queues = "#{sendPlanDetailsQueue.name}")
-    public void receivePlanDetails(PlansDetails plansDetails) {
-        subsService.notifyAboutReceivedPlanDetails(plansDetails);
-        System.out.println(" [x] Received "+plansDetails+" from subs_queue");
+    @RabbitListener(queues = "#{plansQueryQueue.name}")
+    public void receivePlan(CreatePlanRequest planRequest) {
+        subsService.storePlan(planRequest);
+        System.out.println(" [x] Received '" + planRequest + "' from plans_queue");
     }
 
     @RabbitListener(queues = "#{updateQueue.name}")

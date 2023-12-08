@@ -2,10 +2,7 @@ package com.example.psoft_22_23_project.subscriptionsmanagement.services;
 
 import com.example.psoft_22_23_project.Subs;
 import com.example.psoft_22_23_project.rabbitMQ.SubsQSender;
-import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreateSubsByRabbitRequest;
-import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreateSubscriptionsRequest;
-import com.example.psoft_22_23_project.subscriptionsmanagement.api.SubsByRabbitMapper;
-import com.example.psoft_22_23_project.subscriptionsmanagement.api.UpdateSubsRabbitRequest;
+import com.example.psoft_22_23_project.subscriptionsmanagement.api.*;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.PlansDetails;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptions;
 import lombok.RequiredArgsConstructor;
@@ -22,20 +19,15 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
 
     private final SubsManager subsManager;
     private final CreateSubscriptionsMapper createSubscriptionsMapper;
-    private final SubsQSender sender;
-    private CompletableFuture<PlansDetails> plansDetailsFuture = new CompletableFuture<>();
-
+    private final PlansDetailsMapper plansDetailsMapper;
 
     @SneakyThrows
     @Override
     public Optional<PlansDetails> planDetails(String auth) {
         String name = getUsername();
         Optional<Subscriptions> subscription = subsManager.findSub(auth,name);
-        plansDetailsFuture = new CompletableFuture<>();
-        sender.send(subscription.get().getPlan());
-        PlansDetails receivedPlansDetails = plansDetailsFuture.get();
-        return Optional.of(receivedPlansDetails);
-
+        Optional<PlansDetails> plansDetails = subsManager.findPlan(subscription.get().getPlan());
+        return plansDetails;
     }
     private String getUsername() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -77,9 +69,9 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         subsManager.save(subscriptions1);
     }
 
-
-    public void notifyAboutReceivedPlanDetails(PlansDetails plansDetails) {
-        plansDetailsFuture.complete(plansDetails);
+    public void storePlan(CreatePlanRequest planRequest) {
+        PlansDetails plansDetail = plansDetailsMapper.toPlansDetails(planRequest);
+        subsManager.storePlan(plansDetail);
     }
 }
 

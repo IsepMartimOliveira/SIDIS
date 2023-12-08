@@ -11,27 +11,20 @@ participant ":SubscriptionController" as Auth
 participant ":SubscriptionService" as SService
 participant ":SubscriptionManager" as UManager
 database ":SubsDB" as SDB
-participant ":PlanController" as Plan
-participant ":PlanService" as PService
-participant ":PlanManager" as PManager
-database ":PlanDB" as PDB
+participant ":PlanQ" as Plan
+
 
 
 participant ":MS Broker" as Broker
 
 Ac->Auth: POST /subscriptions/create
 Auth->SService: create
-SService->Broker: publish
-Broker->PService: notify
-PService-> PManager: checkByName
-PManager-> PDB: checkDataBase
-PDB-->PManager:plan
-PManager-->PService:plan
-PService->Broker: publish
-deactivate PService
-Broker->SService:notify
 
+SService-> Broker: publish
+Broker->Plan:consumes
+Plan->Broker:publish
 
+Broker->SService:consumes
 SService->UManager:findSub
 UManager->SDB: checkDataBase
 SDB-->UManager:empty
@@ -40,7 +33,7 @@ SService->Broker: publish
 deactivate SService
 SService -->Auth:sub
 Auth --> Ac : 201
-Broker-> SService: notify
+Broker-> SService: consumes
 SService --> SService: create
 
 
