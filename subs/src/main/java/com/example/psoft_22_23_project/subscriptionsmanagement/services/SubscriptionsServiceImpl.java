@@ -6,6 +6,8 @@ import com.example.psoft_22_23_project.rabbitMQ.SubsQSender;
 import com.example.psoft_22_23_project.subscriptionsmanagement.api.*;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.PlansDetails;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptions;
+import com.example.psoft_22_23_project.subscriptionsmanagement.repositories.PlansManagerImpl;
+import com.example.psoft_22_23_project.subscriptionsmanagement.repositories.SubsManagerImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,7 +20,8 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class SubscriptionsServiceImpl implements SubscriptionsService {
 
-    private final SubsManager subsManager;
+    private final SubsManagerImpl subsManager;
+    private final PlansManagerImpl plansManager;
     private final CreateSubscriptionsMapper createSubscriptionsMapper;
     private final PlansDetailsMapper plansDetailsMapper;
 
@@ -27,7 +30,7 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
     public Optional<PlansDetails> planDetails(String auth) {
         String name = getUsername();
         Optional<Subscriptions> subscription = subsManager.findSub(auth,name);
-        Optional<PlansDetails> plansDetails = subsManager.findPlan(subscription.get().getPlan());
+        Optional<PlansDetails> plansDetails = plansManager.findPlan(subscription.get().getPlan());
         return plansDetails;
     }
     private String getUsername() {
@@ -72,10 +75,10 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
 
     public void storePlan(CreatePlanRequest planRequest) {
         PlansDetails plansDetail = plansDetailsMapper.toPlansDetails(planRequest);
-        subsManager.storePlan(plansDetail);
+        plansManager.storePlan(plansDetail);
     }
     public void updatePlan(EditPlanRequestUpdate planRequestUpdate){
-        PlansDetails existingPlanDetails = subsManager.findPlan(planRequestUpdate.getName())
+        PlansDetails existingPlanDetails = plansManager.findPlan(planRequestUpdate.getName())
                 .orElseThrow(() -> new NotFoundException("PlanDetails with name " + planRequestUpdate.getName() + " not found"));
 
         EditPlansRequest editPlansRequest = planRequestUpdate.getEditPlansRequest();
@@ -90,15 +93,15 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         existingPlanDetails.updateDetails(description, numberOfMinutes, maximumNumberOfUsers,
                 musicCollection, musicSuggestion, null, null, active.toString(), promoted.toString());
 
-        subsManager.storePlan(existingPlanDetails);
+        plansManager.storePlan(existingPlanDetails);
 
     }
 
     public void storePlanDeactivates(DeactivatPlanRequest plans) {
-        PlansDetails existingPlanDetails = subsManager.findPlan(plans.getName())
+        PlansDetails existingPlanDetails = plansManager.findPlan(plans.getName())
                 .orElseThrow(() -> new NotFoundException("PlanDetails with name " + plans.getName() + " not found"));
             existingPlanDetails.deactivate(plans.getDesiredVersion());
-            subsManager.storePlan(existingPlanDetails);
+        plansManager.storePlan(existingPlanDetails);
     }
 }
 

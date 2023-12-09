@@ -13,6 +13,4 @@ public interface SubsManager {
      Optional<Subscriptions> findSub(String auth,String name);
      Optional<Subscriptions> findByActiveStatus_ActiveAndUser(boolean b, String user);
     Subscriptions save(Subscriptions obj);
-    void storePlan(PlansDetails planRequest);
-    Optional<PlansDetails> findPlan(String plan);
 }

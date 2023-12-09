@@ -21,6 +21,7 @@
 package com.example.psoft_22_23_project.bootstrapping;
 
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.PlansDetails;
+import com.example.psoft_22_23_project.subscriptionsmanagement.services.PlansManager;
 import com.example.psoft_22_23_project.subscriptionsmanagement.services.SubsManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,7 +35,7 @@ import org.springframework.stereotype.Component;
 @Profile("bootstrap")
 public class PlansBootstrapper implements CommandLineRunner {
 
-	private final SubsManager plansRepo;
+	private final PlansManager plansRepo;
 	@Value("${server.port}")
 	private int currentPort;
 

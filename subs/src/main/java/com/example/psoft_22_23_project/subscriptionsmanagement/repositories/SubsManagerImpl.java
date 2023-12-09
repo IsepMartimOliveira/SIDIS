@@ -14,7 +14,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-class SubsManagerImpl implements SubsManager {
+public class SubsManagerImpl implements SubsManager {
     private final SubscriptionsRepositoryDB dbRepository;
     private final PlansRepositoryDB plansRepositoryDB;
     @Transactional
@@ -33,17 +33,5 @@ class SubsManagerImpl implements SubsManager {
     public Subscriptions save(Subscriptions obj) {
         return dbRepository.save(obj);
     }
-
-    public void storePlan(PlansDetails planRequest) {
-        plansRepositoryDB.save(planRequest);
-    }
-
-    @Override
-    public Optional<PlansDetails> findPlan(String plan) {
-        Optional<PlansDetails> plansDetails = plansRepositoryDB.findByName(plan);
-        return plansDetails;
-    }
-
-
 
 }
