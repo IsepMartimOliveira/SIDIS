@@ -10,9 +10,8 @@ actor "Client" as Ac
    participant ":SubscriptionController" as Auth
     participant ":SubscriptionService" as SService
     participant ":SubscriptionManager" as UManager
-    participant ":PlanManager" as PManager
     database ":SubsDB" as SDB
-    database ":PlanDB" as PDB
+    database ":SubsHTTP" as SDBHTTP
 
 Ac->Auth: GET /subscriptions/
 Auth->SService: planDetails
@@ -21,12 +20,15 @@ UManager->SDB: checkDataBase
 SDB-->UManager:sub
 UManager --> SService:sub
 
-SService->PManager: findPlan
-PManager-> PDB:checkDataBase
-PDB-->PManager: planDetails
-PManager-->SService:planDetails
-SService --> SService: planDetails
+SService-> UManager: findPlanHttp
+UManager->SDBHTTP:findPlanHttp
+SDBHTTP-->UManager: planDetails
+UManager-->SService: planDetails
+
 SService -->Auth:planDetails
+
+
 Auth --> Ac : 200
+
 
 @enduml

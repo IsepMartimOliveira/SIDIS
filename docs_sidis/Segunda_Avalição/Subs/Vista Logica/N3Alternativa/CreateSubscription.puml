@@ -2,7 +2,7 @@
 'https://plantuml.com/sequence-diagram
 autoactivate on
 autonumber
-title  Change Subscription
+title  Create  a new Subscription
 
 autonumber
 
@@ -10,27 +10,31 @@ actor "Client" as Ac
 participant ":SubscriptionController" as Auth
 participant ":SubscriptionService" as SService
 participant ":SubscriptionManager" as UManager
-participant ":PlansManager" as PManager
 database ":SubsDB" as SDB
-database ":PlanDB" as Plan
+database ":SubsHTTP" as SDBHTTP
+
+
+
 participant ":MS Broker" as Broker
 
-Ac->Auth: PATCH /subscriptions/change/{planName}
-Auth->SService: change
-SService->PManager: findPlan
-PManager->Plan: checkDataBase
-Plan-->PManager: plan
-PManager-->SService: plan
-SService->UManager: findSub
+Ac->Auth: POST /subscriptions/create
+Auth->SService: create
+
+SService-> UManager: findPlanHttp
+UManager->SDBHTTP:findPlanHttp
+SDBHTTP-->UManager: plan
+UManager-->SService: plan
+
+SService->UManager:findSub
 UManager->SDB: checkDataBase
-SDB-->UManager:sub
-UManager --> SService:sub
+SDB-->UManager:empty
+UManager --> SService:empty
 SService->Broker: publish
 deactivate SService
 SService -->Auth:sub
-Auth --> Ac : 200
+Auth --> Ac : 201
 Broker-> SService: consumes
-SService --> SService: change
+SService --> SService: create
 
 
 @enduml
