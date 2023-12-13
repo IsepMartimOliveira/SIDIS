@@ -10,8 +10,10 @@ actor "Client" as Ac
 participant ":SubscriptionController" as Auth
 participant ":SubscriptionService" as SService
 participant ":SubscriptionManager" as UManager
+participant ":PlansManager" as PManager
+
 database ":SubsDB" as SDB
-database ":SubsHTTP" as SDBHTTP
+database ":PlansHTTP" as SDBHTTP
 
 
 
@@ -20,10 +22,10 @@ participant ":MS Broker" as Broker
 Ac->Auth: POST /subscriptions/create
 Auth->SService: create
 
-SService-> UManager: findPlanHttp
-UManager->SDBHTTP:findPlanHttp
-SDBHTTP-->UManager: plan
-UManager-->SService: plan
+SService-> PManager: findPlanHttp
+PManager->SDBHTTP:findPlanHttp
+SDBHTTP-->PManager: plan
+PManager-->SService: plan
 
 SService->UManager:findSub
 UManager->SDB: checkDataBase

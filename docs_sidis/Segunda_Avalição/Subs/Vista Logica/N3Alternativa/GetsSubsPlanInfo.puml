@@ -10,8 +10,10 @@ actor "Client" as Ac
    participant ":SubscriptionController" as Auth
     participant ":SubscriptionService" as SService
     participant ":SubscriptionManager" as UManager
+  participant ":PlansManager" as PManager
+
     database ":SubsDB" as SDB
-    database ":SubsHTTP" as SDBHTTP
+    database ":PlansHTTP" as SDBHTTP
 
 Ac->Auth: GET /subscriptions/
 Auth->SService: planDetails
@@ -20,10 +22,10 @@ UManager->SDB: checkDataBase
 SDB-->UManager:sub
 UManager --> SService:sub
 
-SService-> UManager: findPlanHttp
-UManager->SDBHTTP:findPlanHttp
-SDBHTTP-->UManager: planDetails
-UManager-->SService: planDetails
+SService-> PManager: findPlanHttp
+PManager->SDBHTTP:findPlanHttp
+SDBHTTP-->PManager: planDetails
+PManager-->SService: planDetails
 
 SService -->Auth:planDetails
 
