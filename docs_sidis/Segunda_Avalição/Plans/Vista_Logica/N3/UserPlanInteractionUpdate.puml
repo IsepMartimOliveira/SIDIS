@@ -30,7 +30,7 @@ PService->Plan:Update plan
 Plan-->PService:Plan is updated
 PService->PService: Create a EditPlanRequestUpdate editPlanRequest
 PService->Broker:Publish editPlanRequest
-Broker->PService:Notify
+Broker->PService:consumes
 deactivate Broker
 note right
 Broker Notifies PlanQ and PlanC about the plan update

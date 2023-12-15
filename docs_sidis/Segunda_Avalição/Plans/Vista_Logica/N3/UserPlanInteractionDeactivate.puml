@@ -31,7 +31,7 @@ PService->Plan:Deactivate plan
 Plan-->PService:Plan is deactivated
 PService->PService:DeactivateRequest deactivateRequest
 PService->Broker:Publish request to deactivate(deactivateRequest)
-Broker->PService:Notify
+Broker->PService:consumes
 note right
 Broker Notifies PlanQ and PlanC about the plan deactivate
 end note
