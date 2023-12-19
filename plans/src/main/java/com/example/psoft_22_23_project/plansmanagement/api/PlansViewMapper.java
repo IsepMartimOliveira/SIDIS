@@ -37,6 +37,8 @@ public abstract class PlansViewMapper {
 	@Mapping(source = "plans.monthlyFee.monthlyFee", target = "monthlyFee")
 	@Mapping(source = "plans.active.active", target = "active")
 	@Mapping(source = "plans.promoted.promoted", target = "promoted")
+	@Mapping(source = "plans.bonus.bonus", target = "bonus")
+
 	public abstract PlansView toPlansView(Plans plans);
 
 	public abstract Iterable<PlansView> toPlansView(Iterable<Plans> plans);

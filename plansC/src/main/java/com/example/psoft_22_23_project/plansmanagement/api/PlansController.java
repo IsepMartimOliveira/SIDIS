@@ -62,15 +62,16 @@ public class PlansController {
 
 	@Operation(summary = "Creates a new Plan")
 	@PostMapping
-	@ResponseStatus(HttpStatus.CREATED) public ResponseEntity<PlansView>
+	@ResponseStatus(HttpStatus.ACCEPTED) public ResponseEntity<PlansView>
 	create(@Valid @RequestBody final CreatePlanRequest resource,@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken) throws URISyntaxException, IOException, InterruptedException {
 
 		final Plans plan = service.create(resource);
 		final var newPlanUri =
 				ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(plan.getName().getName()).build() .toUri();
-		return
-				ResponseEntity.created(newPlanUri).eTag(Long.toString(plan.getVersion()))
-						.body(plansViewMapper.toPlansView(plan));
+		return ResponseEntity.accepted()
+				.eTag(Long.toString(plan.getVersion()))
+				.location(newPlanUri)
+				.body(plansViewMapper.toPlansView(plan));
 	}
 
 	@Operation(summary = "Partially updates an existing plan")

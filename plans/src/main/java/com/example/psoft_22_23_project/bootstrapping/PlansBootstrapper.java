@@ -73,7 +73,10 @@ public class PlansBootstrapper implements CommandLineRunner {
 				final Promoted promoted = new Promoted();
 				promoted.setPromoted(false);
 
-				final Plans plans = new Plans(name , description,numberOfMinutes, maximumNumberOfUsers,musicCollection,musicSuggestion,annualFee,monthlyFee,active,promoted);
+				final Bonus bonus=new Bonus();
+				bonus.setBonus(false);
+
+				final Plans plans = new Plans(name , description,numberOfMinutes, maximumNumberOfUsers,musicCollection,musicSuggestion,annualFee,monthlyFee,active,promoted,bonus);
 
 				plansRepo.save(plans);
 			}
@@ -108,7 +111,10 @@ public class PlansBootstrapper implements CommandLineRunner {
 				final Promoted promoted = new Promoted();
 				promoted.setPromoted(false);
 
-				final Plans plans = new Plans(name , description,numberOfMinutes, maximumNumberOfUsers,musicCollection,musicSuggestion,annualFee,monthlyFee,active,promoted);
+				final Bonus bonus=new Bonus();
+				bonus.setBonus(false);
+
+				final Plans plans = new Plans(name , description,numberOfMinutes, maximumNumberOfUsers,musicCollection,musicSuggestion,annualFee,monthlyFee,active,promoted,bonus);
 				plansRepo.save(plans);
 			}
 			if (plansRepo.findByName_Name("Gold").isEmpty()) {
@@ -142,7 +148,10 @@ public class PlansBootstrapper implements CommandLineRunner {
 				final Promoted promoted = new Promoted();
 				promoted.setPromoted(true);
 
-				final Plans plans = new Plans(name , description,numberOfMinutes, maximumNumberOfUsers,musicCollection,musicSuggestion,annualFee,monthlyFee,active,promoted);
+				final Bonus bonus=new Bonus();
+				bonus.setBonus(false);
+
+				final Plans plans = new Plans(name , description,numberOfMinutes, maximumNumberOfUsers,musicCollection,musicSuggestion,annualFee,monthlyFee,active,promoted,bonus);
 				plansRepo.save(plans);
 			}
 		}

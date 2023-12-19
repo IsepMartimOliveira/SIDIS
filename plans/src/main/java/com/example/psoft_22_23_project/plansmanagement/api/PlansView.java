@@ -54,6 +54,8 @@ public class PlansView {
 	private String active;
 	@Schema(description = "If Plan is promoted or not")
 	private String promoted;
+	@Schema(description = "If Plan is bonus or not")
+	private String bonus;
 
 	public String getMonthlyFee() {
 		String money = " €";
