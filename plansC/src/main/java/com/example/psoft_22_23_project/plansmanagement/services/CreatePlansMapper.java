@@ -38,6 +38,7 @@ public abstract class CreatePlansMapper {
 	@Mapping(source = "request.monthlyFee", target = "monthlyFee.monthlyFee")
 	@Mapping(source = "request.active", target = "active.active")
 	@Mapping(source = "request.promoted", target = "promoted.promoted")
+	@Mapping(source = "request.bonus", target = "bonus.bonus")
 	public abstract Plans create(CreatePlanRequest request);
 
 }
