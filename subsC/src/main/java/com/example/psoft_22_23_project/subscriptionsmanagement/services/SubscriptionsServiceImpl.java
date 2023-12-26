@@ -135,14 +135,16 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
 
                 if (!subscriptions2.getIsBonus()) {
                     subscriptions2.changeBonus(true, plansBonusName.getName());
-                    subsManager.save(subscriptions2);
-                   // UpdateSubsRabbitRequest updateSubsRabbitRequest = updateSubsByRabbitMapper.toSubsRabbit("ads", subscriptions2.getVersion(),user,plansBonusName.getName());
-                    //subsCOMSender.sendUpdatePlan(updateSubsRabbitRequest);
+                   // subsManager.save(subscriptions2);
+                   UpdateSubsRabbitRequest updateSubsRabbitRequest = updateSubsByRabbitMapper.toSubsRabbit("ads", subscriptions2.getVersion(),user,plansBonusName.getName());
+                    subsCOMSender.sendUpdatePlanBonus(updateSubsRabbitRequest);
                 }else{
                     throw new IllegalArgumentException("ALREADY HAVE SUB");
                 }
             } else {
                 Subscriptions obj = createSubscriptionsMapper.createBonus(user, plansBonusName.getName(), plansBonusName, true);
+                CreateSubsByRabbitRequest rabbitRequest = subsByRabbitMapper.toSubsRabbitBonus(plansBonusName,user);
+                subsCOMSender.sendCreatePlanBonus(rabbitRequest);
                 subsManager.save(obj);
             }
         } catch (Exception e) {

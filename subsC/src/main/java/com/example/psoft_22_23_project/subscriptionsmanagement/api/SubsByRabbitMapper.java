@@ -33,4 +33,10 @@ public abstract class SubsByRabbitMapper {
 	@Mapping(source = "subscriptionsRequest.name",target = "createSubscriptionsRequest.name")
 	@Mapping(source = "subscriptionsRequest.paymentType",target = "createSubscriptionsRequest.paymentType")
 	public abstract CreateSubsByRabbitRequest toSubsRabbit(CreateSubscriptionsRequest subscriptionsRequest, String user);
+
+	@Mapping(source = "user",target = "user")
+	@Mapping(source = "createPlanRequestBonus.name",target = "createSubscriptionsRequest.name")
+	@Mapping(source = "createPlanRequestBonus.paymentType",target = "createSubscriptionsRequest.paymentType")
+	public abstract CreateSubsByRabbitRequest toSubsRabbitBonus(CreatePlanRequestBonus createPlanRequestBonus, String user);
+
 }

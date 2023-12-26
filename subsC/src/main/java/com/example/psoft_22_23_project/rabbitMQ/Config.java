@@ -60,6 +60,8 @@ public class Config {
 
     @Bean
     public  FanoutExchange updateToBonusPlan(){return  new FanoutExchange("update_to_bonus");}
+    @Bean
+    public  FanoutExchange createSubBonus(){return  new FanoutExchange("create_sub_bonus");}
 
     @Bean
     public Queue sendPlanDetailsQueue() {
@@ -115,6 +117,9 @@ public class Config {
 
     @Bean
     public Queue toPlanBonusQueue(){return new AnonymousQueue();}
+
+    @Bean
+    public Queue createSubQueue(){return new AnonymousQueue();}
     @Bean
     public Binding bindingSendCheckPlanQueue(FanoutExchange checkSendPlanFanout, Queue checkSendPlanQueue) {
         return BindingBuilder.bind(checkSendPlanQueue).to(checkSendPlanFanout);
@@ -160,7 +165,10 @@ public class Config {
     public Binding bindingToBonusQueue(FanoutExchange updateToBonusPlan,Queue toPlanBonusQueue){
         return BindingBuilder.bind(toPlanBonusQueue).to(updateToBonusPlan);
     }
-
+    @Bean
+    public Binding bindingToSubBonusQueue(FanoutExchange createSubBonus,Queue createSubQueue){
+        return BindingBuilder.bind(createSubQueue).to(createSubBonus);
+    }
     @Bean
     public AmqpTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
         final RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);

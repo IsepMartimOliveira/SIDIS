@@ -39,7 +39,15 @@ public class SubsCOMSender {
         System.out.println(" [x] Sent '" + updatedSub + "' to update a sub");
     }
 
+    public void sendUpdatePlanBonus(UpdateSubsRabbitRequest updatedSub) {
+        template.convertAndSend(updateToBonus, "", updatedSub);
+        System.out.println(" [x] Sent '" + updatedSub + "' to update a sub to bonus");
+    }
 
+    public void sendCreatePlanBonus(CreateSubsByRabbitRequest updatedSub) {
+        template.convertAndSend(updateToBonus, "", updatedSub);
+        System.out.println(" [x] Sent '" + updatedSub + "' to create a sub bonus");
+    }
     public void checkPlan(String name) {
         template.convertAndSend(checkPlan, "", name);
         System.out.println(" [x] Sent Check Plan'" + name + "'");
