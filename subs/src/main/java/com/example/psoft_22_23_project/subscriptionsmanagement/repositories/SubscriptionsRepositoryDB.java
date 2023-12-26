@@ -18,5 +18,7 @@ public interface SubscriptionsRepositoryDB extends CrudRepository<Subscriptions,
     Optional<Subscriptions> findById(long id);
     Optional<Subscriptions> findByActiveStatus_ActiveAndUser(@NotNull boolean active, @NotNull String user);
 
+    Optional<Subscriptions> findByUser(@NotNull String user);
+
 }
 

@@ -27,7 +27,7 @@ class SubsManagerImlp implements SubsManager {
         throw new IllegalArgumentException("Sub of user with name " + newString + " does not exist");
     }
     @Transactional
-    public void findIfUserDoesNotHavesSub(String auth,String newString) {
+    public void findIfUserDoesNotHavesSub(String newString) {
         Optional<Subscriptions> resultFromDB = dbRepository.findByActiveStatus_ActiveAndUser(true ,newString);
         if (resultFromDB.isPresent()) {
             throw new IllegalArgumentException("User already haves sub");
@@ -36,6 +36,10 @@ class SubsManagerImlp implements SubsManager {
     }
     public Optional<Subscriptions> findByActiveStatus_ActiveAndUser(boolean b, String user) {
         return dbRepository.findByActiveStatus_ActiveAndUser(b,user);
+    }
+    public Optional<Subscriptions> findByUser(String name){
+        Optional<Subscriptions> resultFromDB = dbRepository.findByUser(name);
+        return resultFromDB;
     }
     public Subscriptions save(Subscriptions obj) {
         return dbRepository.save(obj);

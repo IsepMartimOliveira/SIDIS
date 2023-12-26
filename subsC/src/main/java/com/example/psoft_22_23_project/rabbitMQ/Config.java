@@ -8,6 +8,8 @@ import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.swing.plaf.PanelUI;
+
 @Configuration
 public class Config {
 
@@ -52,6 +54,12 @@ public class Config {
     public FanoutExchange sendPlanDetailsFanout() {
         return new FanoutExchange("send_plan_detail");
     }
+
+    @Bean
+    public FanoutExchange receivePlanBonus(){return new FanoutExchange("create_plan_bonus");}
+
+    @Bean
+    public  FanoutExchange updateToBonusPlan(){return  new FanoutExchange("update_to_bonus");}
 
     @Bean
     public Queue sendPlanDetailsQueue() {
@@ -101,6 +109,12 @@ public class Config {
     public Queue checkSendPlanQueue() {
         return new AnonymousQueue();
     }
+
+    @Bean
+    public Queue planBonusQueue(){return new AnonymousQueue();}
+
+    @Bean
+    public Queue toPlanBonusQueue(){return new AnonymousQueue();}
     @Bean
     public Binding bindingSendCheckPlanQueue(FanoutExchange checkSendPlanFanout, Queue checkSendPlanQueue) {
         return BindingBuilder.bind(checkSendPlanQueue).to(checkSendPlanFanout);
@@ -135,6 +149,16 @@ public class Config {
     @Bean
     public Binding bindingSubQueue(FanoutExchange fanout, Queue subQueue) {
         return BindingBuilder.bind(subQueue).to(fanout);
+    }
+
+    @Bean
+    public Binding bindingBonusQue(FanoutExchange receivePlanBonus,Queue planBonusQueue){
+        return BindingBuilder.bind(planBonusQueue).to(receivePlanBonus);
+    }
+
+    @Bean
+    public Binding bindingToBonusQueue(FanoutExchange updateToBonusPlan,Queue toPlanBonusQueue){
+        return BindingBuilder.bind(toPlanBonusQueue).to(updateToBonusPlan);
     }
 
     @Bean

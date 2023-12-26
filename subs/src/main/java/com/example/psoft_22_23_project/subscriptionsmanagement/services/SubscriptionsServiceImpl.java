@@ -29,7 +29,7 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
     @Override
     public Optional<PlansDetails> planDetails(String auth) {
         String name = getUsername();
-        Optional<Subscriptions> subscription = subsManager.findSub(auth,name);
+        Optional<Subscriptions> subscription = subsManager.findSub(name);
         Optional<PlansDetails> plansDetails = plansManager.findPlan(subscription.get().getPlan());
         return plansDetails;
     }
@@ -96,7 +96,6 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         plansManager.storePlan(existingPlanDetails);
 
     }
-
     public void storePlanDeactivates(DeactivatPlanRequest plans) {
         PlansDetails existingPlanDetails = plansManager.findPlan(plans.getName())
                 .orElseThrow(() -> new NotFoundException("PlanDetails with name " + plans.getName() + " not found"));

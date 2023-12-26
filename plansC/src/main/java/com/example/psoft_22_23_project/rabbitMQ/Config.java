@@ -34,6 +34,10 @@ public class Config {
     }
 
     @Bean
+    public  FanoutExchange bonus_plan(){return  new FanoutExchange("create_plan_bonus");}
+
+
+    @Bean
     public Queue plansQueue() {
         return new AnonymousQueue();
     }
@@ -45,6 +49,11 @@ public class Config {
 
     @Bean
     public Queue deactivateQueue(){return new AnonymousQueue();}
+
+    @Bean
+    public Queue planBonusQueue(){return new AnonymousQueue();}
+
+
 
     @Bean
     public Binding bindingUpdateQueue(FanoutExchange updateFanout, Queue updateQueue) {
@@ -59,6 +68,10 @@ public class Config {
         return BindingBuilder.bind(deactivateQueue).to(deactivateFanout);
     }
 
+    @Bean
+    public Binding bindingBonusSaveQueue(FanoutExchange bonus_plan,Queue planBonusQueue){
+        return BindingBuilder.bind(planBonusQueue).to(bonus_plan);
+    }
     @Bean
     public AmqpTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
         final RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);

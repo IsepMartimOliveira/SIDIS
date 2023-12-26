@@ -11,8 +11,9 @@ import java.util.Optional;
 public interface SubsManager {
 
      Optional<Subscriptions> findIfUserHavesSub(String auth,String user) ;
-     void findIfUserDoesNotHavesSub(String auth, String user);
+     void findIfUserDoesNotHavesSub( String user);
      Subscriptions save(Subscriptions obj);
+     Optional<Subscriptions> findByUser(String name);
      Optional<Subscriptions> findByActiveStatus_ActiveAndUser(boolean b, String user);
 
 }

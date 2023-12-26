@@ -40,6 +40,8 @@ public abstract class PlansDetailsViewMapper {
 	@Mapping(source = "plans.monthlyFee", target = "monthlyFee")
 	@Mapping(source = "plans.active", target = "active")
 	@Mapping(source = "plans.promoted", target = "promoted")
+	@Mapping(source = "plans.bonus", target = "bonus")
+
 	public abstract PlansDetailsView toPlansDetailsView(PlansDetails plans);
 
 }

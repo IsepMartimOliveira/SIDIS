@@ -1,6 +1,7 @@
 package com.example.psoft_22_23_project.rabbitMQ;
 
 import com.example.psoft_22_23_project.plansmanagement.api.CreatePlanRequest;
+import com.example.psoft_22_23_project.plansmanagement.api.CreatePlanRequestBonus;
 import com.example.psoft_22_23_project.plansmanagement.api.DeactivatPlanRequest;
 import com.example.psoft_22_23_project.plansmanagement.api.EditPlanRequestUpdate;
 import com.example.psoft_22_23_project.plansmanagement.services.PlansManager;
@@ -42,6 +43,12 @@ public class PlansQReceiver {
     public void receiveCheckPlan(String planName) {
         plansService.checkPlan(planName);
         System.out.println(" [x] Receive msg to check plan with name: '" + planName );
+    }
+    @RabbitListener(queues = "#{planBonusQueue.name}")
+    public void receivePlanBonus(CreatePlanRequestBonus plansBonus){
+        plansService.storeBonusPlan(plansBonus);
+        System.out.println(" [x] Received deactivate message '" + plansBonus + "' from planBonusQueue");
+
     }
 
 }

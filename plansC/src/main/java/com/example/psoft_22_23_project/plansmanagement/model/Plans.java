@@ -26,7 +26,7 @@ public class Plans {
                  AnnualFee annualFee,
                  MonthlyFee monthlyFee,
                  Active active,
-                 Promoted promoted,Bonus bonus) {
+                 Promoted promoted) {
         this.name = name;
         this.description= description;
         this.numberOfMinutes = numberOfMinutes;
@@ -38,7 +38,6 @@ public class Plans {
         this.active = active;
         this.promoted = promoted;
         this.deleted = new Deleted();
-        this.bonus=bonus;
         FeeRevision feeRevision1 = new FeeRevision(annualFee.getAnnualFee(),monthlyFee.getMonthlyFee());
         feeRevisions.add(feeRevision1);
     }
@@ -73,8 +72,7 @@ public class Plans {
     private Promoted promoted;
     @Embedded
     private Deleted deleted;
-    @Embedded
-    private Bonus bonus;
+
 
 
     @ElementCollection

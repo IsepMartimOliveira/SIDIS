@@ -1,9 +1,6 @@
 package com.example.psoft_22_23_project.rabbitMQ;
 
-import com.example.psoft_22_23_project.plansmanagement.api.CreatePlanRequest;
-import com.example.psoft_22_23_project.plansmanagement.api.DeactivatPlanRequest;
-import com.example.psoft_22_23_project.plansmanagement.api.EditPlanRequestUpdate;
-import com.example.psoft_22_23_project.plansmanagement.api.EditPlansRequest;
+import com.example.psoft_22_23_project.plansmanagement.api.*;
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 import com.example.psoft_22_23_project.plansmanagement.services.PlansServiceImpl;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -29,5 +26,12 @@ public class PlansCOMReceiver {
     public void receiveDeactivate(DeactivatPlanRequest plans) {
         plansService.storePlanDeactivates(plans);
         System.out.println(" [x] Received deactivate message '" + plans + "' from deactivateQueue");
+    }
+
+    @RabbitListener(queues = "#{planBonusQueue.name}")
+    public void receivePlanBonus(CreatePlanRequestBonus plansBonus){
+        plansService.storeBonusPlan(plansBonus);
+        System.out.println(" [x] Received bonus message '" + plansBonus + "' from planBonusQueue");
+
     }
 }

@@ -3,10 +3,12 @@ package com.example.psoft_22_23_project.subscriptionsmanagement.services;
 import com.example.psoft_22_23_project.rabbitMQ.SubsCOMSender;
 import com.example.psoft_22_23_project.subscriptionsmanagement.api.*;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptions;
+import com.sun.tools.jconsole.JConsoleContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Optional;
@@ -36,9 +38,11 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
     }
 
     @Override
-    public Subscriptions create(final CreateSubscriptionsRequest resource,String auth) throws URISyntaxException, IOException, InterruptedException, ExecutionException {
+    public Subscriptions create(final CreateSubscriptionsRequest resource) throws URISyntaxException, IOException, InterruptedException, ExecutionException {
         String user = getUsername();
-        subsManager.findIfUserDoesNotHavesSub(auth,user);
+        subsManager.findIfUserDoesNotHavesSub(user);
+
+
         //
         plansDetailsFuture = new CompletableFuture<>();
         subsCOMSender.checkPlan(resource.getName());
@@ -47,14 +51,14 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
             throw new IOException("Plan with name "+resource.getName()+"does not existe");
         }
         //
-        Subscriptions obj = createSubscriptionsMapper.create(user,resource.getName(),resource);
+        Subscriptions obj = createSubscriptionsMapper.create(user,resource.getName(),resource,false);
         CreateSubsByRabbitRequest rabbitRequest = subsByRabbitMapper.toSubsRabbit(resource,user);
         subsCOMSender.send(rabbitRequest);
         return obj;
     }
     public void storeSub(CreateSubsByRabbitRequest subsRequest) {
         subsManager.findByActiveStatus_ActiveAndUser(true,subsRequest.getUser());
-        Subscriptions obj=createSubscriptionsMapper.create(subsRequest.getUser(),subsRequest.getCreateSubscriptionsRequest().getName(),subsRequest.getCreateSubscriptionsRequest());
+        Subscriptions obj=createSubscriptionsMapper.create(subsRequest.getUser(),subsRequest.getCreateSubscriptionsRequest().getName(),subsRequest.getCreateSubscriptionsRequest(),false);
         subsManager.save(obj);
     }
     @Override
@@ -118,5 +122,34 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
     public void notifyAboutReceivedPlanDetails(boolean b) {
         plansDetailsFuture.complete(b);
     }
+
+    @Transactional
+    public void createBonusPlan(CreatePlanRequestBonus plansBonusName) {
+        String user = plansBonusName.getUsername();
+
+        try {
+            Optional<Subscriptions> subscription = subsManager.findByUser(user);
+
+            if (subscription.isPresent()) {
+                Subscriptions subscriptions2 = subscription.get();
+
+                if (!subscriptions2.getIsBonus()) {
+                    subscriptions2.changeBonus(true, plansBonusName.getName());
+                    subsManager.save(subscriptions2);
+                   // UpdateSubsRabbitRequest updateSubsRabbitRequest = updateSubsByRabbitMapper.toSubsRabbit("ads", subscriptions2.getVersion(),user,plansBonusName.getName());
+                    //subsCOMSender.sendUpdatePlan(updateSubsRabbitRequest);
+                }else{
+                    throw new IllegalArgumentException("ALREADY HAVE SUB");
+                }
+            } else {
+                Subscriptions obj = createSubscriptionsMapper.createBonus(user, plansBonusName.getName(), plansBonusName, true);
+                subsManager.save(obj);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
 }

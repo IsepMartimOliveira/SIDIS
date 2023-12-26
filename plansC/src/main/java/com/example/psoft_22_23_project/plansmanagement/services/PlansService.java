@@ -22,12 +22,12 @@ package com.example.psoft_22_23_project.plansmanagement.services;
 
 
 import com.example.psoft_22_23_project.plansmanagement.api.CreatePlanRequest;
+import com.example.psoft_22_23_project.plansmanagement.api.CreatePlanRequestBonus;
 import com.example.psoft_22_23_project.plansmanagement.api.EditPlansRequest;
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Optional;
 
 public interface PlansService {
 
@@ -37,5 +37,5 @@ public interface PlansService {
 
 	Plans deactivate(String name, String authorizationToken,long desiredVersion);
 
-
+	Plans createBonus(CreatePlanRequestBonus resource);
 }

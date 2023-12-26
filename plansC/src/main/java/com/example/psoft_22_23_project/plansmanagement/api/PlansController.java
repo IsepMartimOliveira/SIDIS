@@ -60,18 +60,27 @@ public class PlansController {
 		return Long.parseLong(ifMatchHeader);
 	}
 
+	@Operation(summary = "Create a plan Bonus")
+	@PostMapping("/createBonus")
+	@ResponseStatus(HttpStatus.ACCEPTED)public ResponseEntity<PlansView>createBonus(@Valid@RequestBody final CreatePlanRequestBonus resource){
+		final Plans planBonus=service.createBonus(resource);
+		final var newPlanUri =
+				ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(planBonus.getName().getName()).build() .toUri();
+		return
+				ResponseEntity.created(newPlanUri).eTag(Long.toString(planBonus.getVersion()))
+						.body(plansViewMapper.toPlansView(planBonus));
+	}
+
 	@Operation(summary = "Creates a new Plan")
 	@PostMapping
-	@ResponseStatus(HttpStatus.ACCEPTED) public ResponseEntity<PlansView>
-	create(@Valid @RequestBody final CreatePlanRequest resource,@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken) throws URISyntaxException, IOException, InterruptedException {
-
+	@ResponseStatus(HttpStatus.CREATED) public ResponseEntity<PlansView>
+	create(@Valid @RequestBody final CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException {
 		final Plans plan = service.create(resource);
 		final var newPlanUri =
 				ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(plan.getName().getName()).build() .toUri();
-		return ResponseEntity.accepted()
-				.eTag(Long.toString(plan.getVersion()))
-				.location(newPlanUri)
-				.body(plansViewMapper.toPlansView(plan));
+		return
+				ResponseEntity.created(newPlanUri).eTag(Long.toString(plan.getVersion()))
+						.body(plansViewMapper.toPlansView(plan));
 	}
 
 	@Operation(summary = "Partially updates an existing plan")

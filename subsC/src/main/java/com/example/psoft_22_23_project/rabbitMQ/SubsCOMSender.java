@@ -20,7 +20,7 @@ public class SubsCOMSender {
     private String fanoutRenew="sub_to_renew";
     private String fanoutCancel="sub_to_cancel";
     private String checkPlan="checkPlan";
-
+    private String updateToBonus="update_to_bonus";
 
     public void send(CreateSubsByRabbitRequest subRequest) {
         template.convertAndSend(fanout, "", subRequest);

@@ -41,17 +41,17 @@ public class SubscriptionsController {
     }
 
     @PostMapping(value = "/create")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<SubscriptionsView> create(@Valid @RequestBody final CreateSubscriptionsRequest resource,
-                                                    @RequestHeader(HttpHeaders.AUTHORIZATION) final String authorizationToken) throws URISyntaxException, IOException, InterruptedException, ExecutionException {
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public ResponseEntity<SubscriptionsView> create(@Valid @RequestBody final CreateSubscriptionsRequest resource) throws URISyntaxException, IOException, InterruptedException, ExecutionException {
 
-        final var subscriptions = service.create(resource,authorizationToken);
+        final var subscriptions = service.create(resource);
 
         final var newSubscriptionUri =
                 ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(subscriptions.getPlan()).build().toUri();
 
-        return ResponseEntity.created(newSubscriptionUri)
+        return ResponseEntity.accepted()
                 .eTag(Long.toString(subscriptions.getVersion()))
+                .location(newSubscriptionUri)
                 .body(subscriptionsViewMapper.toSubscriptionView(subscriptions));
     }
 
@@ -63,8 +63,8 @@ public class SubscriptionsController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "You must issue a conditional PATCH using 'if-match'");
         }
-
         final var subscriptions = service.cancelSubscription(authorizationToken,getVersionFromIfMatchHeader(ifMatchValue));
+
         return ResponseEntity.ok().eTag(Long.toString(subscriptions.getVersion())).body(subscriptionsViewMapper.toSubscriptionView(subscriptions));
     }
 

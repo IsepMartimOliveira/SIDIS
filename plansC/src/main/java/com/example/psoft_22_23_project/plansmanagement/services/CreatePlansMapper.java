@@ -20,6 +20,7 @@
  */
 package com.example.psoft_22_23_project.plansmanagement.services;
 import com.example.psoft_22_23_project.plansmanagement.api.CreatePlanRequest;
+import com.example.psoft_22_23_project.plansmanagement.api.CreatePlanRequestBonus;
 import com.example.psoft_22_23_project.plansmanagement.api.EditPlansRequest;
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 import org.mapstruct.Mapper;
@@ -38,7 +39,19 @@ public abstract class CreatePlansMapper {
 	@Mapping(source = "request.monthlyFee", target = "monthlyFee.monthlyFee")
 	@Mapping(source = "request.active", target = "active.active")
 	@Mapping(source = "request.promoted", target = "promoted.promoted")
-	@Mapping(source = "request.bonus", target = "bonus.bonus")
 	public abstract Plans create(CreatePlanRequest request);
+
+	@Mapping(source = "name", target = "name.name")
+	@Mapping(source = "description", target = "description.description")
+	@Mapping(source = "numberOfMinutes", target = "numberOfMinutes.numberOfMinutes")
+	@Mapping(source = "maximumNumberOfUsers", target = "maximumNumberOfUsers.maximumNumberOfUsers")
+	@Mapping(source = "musicCollection", target = "musicCollection.musicCollection")
+	@Mapping(source = "musicSuggestion", target = "musicSuggestion.musicSuggestion")
+	@Mapping(source = "annualFee", target = "annualFee.annualFee")
+	@Mapping(source = "request.monthlyFee", target = "monthlyFee.monthlyFee")
+	@Mapping(source = "active", target = "active.active")
+	@Mapping(source = "promoted", target = "promoted.promoted")
+	public abstract Plans createBonus(CreatePlanRequestBonus request);
+
 
 }

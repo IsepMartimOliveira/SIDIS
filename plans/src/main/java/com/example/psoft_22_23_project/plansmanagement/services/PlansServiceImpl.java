@@ -97,4 +97,10 @@ public class PlansServiceImpl implements PlansService {
 		}
 
 	}
+
+	public void storeBonusPlan(CreatePlanRequestBonus resource){
+		plansManager.findByNameDoesNotExists(resource.getName());
+		Plans obj = createPlansMapper.createBonus(resource);
+		plansManager.save(obj);
+	}
 }

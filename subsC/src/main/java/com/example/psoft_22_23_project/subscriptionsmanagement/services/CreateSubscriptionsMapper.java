@@ -20,6 +20,7 @@
  */
 package com.example.psoft_22_23_project.subscriptionsmanagement.services;
 
+import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreatePlanRequestBonus;
 import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreateSubscriptionsRequest;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptions;
 import org.mapstruct.Mapper;
@@ -28,6 +29,9 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public abstract class CreateSubscriptionsMapper {
 	@Mapping(source = "request.paymentType", target = "paymentType.paymentType")
-	public abstract Subscriptions create(String user, String plan, CreateSubscriptionsRequest request);
+	public abstract Subscriptions create(String user, String plan, CreateSubscriptionsRequest request,Boolean isBonus);
+
+	@Mapping(source = "request.paymentType", target = "paymentType.paymentType")
+	public abstract Subscriptions createBonus(String user, String plan,CreatePlanRequestBonus request, Boolean isBonus);
 
 }

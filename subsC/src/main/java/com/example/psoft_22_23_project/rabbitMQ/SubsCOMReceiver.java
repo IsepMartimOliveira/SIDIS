@@ -1,4 +1,5 @@
 package com.example.psoft_22_23_project.rabbitMQ;
+import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreatePlanRequestBonus;
 import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreateSubsByRabbitRequest;
 import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreateSubscriptionsRequest;
 import com.example.psoft_22_23_project.subscriptionsmanagement.api.UpdateSubsRabbitRequest;
@@ -43,5 +44,9 @@ public class SubsCOMReceiver {
         subscriptionsService.notifyAboutReceivedPlanDetails(b);
         System.out.println(" [x] Received "+b+" from subs_queue");
     }
+    @RabbitListener(queues = "#{planBonusQueue.name}")
+    public void receivePlanBonus(CreatePlanRequestBonus plansBonusName){
+        subscriptionsService.createBonusPlan(plansBonusName);
 
+    }
 }

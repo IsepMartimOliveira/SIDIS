@@ -1,9 +1,6 @@
 package com.example.psoft_22_23_project.rabbitMQ;
 
-import com.example.psoft_22_23_project.plansmanagement.api.CreatePlanRequest;
-import com.example.psoft_22_23_project.plansmanagement.api.DeactivatPlanRequest;
-import com.example.psoft_22_23_project.plansmanagement.api.EditPlanRequestUpdate;
-import com.example.psoft_22_23_project.plansmanagement.api.EditPlansRequest;
+import com.example.psoft_22_23_project.plansmanagement.api.*;
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +15,11 @@ public class PlansCOMSender {
     private String fanout = "plans_create";
     private String fanoutDeactivate = "plans_to_deactivate";
 
+    private String bonus_plan="create_plan_bonus";
+
     private String fanoutUpdate="plans_to_update";
+
+
     public void send(CreatePlanRequest planRequest) {
         template.convertAndSend(fanout, "", planRequest);
 
@@ -33,5 +34,13 @@ public class PlansCOMSender {
         template.convertAndSend(fanoutDeactivate, "", deactivatPlanRequest);
 
     }
+
+    public void sendBonus(CreatePlanRequestBonus planBonusName){
+        template.convertAndSend(bonus_plan, "", planBonusName);
+        System.out.println(" [x] Sent '" + planBonusName + "' to create a bonus plan");
+
+
+    }
+
 
 }

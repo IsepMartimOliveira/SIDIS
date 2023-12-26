@@ -25,6 +25,7 @@ import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 import com.example.psoft_22_23_project.rabbitMQ.PlansCOMSender;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -38,8 +39,10 @@ public class PlansServiceImpl implements PlansService {
 	private final CreatePlansMapper  createPlansMapper;
 	private final PlansCOMSender plansCOMSender;
 	private final  EditPlansUpdate editPlansUpdate;
+	private final CreatePlansBonusMapper createPlansBonusMapper;
 
 	@Override
+
 	public Plans create(CreatePlanRequest resource) throws URISyntaxException, IOException, InterruptedException {
 		plansManager.findByNameDoesNotExists(resource.getName());
 		Plans obj = createPlansMapper.create(resource);
@@ -100,7 +103,22 @@ public class PlansServiceImpl implements PlansService {
 
 
 	}
-public  void  storePlanDeactivates(DeactivatPlanRequest deactivatPlanRequest){
+
+	@Override
+	public Plans createBonus(CreatePlanRequestBonus resource) {
+		plansManager.findByNameDoesNotExists(resource.getName());
+		Plans obj = createPlansMapper.createBonus(resource);
+		plansCOMSender.sendBonus(resource);
+		return obj;
+
+	}
+	public void storeBonusPlan(CreatePlanRequestBonus resource){
+		plansManager.findByNameDoesNotExists(resource.getName());
+		Plans obj = createPlansMapper.createBonus(resource);
+		plansManager.save(obj);
+	}
+
+	public  void  storePlanDeactivates(DeactivatPlanRequest deactivatPlanRequest){
 	final Optional<Plans> plansOptional = plansManager.findByNameDoesExists(deactivatPlanRequest.getName());
 	Plans plans=plansOptional.get();
 	plans.deactivate(deactivatPlanRequest.getDesiredVersion());

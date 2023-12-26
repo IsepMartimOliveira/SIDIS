@@ -22,13 +22,14 @@ public class Subscriptions {
 
     }
 
-    public Subscriptions(String plan, PaymentType paymentType, String user) {
+    public Subscriptions(String plan, PaymentType paymentType, String user,Boolean isBonus) {
         this.startDate = new StartDate();
         this.endDate = new EndDate(paymentType.getPaymentType());
         this.activeStatus = new ActiveStatus(true);
         this.plan = plan;
         this.paymentType = paymentType;
         this.user = user;
+        this.isBonus=isBonus;
     }
 
     @Id
@@ -52,6 +53,7 @@ public class Subscriptions {
 
     private String plan;
     private String user;
+    private Boolean isBonus;
     public void deactivate(final long desiredVersion) {
         // check current version
         if (this.version != desiredVersion) {
@@ -125,5 +127,10 @@ public class Subscriptions {
             LocalDate endDate = LocalDate.parse(getEndDate().getEndDate(), formatter);
             getEndDate().setEndDate(String.valueOf(endDate.plusYears(1)));
         }
+    }
+
+    public void changeBonus(Boolean isBonus,String plan) {
+        this.isBonus=isBonus;
+        this.plan=plan;
     }
 }

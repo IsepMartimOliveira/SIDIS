@@ -10,7 +10,11 @@ import java.net.URISyntaxException;
 import java.util.Optional;
 
 public interface SubsManager {
-     Optional<Subscriptions> findSub(String auth,String name);
+     Optional<Subscriptions> findSub(String name);
      Optional<Subscriptions> findByActiveStatus_ActiveAndUser(boolean b, String user);
+
+    Optional<Subscriptions> findSubBonus(String name);
+    Optional<Subscriptions> findByUser(String name);
+
     Subscriptions save(Subscriptions obj);
 }

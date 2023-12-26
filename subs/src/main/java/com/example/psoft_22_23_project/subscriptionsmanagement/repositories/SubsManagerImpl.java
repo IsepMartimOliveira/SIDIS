@@ -16,15 +16,25 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SubsManagerImpl implements SubsManager {
     private final SubscriptionsRepositoryDB dbRepository;
-    private final PlansRepositoryDB plansRepositoryDB;
     @Transactional
-    public Optional<Subscriptions> findSub( String auth,String name) {
+    public Optional<Subscriptions> findSub(String name) {
         // local db
         Optional<Subscriptions> resultFromDB = dbRepository.findByActiveStatus_ActiveAndUser(true ,name);
         if (resultFromDB.isPresent()) {
             return resultFromDB;
         }
         throw new IllegalArgumentException("Sub of user with name " + name + " does not exist");
+    }
+    @Transactional
+    public Optional<Subscriptions> findSubBonus(String name) {
+        Optional<Subscriptions> resultFromDB = dbRepository.findByActiveStatus_ActiveAndUser(true ,name);
+        return resultFromDB;
+
+    }
+
+    public Optional<Subscriptions> findByUser(String name){
+        Optional<Subscriptions> resultFromDB = dbRepository.findByUser(name);
+        return resultFromDB;
     }
 
     public Optional<Subscriptions> findByActiveStatus_ActiveAndUser(boolean b, String user) {

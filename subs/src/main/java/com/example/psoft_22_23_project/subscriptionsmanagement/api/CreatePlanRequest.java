@@ -58,6 +58,9 @@ public class CreatePlanRequest {
 	private boolean active;
 	@Nullable
 	private boolean promoted;
+	@Nullable
+	private boolean bonus;
+
 
 
 

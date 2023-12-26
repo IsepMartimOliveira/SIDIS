@@ -41,6 +41,7 @@ public class Config {
     @Bean
     public FanoutExchange renewFanout() {return new FanoutExchange("sub_to_renew");}
 
+
     @Bean
     public Queue updateQueue() {return new AnonymousQueue();}
     @Bean
@@ -58,6 +59,14 @@ public class Config {
 
     @Bean
     public Queue subsQueryQueue() {return new AnonymousQueue();}
+
+    @Bean
+    public Queue planBonusQueue(){return new AnonymousQueue();}
+
+    @Bean
+    public  FanoutExchange bonus_plan(){return  new FanoutExchange("create_plan_bonus");}
+
+
 
     @Bean
     public Binding bindingSubsQueryQueue(FanoutExchange fanout, Queue subsQueryQueue) {
@@ -88,7 +97,10 @@ public class Config {
     public Binding bindingPlansQueryQueueDeactivate(FanoutExchange fanoutPlanDeactivate, Queue plansQueryQueueDeactivate) {
         return BindingBuilder.bind(plansQueryQueueDeactivate).to(fanoutPlanDeactivate);
     }
-
+    @Bean
+    public Binding bindingBonusSaveQueue(FanoutExchange bonus_plan,Queue planBonusQueue){
+        return BindingBuilder.bind(planBonusQueue).to(bonus_plan);
+    }
     @Bean
     public SubsQSender sender() {
         return new SubsQSender();

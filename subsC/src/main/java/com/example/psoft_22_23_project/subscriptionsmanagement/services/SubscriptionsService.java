@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutionException;
 
 public interface SubscriptionsService {
 
-    Subscriptions create(CreateSubscriptionsRequest resource, String auth) throws URISyntaxException, IOException, InterruptedException, ExecutionException;
+    Subscriptions create(CreateSubscriptionsRequest resource) throws URISyntaxException, IOException, InterruptedException, ExecutionException;
 
     Subscriptions cancelSubscription(String auth,long desiredVersion) throws URISyntaxException, IOException, InterruptedException;
 

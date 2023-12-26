@@ -20,11 +20,12 @@ public class PlansDetails {
     private String monthlyFee;
     private String active;
     private String promoted;
+    private String bonus;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    public PlansDetails(String name, String description, String numberOfMinutes, String maximumNumberOfUsers, String musicCollection, String musicSuggestion, String annualFee, String monthlyFee, String active, String promoted) {
+    public PlansDetails(String name, String description, String numberOfMinutes, String maximumNumberOfUsers, String musicCollection, String musicSuggestion, String annualFee, String monthlyFee, String active, String promoted,String bonus) {
         this.name = name;
         this.description = description;
         this.numberOfMinutes = numberOfMinutes;
@@ -35,6 +36,7 @@ public class PlansDetails {
         this.monthlyFee = monthlyFee;
         this.active = active;
         this.promoted = promoted;
+        this.bonus=bonus;
     }
     public void updateDetails(String description, String numberOfMinutes,
                               String maximumNumberOfUsers, String musicCollection,

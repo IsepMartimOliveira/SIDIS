@@ -87,6 +87,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers(HttpMethod.GET,"/api/plans/external").permitAll()
 				//post do plano
 				.antMatchers(HttpMethod.POST,"/api/plans").hasRole("Marketing_Director")
+				.antMatchers(HttpMethod.POST,"/api/plans/createBonus").hasRole("Marketing_Director")
+
 				//patch desativar plano
 				.antMatchers(HttpMethod.PATCH,"/api/plans/deactivate/{name}").hasRole("Marketing_Director")
 				//patch updade plan

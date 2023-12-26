@@ -54,8 +54,9 @@ public class PlansBootstrapper implements CommandLineRunner {
 				final String monthlyFee = "00.00";
 				final String active = "true";
 				final String promoted = "false";
+				final String bonus="false";
 
-				final PlansDetails planDetails = new PlansDetails(name, description, numberOfMinutes, maximumNumberOfUsers, musicCollection, musicSuggestion, annualFee, monthlyFee, active, promoted);
+				final PlansDetails planDetails = new PlansDetails(name, description, numberOfMinutes, maximumNumberOfUsers, musicCollection, musicSuggestion, annualFee, monthlyFee, active, promoted,bonus);
 
 
 				plansRepo.storePlan(planDetails);
@@ -71,8 +72,10 @@ public class PlansBootstrapper implements CommandLineRunner {
 				final String monthlyFee = "4.99";
 				final String active = "true";
 				final String promoted = "false";
+				final String bonus="false";
 
-				final PlansDetails planDetails = new PlansDetails(name , description,numberOfMinutes, maximumNumberOfUsers,musicCollection,musicSuggestion,annualFee,monthlyFee,active,promoted);
+
+				final PlansDetails planDetails = new PlansDetails(name , description,numberOfMinutes, maximumNumberOfUsers,musicCollection,musicSuggestion,annualFee,monthlyFee,active,promoted,bonus);
 				plansRepo.storePlan(planDetails);
 			}
 			if (plansRepo.findPlan("Gold").isEmpty()) {
@@ -86,8 +89,10 @@ public class PlansBootstrapper implements CommandLineRunner {
 				final String monthlyFee = "5.99";
 				final String active = "true";
 				final String promoted = "true";
+				final String bonus="false";
 
-				final PlansDetails plans = new PlansDetails(name , description,numberOfMinutes, maximumNumberOfUsers,musicCollection,musicSuggestion,annualFee,monthlyFee,active,promoted);
+
+				final PlansDetails plans = new PlansDetails(name , description,numberOfMinutes, maximumNumberOfUsers,musicCollection,musicSuggestion,annualFee,monthlyFee,active,promoted,bonus);
 				plansRepo.storePlan(plans);
 			}
 		}
