@@ -20,6 +20,7 @@
  */
 package com.example.psoft_22_23_project.subscriptionsmanagement.services;
 
+import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreatePlanRequestBonus;
 import com.example.psoft_22_23_project.subscriptionsmanagement.api.CreateSubsByRabbitRequest;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptions;
 import org.mapstruct.Mapper;
@@ -30,6 +31,8 @@ public abstract class CreateSubscriptionsMapper {
 	@Mapping(source = "request.createSubscriptionsRequest.paymentType", target = "paymentType.paymentType")
 	@Mapping(source = "user", target = "user")
 	@Mapping(source = "plan", target = "plan")
-	public abstract Subscriptions create(String user, String plan, CreateSubsByRabbitRequest request);
+	public abstract Subscriptions create(String user, String plan, CreateSubsByRabbitRequest request,Boolean isBonus);
+
+
 
 }

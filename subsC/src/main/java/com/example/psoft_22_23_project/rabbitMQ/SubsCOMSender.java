@@ -7,6 +7,7 @@ import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.Optional;
 
 @Service
@@ -21,6 +22,9 @@ public class SubsCOMSender {
     private String fanoutCancel="sub_to_cancel";
     private String checkPlan="checkPlan";
     private String updateToBonus="update_to_bonus";
+
+    private String bonusSub="create_sub_bonus";
+    private String deletePlan="delete_plan";
 
     public void send(CreateSubsByRabbitRequest subRequest) {
         template.convertAndSend(fanout, "", subRequest);
@@ -45,11 +49,16 @@ public class SubsCOMSender {
     }
 
     public void sendCreatePlanBonus(CreateSubsByRabbitRequest updatedSub) {
-        template.convertAndSend(updateToBonus, "", updatedSub);
+        template.convertAndSend(bonusSub, "", updatedSub);
         System.out.println(" [x] Sent '" + updatedSub + "' to create a sub bonus");
     }
     public void checkPlan(String name) {
         template.convertAndSend(checkPlan, "", name);
         System.out.println(" [x] Sent Check Plan'" + name + "'");
+    }
+    public void sendDelete(String name) {
+        template.convertAndSend(deletePlan,"",name);
+        System.out.println(" [x] Sent Delete Plan'" + name + "'");
+
     }
 }

@@ -6,6 +6,7 @@ import com.example.psoft_22_23_project.plansmanagement.services.PlansServiceImpl
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class PlansCOMReceiver {
@@ -32,6 +33,13 @@ public class PlansCOMReceiver {
     public void receivePlanBonus(CreatePlanRequestBonus plansBonus){
         plansService.storeBonusPlan(plansBonus);
         System.out.println(" [x] Received bonus message '" + plansBonus + "' from planBonusQueue");
+
+    }
+
+    @RabbitListener(queues = "#{deletePlanBonusQueue.name}")
+    public void deletePlanBonus(String plansBonus){
+        plansService.deleteBonus(plansBonus);
+        System.out.println(" [x] Received delete bonus message '" + plansBonus );
 
     }
 }

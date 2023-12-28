@@ -64,11 +64,13 @@ public class PlansController {
 	@PostMapping("/createBonus")
 	@ResponseStatus(HttpStatus.ACCEPTED)public ResponseEntity<PlansView>createBonus(@Valid@RequestBody final CreatePlanRequestBonus resource){
 		final Plans planBonus=service.createBonus(resource);
-		final var newPlanUri =
-				ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(planBonus.getName().getName()).build() .toUri();
-		return
-				ResponseEntity.created(newPlanUri).eTag(Long.toString(planBonus.getVersion()))
-						.body(plansViewMapper.toPlansView(planBonus));
+		final var newPlanUri = ServletUriComponentsBuilder.fromCurrentRequestUri()
+				.pathSegment(planBonus.getName().getName()).build().toUri();
+
+		return ResponseEntity.status(HttpStatus.ACCEPTED)
+				.location(newPlanUri)
+				.eTag(Long.toString(planBonus.getVersion()))
+				.body(plansViewMapper.toPlansView(planBonus));
 	}
 
 	@Operation(summary = "Creates a new Plan")

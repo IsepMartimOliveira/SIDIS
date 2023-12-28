@@ -22,13 +22,14 @@ public class Subscriptions {
 
     }
 
-    public Subscriptions(String plan, PaymentType paymentType, String user) {
+    public Subscriptions(String plan, PaymentType paymentType, String user, Boolean isBonus) {
         this.startDate = new StartDate();
         this.endDate = new EndDate(paymentType.getPaymentType());
         this.activeStatus = new ActiveStatus(true);
         this.plan = plan;
         this.paymentType = paymentType;
         this.user = user;
+        this.isBonus=isBonus;
     }
 
     @Id
@@ -52,6 +53,7 @@ public class Subscriptions {
 
     private String plan;
     private String user;
+    private Boolean isBonus;
     public void deactivate(final long desiredVersion) {
         // check current version
         if (this.version != desiredVersion) {
@@ -75,11 +77,16 @@ public class Subscriptions {
         if (this.version != desiredVersion) {
             throw new StaleObjectStateException("Object was already modified by another user", this.id);
         }
+        if (Objects.equals(this.plan, plan))
+        {
+            throw new IllegalArgumentException("Can not change to same plan");
 
+        }
         this.plan = plan;
 
 
     }
+
     public void cancelSubscription(final long desiredVersion) {
         deactivate(desiredVersion);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -122,5 +129,8 @@ public class Subscriptions {
         }
     }
 
-
+    public void changeBonus(Boolean isBonus,String plan) {
+        this.isBonus=isBonus;
+        this.plan=plan;
+    }
 }

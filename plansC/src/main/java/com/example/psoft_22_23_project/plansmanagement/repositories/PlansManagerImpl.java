@@ -2,7 +2,6 @@ package com.example.psoft_22_23_project.plansmanagement.repositories;
 
 
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
-import com.example.psoft_22_23_project.plansmanagement.repositories.PlansRepositoryDB;
 import com.example.psoft_22_23_project.plansmanagement.services.PlansManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -38,6 +37,10 @@ class PlansManagerImpl implements PlansManager {
         return dbRepository.save(obj);
     }
 
+    @Override
+    public void deleteByName(String plansBonus) {
+        dbRepository.deletePlansByName_Name(plansBonus);
+    }
 
 
 }

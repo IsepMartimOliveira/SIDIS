@@ -25,6 +25,7 @@ import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 import com.example.psoft_22_23_project.rabbitMQ.PlansCOMSender;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
@@ -34,6 +35,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@EnableTransactionManagement
 public class PlansServiceImpl implements PlansService {
 	private final PlansManager plansManager;
 	private final CreatePlansMapper  createPlansMapper;
@@ -49,7 +51,6 @@ public class PlansServiceImpl implements PlansService {
 		plansCOMSender.send(resource);
 		return obj;
 	}
-
 	public void storePlan(CreatePlanRequest resource){
 		plansManager.findByNameDoesNotExists(resource.getName());
 		Plans obj=createPlansMapper.create(resource);
@@ -125,4 +126,15 @@ public class PlansServiceImpl implements PlansService {
 	plansManager.save(plans);
 
 }
+	@Transactional
+	public void deleteBonus(String plansBonus) {
+		Optional<Plans> find=plansManager.findByNameDoesExists(plansBonus);
+		try {
+			plansManager.deleteByName(plansBonus);
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+
+
+    }
 }

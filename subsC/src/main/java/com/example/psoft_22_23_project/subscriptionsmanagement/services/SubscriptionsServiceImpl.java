@@ -123,7 +123,6 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         plansDetailsFuture.complete(b);
     }
 
-    @Transactional
     public void createBonusPlan(CreatePlanRequestBonus plansBonusName) {
         String user = plansBonusName.getUsername();
 
@@ -135,11 +134,13 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
 
                 if (!subscriptions2.getIsBonus()) {
                     subscriptions2.changeBonus(true, plansBonusName.getName());
-                   // subsManager.save(subscriptions2);
-                   UpdateSubsRabbitRequest updateSubsRabbitRequest = updateSubsByRabbitMapper.toSubsRabbit("ads", subscriptions2.getVersion(),user,plansBonusName.getName());
+                    UpdateSubsRabbitRequest updateSubsRabbitRequest = updateSubsByRabbitMapper.toSubsRabbit("ads", subscriptions2.getVersion(),user,plansBonusName.getName());
                     subsCOMSender.sendUpdatePlanBonus(updateSubsRabbitRequest);
+                    subsManager.save(subscriptions2);
+
                 }else{
-                    throw new IllegalArgumentException("ALREADY HAVE SUB");
+                    subsCOMSender.sendDelete(plansBonusName.getName());
+                    throw new RuntimeException("Subscription already has a bonus plan");
                 }
             } else {
                 Subscriptions obj = createSubscriptionsMapper.createBonus(user, plansBonusName.getName(), plansBonusName, true);

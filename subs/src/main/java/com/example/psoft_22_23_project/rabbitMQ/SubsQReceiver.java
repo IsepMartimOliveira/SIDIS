@@ -50,7 +50,15 @@ public class SubsQReceiver {
         subsService.storeRenew(sub);
         System.out.println(" [x] Received update message '" + sub + "' from subsQ");
     }
-
-
+    @RabbitListener(queues = "#{toPlanBonusQueue.name}")
+    public void receiveUpdateBonus(UpdateSubsRabbitRequest sub){
+        subsService.storePlanUpdateBonus(sub);
+        System.out.println(" [x] Received update message '" + sub + "' from subsQ bonus");
+    }
+    @RabbitListener(queues = "#{createSubQueue.name}")
+    public void  createSubBonus(CreateSubsByRabbitRequest subsRequest) {
+        subsService.storeSubBonus(subsRequest);
+        System.out.println(" [x] Received '" + subsRequest + "' from subs_queue");
+    }
 
 }

@@ -21,13 +21,8 @@
 package com.example.psoft_22_23_project.plansmanagement.services;
 
 
-import com.example.psoft_22_23_project.plansmanagement.api.CreatePlanRequest;
-import com.example.psoft_22_23_project.plansmanagement.api.EditPlansRequest;
-import com.example.psoft_22_23_project.plansmanagement.api.PlanRequest;
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.Optional;
 
 public interface PlansManager {
@@ -36,4 +31,5 @@ public interface PlansManager {
 	Optional<Plans>  findByNameDoesExists(String name);
 	Plans save(Plans obj);
 
+   void deleteByName(String plansBonus);
 }
