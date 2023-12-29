@@ -18,23 +18,24 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.example.loadbalancer.api;
+package com.example.loadbalancer.filestoragemanagement.service;
 
-import com.example.loadbalancer.api.CreatePlanRequest;
-import com.example.loadbalancer.api.CreatePlanRequestBonus;
-import com.example.loadbalancer.model.Plans;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.springframework.context.annotation.Bean;
+/**
+ *
+ * @author pgsousa
+ *
+ */
+public class FileStorageException extends RuntimeException {
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 1L;
 
-@Mapper(componentModel = "spring")
-public abstract class CreatePlansMapper {
+	public FileStorageException(final String message) {
+		super(message);
+	}
 
-
-	public abstract Plans create(CreatePlanRequest request);
-
-	public abstract CreatePlanRequest createInverse(Plans request);
-
-	public abstract Plans createBonus(CreatePlanRequestBonus request);
-
+	public FileStorageException(final String message, final Throwable cause) {
+		super(message, cause);
+	}
 }

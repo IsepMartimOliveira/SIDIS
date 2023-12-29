@@ -18,23 +18,32 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.example.loadbalancer.api;
+package com.example.loadbalancer.exceptions;
 
-import com.example.loadbalancer.api.CreatePlanRequest;
-import com.example.loadbalancer.api.CreatePlanRequestBonus;
-import com.example.loadbalancer.model.Plans;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-@Mapper(componentModel = "spring")
-public abstract class CreatePlansMapper {
+import java.net.MalformedURLException;
+
+@ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "Object Not Found")
+public class NotFoundException extends RuntimeException {
 
 
-	public abstract Plans create(CreatePlanRequest request);
+	private static final long serialVersionUID = 1L;
 
-	public abstract CreatePlanRequest createInverse(Plans request);
+	public NotFoundException(final String string) {
+		super(string);
+	}
 
-	public abstract Plans createBonus(CreatePlanRequestBonus request);
+	public NotFoundException(final String string, final MalformedURLException ex) {
+		super(string, ex);
+	}
 
+	public NotFoundException(final Class<?> clazz, final long id) {
+		super(String.format("Entity %s with id %d not found", clazz.getSimpleName(), id));
+	}
+
+	public NotFoundException(final Class<?> clazz, final String id) {
+		super(String.format("Entity %s with id %s not found", clazz.getSimpleName(), id));
+	}
 }

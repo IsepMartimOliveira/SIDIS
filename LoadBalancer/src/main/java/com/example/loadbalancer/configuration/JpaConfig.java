@@ -18,23 +18,30 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.example.loadbalancer.api;
+package com.example.loadbalancer.configuration;
 
-import com.example.loadbalancer.api.CreatePlanRequest;
-import com.example.loadbalancer.api.CreatePlanRequestBonus;
-import com.example.loadbalancer.model.Plans;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-@Mapper(componentModel = "spring")
-public abstract class CreatePlansMapper {
+import java.util.Optional;
+
+@Configuration
+@EnableJpaAuditing(auditorAwareRef = "auditorProvider")
+@EnableTransactionManagement
+public class JpaConfig {
+
+	@Bean("auditorProvider")
+	public AuditorAware<String> auditorProvider() {
+		// TODO for public anonymous access, it should not be "SYSTEM" but "PUBLIC"
 
 
-	public abstract Plans create(CreatePlanRequest request);
-
-	public abstract CreatePlanRequest createInverse(Plans request);
-
-	public abstract Plans createBonus(CreatePlanRequestBonus request);
-
+		return () -> Optional.ofNullable(SecurityContextHolder.getContext()).map(SecurityContext::getAuthentication)
+				.map(Authentication::getName).or(() -> Optional.of("SYSTEM"));
+	}
 }

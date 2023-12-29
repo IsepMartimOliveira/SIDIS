@@ -18,23 +18,36 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.example.loadbalancer.api;
+package com.example.loadbalancer.configuration;
 
-import com.example.loadbalancer.api.CreatePlanRequest;
-import com.example.loadbalancer.api.CreatePlanRequestBonus;
-import com.example.loadbalancer.model.Plans;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+
+import com.example.loadbalancer.filestoragemanagement.service.FileStorageProperties;
+import io.swagger.v3.oas.models.info.Contact;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.OpenAPI;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.filter.ShallowEtagHeaderFilter;
 
-@Mapper(componentModel = "spring")
-public abstract class CreatePlansMapper {
+@Configuration
+@EnableConfigurationProperties({ FileStorageProperties.class })
+public class ApiConfig {
 
 
-	public abstract Plans create(CreatePlanRequest request);
 
-	public abstract CreatePlanRequest createInverse(Plans request);
+	@Bean
+	public ShallowEtagHeaderFilter shallowEtagHeaderFilter() {
+		return new ShallowEtagHeaderFilter();
+	}
 
-	public abstract Plans createBonus(CreatePlanRequestBonus request);
 
+
+	@Bean
+	public OpenAPI openApi() {
+		return new OpenAPI().info(new Info().title("Music API").description("Project API").version("v1.0")
+				.contact(new Contact().name("ISEP").email("grupo1@isep.ipp.pt")).termsOfService("TOC")
+				.license(new License().name("MIT").url("#")));
+	}
 }

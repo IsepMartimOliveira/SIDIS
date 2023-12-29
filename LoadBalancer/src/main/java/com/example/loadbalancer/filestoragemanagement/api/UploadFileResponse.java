@@ -18,23 +18,52 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.example.loadbalancer.api;
+package com.example.loadbalancer.filestoragemanagement.api;
 
-import com.example.loadbalancer.api.CreatePlanRequest;
-import com.example.loadbalancer.api.CreatePlanRequestBonus;
-import com.example.loadbalancer.model.Plans;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.springframework.context.annotation.Bean;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-@Mapper(componentModel = "spring")
-public abstract class CreatePlansMapper {
+/**
+ * <p>
+ * code based on
+ * https://github.com/callicoder/spring-boot-file-upload-download-rest-api-example
+ *
+ *
+ */
+@Schema(description = "Metadata about the uploaded file")
+public class UploadFileResponse {
 
+	private final String fileName;
 
-	public abstract Plans create(CreatePlanRequest request);
+	@Schema(description = "Absolute URL of the file")
+	private final String fileDownloadUri;
 
-	public abstract CreatePlanRequest createInverse(Plans request);
+	@Schema(description = "Media type")
+	private final String fileType;
 
-	public abstract Plans createBonus(CreatePlanRequestBonus request);
+	@Schema(description = "File size in bytes")
+	private final long size;
 
+	public UploadFileResponse(final String fileName, final String fileDownloadUri, final String fileType,
+                              final long size) {
+		this.fileName = fileName;
+		this.fileDownloadUri = fileDownloadUri;
+		this.fileType = fileType;
+		this.size = size;
+	}
+
+	public String getFileName() {
+		return fileName;
+	}
+
+	public String getFileDownloadUri() {
+		return fileDownloadUri;
+	}
+
+	public String getFileType() {
+		return fileType;
+	}
+
+	public long getSize() {
+		return size;
+	}
 }
