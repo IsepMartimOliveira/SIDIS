@@ -22,10 +22,6 @@ public class Config {
         return new FanoutExchange("sub_to_create");
     }
     @Bean
-    public FanoutExchange deleteFanout() {
-        return new FanoutExchange("sub_to_delete");
-    }
-    @Bean
     public FanoutExchange updateFanout() {
         return new FanoutExchange("sub_to_update");
     }
@@ -41,11 +37,8 @@ public class Config {
     public FanoutExchange checkPlanFanout() {
         return new FanoutExchange("checkPlan");
     }
-
     @Bean
-    public FanoutExchange checkSendPlanFanout() {
-        return new FanoutExchange("send_check_plan");
-    }
+    public FanoutExchange checkSendPlanFanout() {return new FanoutExchange("send_check_plan");}
     @Bean
     public FanoutExchange getPlanNameFanout() {
         return new FanoutExchange("get_plan");
@@ -54,18 +47,14 @@ public class Config {
     public FanoutExchange sendPlanDetailsFanout() {
         return new FanoutExchange("send_plan_detail");
     }
-
     @Bean
     public FanoutExchange receivePlanBonus(){return new FanoutExchange("create_plan_bonus");}
-
     @Bean
     public  FanoutExchange updateToBonusPlan(){return  new FanoutExchange("update_to_bonus");}
     @Bean
     public  FanoutExchange createSubBonus(){return  new FanoutExchange("create_sub_bonus");}
-
     @Bean
     public  FanoutExchange deletePlanBonus(){return  new FanoutExchange("delete_plan");}
-
     @Bean
     public Queue sendPlanDetailsQueue() {
         return new AnonymousQueue();
@@ -74,30 +63,10 @@ public class Config {
     public Queue getPlanNameQueue() {
         return new AnonymousQueue();
     }
-
-
     @Bean
-    public Queue subQueue() {
-        return new AnonymousQueue();
-    }
+    public Queue subQueue() {return new AnonymousQueue();}
     @Bean
-    public Queue subsQ2() {
-        return new AnonymousQueue();
-    }
-
-    @Bean
-    public Queue subsC2() {
-        return new AnonymousQueue();
-    }
-
-    @Bean
-    public Queue subsQ() {
-        return new AnonymousQueue();
-    }
-    @Bean
-    public Queue updateQueue() {
-        return new AnonymousQueue();
-    }
+    public Queue updateQueue() {return new AnonymousQueue();}
     @Bean
     public Queue renewQueue() {
         return new AnonymousQueue();

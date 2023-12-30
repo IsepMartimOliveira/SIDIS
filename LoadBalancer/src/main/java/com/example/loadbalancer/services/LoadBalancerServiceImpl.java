@@ -1,9 +1,9 @@
 package com.example.loadbalancer.services;
 
 import com.example.loadbalancer.api.CreatePlanRequest;
-import com.example.loadbalancer.api.CreatePlansMapper;
 import com.example.loadbalancer.model.Plans;
 import com.example.loadbalancer.repositories.PlansRepositoryDB;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,8 +14,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class LoadBalancerServiceImpl implements LoadBalancerService {
+
+    private  final CreatePlanMapper createPlansMapper;
     private final PlansRepositoryDB plansRepositoryDB;
-    private final CreatePlansMapper createPlansMapper;
     @Override
     public void createPlan(CreatePlanRequest plans) {
         Plans obj=createPlansMapper.create(plans);
@@ -28,8 +29,8 @@ public class LoadBalancerServiceImpl implements LoadBalancerService {
         List<CreatePlanRequest> plansDTOList = new ArrayList();
         for (Plans p : plansList) {
             CreatePlanRequest plansDTO = createPlansMapper.createInverse(p);
-            plansDTOList.add(plansDTO);
+           plansDTOList.add(plansDTO);
         }
-        return plansDTOList;
+        return null;
     }
 }

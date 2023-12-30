@@ -19,11 +19,6 @@ public class Config {
     public FanoutExchange fanout() {
         return new FanoutExchange("plans_create");
     }
-
-    @Bean
-    public FanoutExchange deleteFanout() {
-        return new FanoutExchange("plans_to_delete");
-    }
     @Bean
     public FanoutExchange updateFanout() {
         return new FanoutExchange("plans_to_update");
@@ -37,10 +32,6 @@ public class Config {
     public  FanoutExchange bonus_plan(){return  new FanoutExchange("create_plan_bonus");}
     @Bean
     public  FanoutExchange deletePlanBonus(){return  new FanoutExchange("delete_plan");}
-
-
-
-
     @Bean
     public Queue plansQueue() {
         return new AnonymousQueue();

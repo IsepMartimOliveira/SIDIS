@@ -58,7 +58,7 @@ public class SubsQReceiver {
     @RabbitListener(queues = "#{createSubQueue.name}")
     public void  createSubBonus(CreateSubsByRabbitRequest subsRequest) {
         subsService.storeSubBonus(subsRequest);
-        System.out.println(" [x] Received '" + subsRequest + "' from subs_queue");
+        System.out.println(" [x] Received '" + subsRequest + "' from bonus");
     }
 
 }

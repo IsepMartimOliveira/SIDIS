@@ -40,8 +40,7 @@ public class Plans {
         this.promoted = promoted;
         this.deleted = new Deleted();
 
-        FeeRevision feeRevision1 = new FeeRevision(annualFee.getAnnualFee(),monthlyFee.getMonthlyFee());
-        feeRevisions.add(feeRevision1);
+
     }
 
     protected  Plans(){}
@@ -77,8 +76,7 @@ public class Plans {
 
 
 
-    @ElementCollection
-    private List<FeeRevision> feeRevisions = new ArrayList<>();
+
 
 
 //@OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -119,26 +117,6 @@ public class Plans {
             this.promoted.setPromoted(promoted);
         }
 
-
-    }
-    public void moneyData(long desiredVersion, Double annualFee, Double monthlyFee, String name) {
-        if (this.version != desiredVersion) {
-            throw new StaleObjectStateException("Object was already modified by another user", this.id);
-        }
-        if (annualFee != null || monthlyFee != null){
-            FeeRevision feeRevision1 = new FeeRevision(annualFee,monthlyFee,name);
-            feeRevisions.add(feeRevision1);
-
-        }
-        if(annualFee != null){
-
-            this.annualFee.setAnnualFee(annualFee);
-        }
-
-        if(monthlyFee != null){
-
-            this.monthlyFee.setMonthlyFee(monthlyFee);
-        }
 
     }
 

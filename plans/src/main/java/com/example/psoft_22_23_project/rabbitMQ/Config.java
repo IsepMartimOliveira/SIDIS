@@ -127,4 +127,17 @@ public class Config {
     public  PlansQReceiver receiver(){
         return new PlansQReceiver();
     }
+
+    @Bean
+    public Queue queuePlansRPC(){
+        return new Queue("rpc_plans_receiver");
+    }
+    @Bean
+    public DirectExchange plansExchange(){
+        return new DirectExchange("rpc_plans");
+    }
+    @Bean
+    public Binding bindingReceiver(DirectExchange plansExchange, Queue queuePlansRPC){
+        return BindingBuilder.bind(queuePlansRPC).to(plansExchange).with("key");
+    }
 }
