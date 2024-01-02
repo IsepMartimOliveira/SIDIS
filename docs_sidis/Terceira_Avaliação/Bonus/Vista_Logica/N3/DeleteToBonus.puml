@@ -1,0 +1,74 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  title  Delete Plan Bonus
+
+autonumber
+
+actor "Client" as Ac
+participant ":PlanController" as PlanController
+participant ":PlanService" as PService
+participant ":PlanManager" as PManager
+database ":PlanDB" as PDB
+
+box "Subscriptions Component"
+    participant ":SubService" as Service
+    participant ":SubManager" as MG
+    database "SubDB" as SDB
+end box
+
+
+
+
+
+participant ":MS Broker" as Broker
+
+Ac->PlanController:POST  /plans/createBonus
+PlanController->PService:createBonus(CreatePlanRequestBonus resource)
+PService->PManager:findByNameDoesNotExists()
+PManager->PDB:check if exist in DB
+PDB-->PManager:empty
+PManager-->PService:empty
+PService->Broker:Publish(create_plan_bonus,CreatePlanRequestBonus planBonusName)
+
+
+note right
+Broker Notifies PlanQ and PlanC about the plan created
+end note
+
+PService<-Broker:consumes(create_plan_bonus,CreatePlanRequestBonus planBonusName)
+
+PService->PService:save plan created
+PService-->PlanController:plans
+
+PlanController-->Ac:202
+Broker->Service:consumes(create_plan_bonus,CreatePlanRequestBonus planBonusName)
+Service->MG:findByUser(user)
+MG->SDB:checks if exist in DB
+SDB-->MG:subscription
+note right
+ Subscription related with the user
+ It´s a BonuS. Throws error and
+ Deletes PlanBonus
+end note
+MG-->Service:subscription
+
+Service->Service:throws error
+Service->Broker:publish(delete_plan,String name)
+Broker->PService:consumes(delete_plan,String name)
+note right
+Broker Notifies PlansQ and PlansC about the plan updated
+end note
+PService->PManager:deleteByName(plansBonus)
+PManager->PDB:deletePlansByName_Name(plansBonus)
+PDB-->PManager:deleted Plan
+PManager-->PService:deleted Plan
+
+
+
+
+
+
+
+@enduml
