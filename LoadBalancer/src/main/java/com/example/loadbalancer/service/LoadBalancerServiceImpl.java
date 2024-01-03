@@ -2,6 +2,7 @@ package com.example.loadbalancer.service;
 
 import com.example.loadbalancer.api.CreatePlanMapper;
 import com.example.loadbalancer.api.CreatePlanRequest;
+import com.example.loadbalancer.api.DeactivatPlanRequest;
 import com.example.loadbalancer.api.EditPlanRequestUpdate;
 import com.example.loadbalancer.model.Plans;
 import com.example.loadbalancer.repository.LoadBalancerRepository;
@@ -48,6 +49,13 @@ public class LoadBalancerServiceImpl implements LoadBalanccerService {
                 resource.getEditPlansRequest().getActive().toString(),
                 resource.getEditPlansRequest().getPromoted().toString());
 
+        plansManager.save(plans);
+    }
+
+    public  void  storePlanDeactivates(DeactivatPlanRequest deactivatPlanRequest){
+        final Optional<Plans> plansOptional = plansManager.findByNameDoesExists(deactivatPlanRequest.getName());
+        Plans plans=plansOptional.get();
+        plans.deactivate();
         plansManager.save(plans);
     }
 }

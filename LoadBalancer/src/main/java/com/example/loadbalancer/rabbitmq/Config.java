@@ -49,6 +49,18 @@ public class Config {
     public Queue updateQueue() {
         return new AnonymousQueue();
     }
+
+    @Bean
+    public Queue deactivateQueue(){return new AnonymousQueue();}
+    @Bean
+    public FanoutExchange deactivateFanout() {
+        return new FanoutExchange("plans_to_deactivate");
+    }
+
+    @Bean
+    public Binding bindingDeactivateQueue(FanoutExchange deactivateFanout,Queue deactivateQueue){
+        return BindingBuilder.bind(deactivateQueue).to(deactivateFanout);
+    }
     @Bean
     public Binding binding1(FanoutExchange fanout, Queue createPlanQueueBalancer) {return BindingBuilder.bind(createPlanQueueBalancer).to(fanout);}
     @Bean

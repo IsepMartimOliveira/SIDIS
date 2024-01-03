@@ -1,6 +1,7 @@
 package com.example.loadbalancer.rabbitmq;
 
 import com.example.loadbalancer.api.CreatePlanRequest;
+import com.example.loadbalancer.api.DeactivatPlanRequest;
 import com.example.loadbalancer.api.EditPlanRequestUpdate;
 import com.example.loadbalancer.service.LoadBalancerServiceImpl;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -21,4 +22,10 @@ public class LoadBalancerReceiver {
         loadBalancerService.storePlanUpdate(plans);
         System.out.println(" [x] Received update message '" + plans + "' from updateQueue");
     }
+    @RabbitListener(queues = "#{deactivateQueue.name}")
+    public void receiveDeactivate(DeactivatPlanRequest plans) {
+        loadBalancerService.storePlanDeactivates(plans);
+        System.out.println(" [x] Received deactivate message '" + plans + "' from deactivateQueue");
+    }
+
 }
