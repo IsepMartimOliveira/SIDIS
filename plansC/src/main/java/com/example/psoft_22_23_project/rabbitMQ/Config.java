@@ -21,7 +21,6 @@ public class Config {
         DefaultJackson2JavaTypeMapper typeMapper = new DefaultJackson2JavaTypeMapper();
         Map<String, Class<?>> idClassMapping = new HashMap<>();
         idClassMapping.put("CreatePlanRequest", com.example.psoft_22_23_project.plansmanagement.api.CreatePlanRequest.class);
-        // Add other mappings as necessary
         typeMapper.setIdClassMapping(idClassMapping);
         converter.setJavaTypeMapper(typeMapper);
         return converter;

@@ -21,13 +21,9 @@ public class Config {
     public MessageConverter messageConverter() {
         Jackson2JsonMessageConverter converter = new Jackson2JsonMessageConverter();
         DefaultJackson2JavaTypeMapper typeMapper = new DefaultJackson2JavaTypeMapper();
-
-        // Customize typeMapper as needed, e.g., setting up default type id mapping
         Map<String, Class<?>> idClassMapping = new HashMap<>();
         idClassMapping.put("CreatePlanRequest", com.example.loadbalancer.api.CreatePlanRequest.class);
-        // Add other mappings as necessary
         typeMapper.setIdClassMapping(idClassMapping);
-
         converter.setJavaTypeMapper(typeMapper);
         return converter;
     }
@@ -42,10 +38,23 @@ public class Config {
     public FanoutExchange fanout() {
         return new FanoutExchange("plans_create");
     }
+
+    @Bean
+    public FanoutExchange updateFanout() {
+        return new FanoutExchange("plans_to_update");
+    }
     @Bean
     public Queue createPlanQueueBalancer(){return new AnonymousQueue();}
     @Bean
+    public Queue updateQueue() {
+        return new AnonymousQueue();
+    }
+    @Bean
     public Binding binding1(FanoutExchange fanout, Queue createPlanQueueBalancer) {return BindingBuilder.bind(createPlanQueueBalancer).to(fanout);}
+    @Bean
+    public Binding bindingUpdateQueue(FanoutExchange updateFanout, Queue updateQueue) {
+        return BindingBuilder.bind(updateQueue).to(updateFanout);
+    }
     @Bean
     public  LoadBalancerReceiver receiver(){
         return new LoadBalancerReceiver();
@@ -63,6 +72,7 @@ public class Config {
     public Binding bindingReceiver(DirectExchange plansExchange, Queue queuePlansRPC){
         return BindingBuilder.bind(queuePlansRPC).to(plansExchange).with("key");
     }
+
     @Bean
     public  LoadBalancerSender sender(){
         return new LoadBalancerSender();

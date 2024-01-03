@@ -1,6 +1,7 @@
 package com.example.loadbalancer.rabbitmq;
 
 import com.example.loadbalancer.api.CreatePlanRequest;
+import com.example.loadbalancer.api.EditPlanRequestUpdate;
 import com.example.loadbalancer.service.LoadBalancerServiceImpl;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,5 +15,10 @@ public class LoadBalancerReceiver {
     public void receivePlan(CreatePlanRequest planRequest) {
         loadBalancerService.createPlan(planRequest);
         System.out.println(" [x] Received '" + planRequest + "' from loadBalancer");
+    }
+    @RabbitListener(queues = "#{updateQueue.name}")
+    public void receiveUpdate(EditPlanRequestUpdate plans) {
+        loadBalancerService.storePlanUpdate(plans);
+        System.out.println(" [x] Received update message '" + plans + "' from updateQueue");
     }
 }
