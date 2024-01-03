@@ -1,9 +1,6 @@
 package com.example.loadbalancer.service;
 
-import com.example.loadbalancer.api.CreatePlanMapper;
-import com.example.loadbalancer.api.CreatePlanRequest;
-import com.example.loadbalancer.api.DeactivatPlanRequest;
-import com.example.loadbalancer.api.EditPlanRequestUpdate;
+import com.example.loadbalancer.api.*;
 import com.example.loadbalancer.model.Plans;
 import com.example.loadbalancer.repository.LoadBalancerRepository;
 import lombok.RequiredArgsConstructor;
@@ -58,4 +55,12 @@ public class LoadBalancerServiceImpl implements LoadBalanccerService {
         plans.deactivate();
         plansManager.save(plans);
     }
+
+    public void storeBonusPlan(CreatePlanRequestBonus resource){
+        plansManager.findByNameDoesNotExists(resource.getName());
+        Plans obj = createPlansMapper.createBonus(resource);
+        plansManager.save(obj);
+    }
+
+    public void deleteBonus(String plansBonus) {plansManager.deleteByName(plansBonus);}
 }

@@ -30,7 +30,7 @@ public interface PlansManager {
 	void findByNameDoesNotExists(String name);
 	Optional<Plans>  findByNameDoesExists(String name);
 	Plans save(Plans obj);
-
+	void deleteByName(String plansBonus);
 
 	Iterable<Plans> findAll();
 }

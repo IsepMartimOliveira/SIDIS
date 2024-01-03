@@ -1,6 +1,7 @@
 package com.example.loadbalancer.rabbitmq;
 
 import com.example.loadbalancer.api.CreatePlanRequest;
+import com.example.loadbalancer.api.CreatePlanRequestBonus;
 import com.example.loadbalancer.api.DeactivatPlanRequest;
 import com.example.loadbalancer.api.EditPlanRequestUpdate;
 import com.example.loadbalancer.service.LoadBalancerServiceImpl;
@@ -26,6 +27,18 @@ public class LoadBalancerReceiver {
     public void receiveDeactivate(DeactivatPlanRequest plans) {
         loadBalancerService.storePlanDeactivates(plans);
         System.out.println(" [x] Received deactivate message '" + plans + "' from deactivateQueue");
+    }
+    @RabbitListener(queues = "#{planBonusQueue.name}")
+    public void receivePlanBonus(CreatePlanRequestBonus plansBonus){
+        loadBalancerService.storeBonusPlan(plansBonus);
+        System.out.println(" [x] Received bonus message '" + plansBonus + "' from planBonusQueue");
+
+    }
+    @RabbitListener(queues = "#{deletePlanBonusQueue.name}")
+    public void deletePlanBonus(String plansBonus){
+        loadBalancerService.deleteBonus(plansBonus);
+        System.out.println(" [x] Received delete bonus message '" + plansBonus );
+
     }
 
 }

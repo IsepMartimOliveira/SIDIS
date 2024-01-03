@@ -37,6 +37,11 @@ class PlansManagerImpl implements PlansManager {
         return dbRepository.save(obj);
     }
 
+    @Override
+    public void deleteByName(String plansBonus) {
+        dbRepository.deletePlansByName(plansBonus);
+    }
+
 
     @Override
     public Iterable<Plans> findAll() {return dbRepository.findAll();}
