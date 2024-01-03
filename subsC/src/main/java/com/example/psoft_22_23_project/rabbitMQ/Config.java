@@ -9,10 +9,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.swing.plaf.PanelUI;
+import java.util.UUID;
+import java.util.logging.Logger;
 
 @Configuration
 public class Config {
-
+ private final UUID  uid= UUID.randomUUID();
     @Bean
     public MessageConverter messageConverter() {
         return new Jackson2JsonMessageConverter();
@@ -48,8 +50,6 @@ public class Config {
         return new FanoutExchange("send_plan_detail");
     }
     @Bean
-    public FanoutExchange receivePlanBonus(){return new FanoutExchange("create_plan_bonus");}
-    @Bean
     public  FanoutExchange updateToBonusPlan(){return  new FanoutExchange("update_to_bonus");}
     @Bean
     public  FanoutExchange createSubBonus(){return  new FanoutExchange("create_sub_bonus");}
@@ -83,9 +83,17 @@ public class Config {
     public Queue checkSendPlanQueue() {
         return new AnonymousQueue();
     }
+    @Bean
+    public Queue sendPlanToSubBonusQueue() {return new Queue("send_plan_to_sub_bonus");}
+    @Bean
+    public DirectExchange directExchange() {
+        return new DirectExchange("plan_to_sub");
+    }
 
     @Bean
-    public Queue planBonusQueue(){return new AnonymousQueue();}
+    public Binding bindingSendPlanToSubBonusQueue(DirectExchange directExchange, Queue sendPlanToSubBonusQueue) {
+        return BindingBuilder.bind(sendPlanToSubBonusQueue).to(directExchange).with("key2");
+    }
 
     @Bean
     public Queue toPlanBonusQueue(){return new AnonymousQueue();}
@@ -94,7 +102,11 @@ public class Config {
     public Queue createSubQueue(){return new AnonymousQueue();}
 
     @Bean
-    public Queue deletePlanBonusQueue(){return new AnonymousQueue();}
+    public Queue deletePlanBonusQueue(){
+        Logger.getGlobal().info(uid.toString());
+        return new Queue("delete");}
+
+
     @Bean
     public Binding bindingSendCheckPlanQueue(FanoutExchange checkSendPlanFanout, Queue checkSendPlanQueue) {
         return BindingBuilder.bind(checkSendPlanQueue).to(checkSendPlanFanout);
@@ -131,10 +143,6 @@ public class Config {
         return BindingBuilder.bind(subQueue).to(fanout);
     }
 
-    @Bean
-    public Binding bindingBonusQue(FanoutExchange receivePlanBonus,Queue planBonusQueue){
-        return BindingBuilder.bind(planBonusQueue).to(receivePlanBonus);
-    }
 
     @Bean
     public Binding bindingToBonusQueue(FanoutExchange updateToBonusPlan,Queue toPlanBonusQueue){

@@ -1,0 +1,50 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Create  a new Subscription Bonus
+
+autonumber
+
+actor "Client" as Ac
+box "Plan Component Container"
+participant ":PlanC" as Auth
+end box
+box "Subscriptions Component Container"
+    participant ":SubC" as NewComp
+    participant ":SubQ" as NewCompQ
+end box
+participant ":Message Broker" as Broker
+
+
+Ac->Auth:POST /plans/createBonus
+Auth->Auth:creates plan bonus
+Auth->Auth:saves plan bonus
+Auth->Broker:publish plan bonus
+
+Auth-->Ac:202
+deactivate Auth
+deactivate Auth
+
+
+
+Broker->NewComp:consumes(create_plan_bonus,CreatePlanRequestBonus plansBonusName)
+NewComp->NewComp:create
+NewComp->Broker:publish(create_sub_bonus,CreateSubsByRabbitRequest updatedSub)
+Broker->NewComp:consumes(create_sub_bonus,CreateSubsByRabbitRequest updatedSub)
+NewComp->NewComp:save(Subscription sub)
+Broker->NewCompQ:consumes(create_sub_bonus,CreateSubsByRabbitRequest updatedSub)
+NewCompQ->NewCompQ:save(Subscription sub)
+
+
+
+
+
+
+
+
+
+
+
+
+@enduml

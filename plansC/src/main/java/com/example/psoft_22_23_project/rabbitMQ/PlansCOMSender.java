@@ -35,12 +35,15 @@ public class PlansCOMSender {
 
     }
 
-    public void sendBonus(CreatePlanRequestBonus planBonusName){
+    public void sendBonusBroadcast(CreatePlanRequestBonus planBonusName){
         template.convertAndSend(bonus_plan, "", planBonusName);
         System.out.println(" [x] Sent '" + planBonusName + "' to create a bonus plan");
 
+    }
+    public void sendBonusToSubC(CreatePlanRequestBonus planBonusName){
+        template.convertAndSend("plan_to_sub", "key2", planBonusName);
+        System.out.println(" [x] Sent '" + planBonusName + "' to create a bonus plan");
 
     }
-
 
 }

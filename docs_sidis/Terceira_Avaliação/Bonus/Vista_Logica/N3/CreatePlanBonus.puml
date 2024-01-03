@@ -7,15 +7,20 @@ title  title  Create  a new Subscription Bonus
 autonumber
 
 actor "Client" as Ac
+box "Plans Command Conntainer"
+
 participant ":PlanController" as PlanController
 participant ":PlanService" as PService
+participant ":PlanCOMSender" as PSender
+participant ":PlanCOMReceiver" as PReceiver
 participant ":PlanManager" as PManager
-database ":PlanDB" as PDB
+end box
 
-box "Subscriptions Component"
+box "Subscriptions Command Conntainer"
     participant ":SubService" as Service
+     participant ":SubscriptionCOMSender" as SSender
     participant ":SubManager" as MG
-    database "SubDB" as SDB
+    participant ":SubscriptionCOMReceiver" as SReceiver
 end box
 
 
@@ -27,35 +32,44 @@ participant ":MS Broker" as Broker
 Ac->PlanController:POST  /plans/createBonus
 PlanController->PService:createBonus(CreatePlanRequestBonus resource)
 PService->PManager:findByNameDoesNotExists()
-PManager->PDB:check if exist in DB
-PDB-->PManager:empty
-PManager-->PService:empty
-PService->Broker:Publish(create_plan_bonus,CreatePlanRequestBonus planBonusName)
+PManager->PManager:check if exist in DB
 
+PManager-->PService:empty
+
+deactivate PManager
+PService->PSender:createBonus(CreatePlanRequestBonus resource)
+PSender->Broker:Publish(create_plan_bonus,CreatePlanRequestBonus planBonusName)
+
+deactivate PSender
 
 note right
 Broker Notifies PlanQ and PlanC about the plan created
 end note
-
-PService<-Broker:consumes(create_plan_bonus,CreatePlanRequestBonus planBonusName)
-
+PReceiver<-Broker:consumes(create_plan_bonus,CreatePlanRequestBonus planBonusName)
+PService<-PReceiver:storeBonusPlan
+deactivate PReceiver
 PService->PService:save plan created
 PService-->PlanController:plans
+deactivate PService
+deactivate PService
 
 PlanController-->Ac:202
 
 Broker->Service:consumes(create_plan_bonus,CreatePlanRequestBonus planBonusName)
 Service->MG:findByUser(user)
-MG->SDB:checks if exist in DB
-SDB-->MG:empty
+MG->MG:checks if exist in DB
 note right
 No Subscription related with the user
 Means it can create a Bonus Sub
 end note
 MG-->Service:empty
+deactivate MG
 Service->Service:create Subscription
-Service->Broker:publish (create_sub_bonus,CreateSubsByRabbitRequest subRequest)
-Broker->Service:consumes(create_sub_bonus,CreateSubsByRabbitRequest subRequest)
+Service->SSender: sendCreatePlanBonus(CreateSubsByRabbitRequest updatedSub)
+SSender->Broker:publish (create_sub_bonus,CreateSubsByRabbitRequest subRequest)
+deactivate SSender
+Broker->SReceiver:consumes(create_sub_bonus,CreateSubsByRabbitRequest subRequest)
+SReceiver->Service:storeSubBonus
 note right
 Broker Notifies SubsQ and SubsC about the plan created
 end note

@@ -44,7 +44,7 @@ public class SubsCOMReceiver {
         subscriptionsService.notifyAboutReceivedPlanDetails(b);
         System.out.println(" [x] Received "+b+" from subs_queue");
     }
-    @RabbitListener(queues = "#{planBonusQueue.name}")
+    @RabbitListener(queues = "#{sendPlanToSubBonusQueue.name}")
     public void receivePlanBonus(CreatePlanRequestBonus plansBonusName){
         subscriptionsService.createBonusPlan(plansBonusName);
 

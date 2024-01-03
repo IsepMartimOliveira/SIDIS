@@ -30,6 +30,8 @@ public class Config {
 
     @Bean
     public  FanoutExchange bonus_plan(){return  new FanoutExchange("create_plan_bonus");}
+
+
     @Bean
     public  FanoutExchange deletePlanBonus(){return  new FanoutExchange("delete_plan");}
     @Bean
@@ -91,5 +93,29 @@ public class Config {
         return new PlansCOMReceiver();
     }
 
+    @Bean
+    public Queue queuePlansRPC(){
+        return new Queue("rpc_plans_receiver");
+    }
+    @Bean
+    public DirectExchange plansExchange(){
+        return new DirectExchange("rpc_plans");
+    }
+    @Bean
+    public Binding bindingReceiver(DirectExchange plansExchange, Queue queuePlansRPC){
+        return BindingBuilder.bind(queuePlansRPC).to(plansExchange).with("key");
+    }
+
+    @Bean
+    public Queue sendPlanToSubBonusQueue() {return new Queue("send_plan_to_sub_bonus");}
+    @Bean
+    public DirectExchange directExchange() {
+        return new DirectExchange("plan_to_sub");
+    }
+
+    @Bean
+    public Binding bindingSendPlanToSubBonusQueue(DirectExchange directExchange, Queue sendPlanToSubBonusQueue) {
+        return BindingBuilder.bind(sendPlanToSubBonusQueue).to(directExchange).with("key2");
+    }
 
 }

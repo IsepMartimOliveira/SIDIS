@@ -1,21 +1,20 @@
-@startuml
+6@startuml
 'https://plantuml.com/sequence-diagram
 autoactivate on
 autonumber
-title  Create  a new Subscription Bonus
+title  Delete Plan Bonus in case Sub Bonus already exists
 
 autonumber
 
 actor "Client" as Ac
 participant ":PlanC" as Auth
 participant ":PlanQ" as Serv
-box "Subscriptions Component"
-    participant ":SubC" as NewComp
-    participant ":SubQ" as NewCompQ
-end box
+
 
 participant ":Message Broker" as Broker
-
+box "Subscriptions Component"
+    participant ":SubC" as NewComp
+end box
 
 Ac->Auth:POST /plans/createBonus
 Auth->Broker: publish(create_plan_bonus,CreatePlanRequestBonus planBonusName)
@@ -23,18 +22,29 @@ Auth->Broker: publish(create_plan_bonus,CreatePlanRequestBonus planBonusName)
 Auth-->Ac:202
 Broker->Auth:consumes(create_plan_bonus,CreatePlanRequestBonus planBonusName)
 Auth->Auth:storePlan(Plan plan)
+deactivate Auth
+deactivate Auth
+
 
 Broker->Serv:consumes(plans_create,PlanDetails plandetails)
 
 
 Serv->Serv:storePlan(Plan plan)
+deactivate Serv
+deactivate Serv
+
 Broker->NewComp:consumes(create_plan_bonus,CreatePlanRequestBonus plansBonusName)
 NewComp->NewComp:create
-NewComp->Broker:publish(create_sub_bonus,CreateSubsByRabbitRequest updatedSub)
-Broker->NewComp:consumes(create_sub_bonus,CreateSubsByRabbitRequest updatedSub)
-NewComp->NewComp:save(Subscription sub)
-Broker->NewCompQ:consumes(create_sub_bonus,CreateSubsByRabbitRequest updatedSub)
-NewCompQ->NewCompQ:save(Subscription sub)
+note right
+If there is a Subscription
+ bonus,it throws an error
+end note
+deactivate Broker
+NewComp->Broker:publish(delete_plan,String name)
+Broker->Auth:consumes(delete_plan,CreateSubsByRabbitRequest updatedSub)
+Auth->Auth:deletePlanBonus
+Broker->Serv:consumes(delete_plan,CreateSubsByRabbitRequest updatedSub)
+Serv->Serv:deletePlanBonus
 
 
 

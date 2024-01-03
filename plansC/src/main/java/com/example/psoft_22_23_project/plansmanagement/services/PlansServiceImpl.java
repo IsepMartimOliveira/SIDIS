@@ -109,7 +109,8 @@ public class PlansServiceImpl implements PlansService {
 	public Plans createBonus(CreatePlanRequestBonus resource) {
 		plansManager.findByNameDoesNotExists(resource.getName());
 		Plans obj = createPlansMapper.createBonus(resource);
-		plansCOMSender.sendBonus(resource);
+		plansCOMSender.sendBonusBroadcast(resource);
+		plansCOMSender.sendBonusToSubC(resource);
 		return obj;
 
 	}
