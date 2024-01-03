@@ -1,7 +1,7 @@
 package com.example.loadbalancer.rabbitmq;
 
 import com.example.loadbalancer.api.CreatePlanRequest;
-import com.example.loadbalancer.services.LoadBalancerService;
+import com.example.loadbalancer.service.LoadBalancerServiceImpl;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class LoadBalancerReceiver {
     @Autowired
-    private LoadBalancerService loadBalancerService;
+    private LoadBalancerServiceImpl loadBalancerService;
     @RabbitListener(queues = "#{createPlanQueueBalancer.name}")
     public void receivePlan(CreatePlanRequest planRequest) {
         loadBalancerService.createPlan(planRequest);

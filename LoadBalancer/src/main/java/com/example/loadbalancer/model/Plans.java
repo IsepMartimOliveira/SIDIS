@@ -1,25 +1,18 @@
 package com.example.loadbalancer.model;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.hibernate.StaleObjectStateException;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+
+
+import lombok.Data;
 
 import javax.persistence.*;
 
-
-@Table(name = "Plans")
-@Getter
-@Setter
 @Entity
+@Data
+@Table(name = "Plans")
 public class Plans {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Version
-    private long version;
     private String name;
     private String description;
     private String numberOfMinutes;
@@ -31,11 +24,7 @@ public class Plans {
     private String active;
     private String promoted;
 
-    public Plans(String name, String description,
-                 String numberOfMinutes, String maximumNumberOfUsers
-                , String musicCollection, String musicSuggestion
-                , String annualFee, String monthlyFee
-                , String active, String promoted) {
+    public Plans(String name, String description, String numberOfMinutes, String maximumNumberOfUsers, String musicCollection, String musicSuggestion, String annualFee, String monthlyFee, String active, String promoted) {
         this.name = name;
         this.description = description;
         this.numberOfMinutes = numberOfMinutes;
@@ -48,18 +37,15 @@ public class Plans {
         this.promoted = promoted;
     }
 
-    protected Plans() {
 
-    }
+    protected  Plans(){}
 
-    public void updateData(long desiredVersion, String description,
+    public void updateData( String description,
                            String maximumNumberOfUsers,
                            String numberOfMinutes , String musicCollections,
                            String musicSuggestions, String active, String promoted) {
 
-        if (this.version != desiredVersion) {
-            throw new StaleObjectStateException("Object was already modified by another user", this.id);
-        }
+
         if(description != null){
             this.description=(description);
         }
@@ -88,11 +74,7 @@ public class Plans {
 
 
     }
-
-    public void deactivate(final long desiredVersion) {
-        if (this.version != desiredVersion) {
-            throw new StaleObjectStateException("Object was already modified by another user", this.id);
-        }
+    public void deactivate() {
 
         this.active=("false");
     }
