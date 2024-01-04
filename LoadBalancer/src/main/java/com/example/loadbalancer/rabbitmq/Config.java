@@ -23,6 +23,7 @@ public class Config {
         DefaultJackson2JavaTypeMapper typeMapper = new DefaultJackson2JavaTypeMapper();
         Map<String, Class<?>> idClassMapping = new HashMap<>();
         idClassMapping.put("CreatePlanRequest", com.example.loadbalancer.api.CreatePlanRequest.class);
+        idClassMapping.put("CreateSubsByRabbitRequest", com.example.loadbalancer.api.CreateSubsByRabbitRequest.class);
         typeMapper.setIdClassMapping(idClassMapping);
         converter.setJavaTypeMapper(typeMapper);
         return converter;
@@ -76,6 +77,18 @@ public class Config {
     public Queue deletePlanBonusQueue(){return new AnonymousQueue();}
 
     @Bean
+    public FanoutExchange fanoutSub() {
+        return new FanoutExchange("sub_to_create");
+    }
+    @Bean
+    public Queue subQueue() {return new AnonymousQueue();}
+
+    @Bean
+    public Binding bindingSubQueue(FanoutExchange fanoutSub, Queue subQueue) {
+        return BindingBuilder.bind(subQueue).to(fanoutSub);
+    }
+
+    @Bean
     public Binding bindingToDeletePlanBonusQueue(FanoutExchange deletePlanBonus,Queue deletePlanBonusQueue){
         return BindingBuilder.bind(deletePlanBonusQueue).to(deletePlanBonus);
     }
@@ -101,6 +114,18 @@ public class Config {
     @Bean
     public Binding bindingReceiver(DirectExchange plansExchange, Queue queuePlansRPC){
         return BindingBuilder.bind(queuePlansRPC).to(plansExchange).with("key");
+    }
+    @Bean
+    public Queue queueSubsRPC(){
+        return new Queue("rpc_subs_receiver");
+    }
+    @Bean
+    public DirectExchange subsExchange(){
+        return new DirectExchange("rpc_subs");
+    }
+    @Bean
+    public Binding bindingReceiverSubs(DirectExchange subsExchange, Queue queueSubsRPC){
+        return BindingBuilder.bind(queueSubsRPC).to(subsExchange).with("key");
     }
 
     @Bean

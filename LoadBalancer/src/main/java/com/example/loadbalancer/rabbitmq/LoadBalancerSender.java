@@ -1,6 +1,8 @@
 package com.example.loadbalancer.rabbitmq;
 
 import com.example.loadbalancer.api.CreatePlanRequest;
+import com.example.loadbalancer.api.CreateSubsByRabbitRequest;
+import com.example.loadbalancer.api.CreateSubscriptionsRequest;
 import com.example.loadbalancer.service.LoadBalancerServiceImpl;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -19,6 +21,10 @@ public class LoadBalancerSender {
         return loadBalancerService.getPlansList();
     }
 
+    @RabbitListener(queues = "rpc_subs_receiver")
+    public List<CreateSubsByRabbitRequest> sendSubList() {
+        return loadBalancerService.getSubsList();
+    }
 
 
 }

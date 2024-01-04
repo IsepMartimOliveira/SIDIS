@@ -1,9 +1,6 @@
 package com.example.loadbalancer.rabbitmq;
 
-import com.example.loadbalancer.api.CreatePlanRequest;
-import com.example.loadbalancer.api.CreatePlanRequestBonus;
-import com.example.loadbalancer.api.DeactivatPlanRequest;
-import com.example.loadbalancer.api.EditPlanRequestUpdate;
+import com.example.loadbalancer.api.*;
 import com.example.loadbalancer.service.LoadBalancerServiceImpl;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +36,11 @@ public class LoadBalancerReceiver {
         loadBalancerService.deleteBonus(plansBonus);
         System.out.println(" [x] Received delete bonus message '" + plansBonus );
 
+    }
+    @RabbitListener(queues = "#{subQueue.name}")
+    public void receiveSub(CreateSubsByRabbitRequest subRequest){
+        loadBalancerService.storeSub(subRequest);
+        System.out.println(" [x] Received '" + subRequest + "' from subsQ");
     }
 
 }

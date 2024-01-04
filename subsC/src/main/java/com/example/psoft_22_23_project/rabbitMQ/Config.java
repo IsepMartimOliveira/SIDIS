@@ -3,12 +3,15 @@ package com.example.psoft_22_23_project.rabbitMQ;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.DefaultJackson2JavaTypeMapper;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.swing.plaf.PanelUI;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -17,7 +20,13 @@ public class Config {
  private final UUID  uid= UUID.randomUUID();
     @Bean
     public MessageConverter messageConverter() {
-        return new Jackson2JsonMessageConverter();
+        Jackson2JsonMessageConverter converter = new Jackson2JsonMessageConverter();
+        DefaultJackson2JavaTypeMapper typeMapper = new DefaultJackson2JavaTypeMapper();
+        Map<String, Class<?>> idClassMapping = new HashMap<>();
+        idClassMapping.put("CreateSubsByRabbitRequest", com.example.psoft_22_23_project.subscriptionsmanagement.api.CreateSubsByRabbitRequest.class);
+        typeMapper.setIdClassMapping(idClassMapping);
+        converter.setJavaTypeMapper(typeMapper);
+        return converter;
     }
     @Bean
     public FanoutExchange fanout() {
@@ -161,6 +170,18 @@ public class Config {
         final RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
         rabbitTemplate.setMessageConverter(messageConverter());
         return rabbitTemplate;
+    }
+    @Bean
+    public Queue queueSubsRPC(){
+        return new Queue("rpc_subs_receiver");
+    }
+    @Bean
+    public DirectExchange subsExchange(){
+        return new DirectExchange("rpc_subs");
+    }
+    @Bean
+    public Binding bindingReceiverSubs(DirectExchange subsExchange, Queue queueSubsRPC){
+        return BindingBuilder.bind(queueSubsRPC).to(subsExchange).with("key");
     }
 
     @Bean

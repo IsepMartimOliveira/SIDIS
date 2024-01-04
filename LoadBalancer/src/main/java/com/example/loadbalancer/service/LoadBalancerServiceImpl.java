@@ -2,6 +2,7 @@ package com.example.loadbalancer.service;
 
 import com.example.loadbalancer.api.*;
 import com.example.loadbalancer.model.Plans;
+import com.example.loadbalancer.model.Subscriptions;
 import com.example.loadbalancer.repository.LoadBalancerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,7 +15,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class LoadBalancerServiceImpl implements LoadBalanccerService {
     private final  CreatePlanMapper createPlansMapper;
+    private final  CreateSubscriptionsMapper createSubscriptionsMapper;
     private final PlansManager plansManager;
+    private final SubsManager subsManager;
 
 
     @Override
@@ -63,4 +66,22 @@ public class LoadBalancerServiceImpl implements LoadBalanccerService {
     }
 
     public void deleteBonus(String plansBonus) {plansManager.deleteByName(plansBonus);}
+
+    public void storeSub(CreateSubsByRabbitRequest subsRequest) {
+        subsManager.findByActiveStatus_ActiveAndUser("true",subsRequest.getUser());
+        Subscriptions obj=createSubscriptionsMapper.create(subsRequest.getUser(),subsRequest.getCreateSubscriptionsRequest().getName(),subsRequest.getCreateSubscriptionsRequest(),false);
+        subsManager.save(obj);
+    }
+
+    @Override
+    public List<CreateSubsByRabbitRequest> getSubsList() {
+        Iterable<Subscriptions> subsList = subsManager.findAll();
+        List<CreateSubsByRabbitRequest> subsDTOList = new ArrayList<>();
+        for (Subscriptions subscription : subsList) {
+            String user = subscription.getUser();
+            CreateSubsByRabbitRequest subsDTO = createSubscriptionsMapper.createInverse(subscription, user);
+            subsDTOList.add(subsDTO);
+        }
+        return subsDTOList;
+    }
 }

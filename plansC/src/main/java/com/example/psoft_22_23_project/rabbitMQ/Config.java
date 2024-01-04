@@ -129,4 +129,5 @@ public class Config {
         return BindingBuilder.bind(sendPlanToSubBonusQueue).to(directExchange).with("key2");
     }
 
+
 }
