@@ -1,0 +1,16 @@
+Alternativa Plans Bonus:
+
+1 - Em contraste com nosso método atual, a responsabilidade de identificar se um plano é de bônus ou não será transferida para os próprios Plans. Atualmente, esta tarefa é realizada pelas Subs.
+
+2 - Ao executarem a lógica do negócio, as SubsC precisarão estar cientes do tipo de plano associado ao usuário.
+
+3 - Para alcançar esse objetivo, as SubsC poderão efetuar uma solicitação HTTP ou enviar um pedido via RabbitMQ para verificar se o usuário possui um plano de bônus ou não.
+
+Alternativa Plans Bonus:
+
+1 - Modificar o modelo do Plans para incluir uma identificação clara de se o plano é definitivo ou provisório.
+
+2 - Ao criar um plano de bônus inicialmente, este será marcado como provisório.
+
+3 - Caso a lógica de negócios nas SubsC atinja o objetivo de determinar que o usuário não possui uma subscriçao ou possui uma subscriçao normal, ou seja,
+ se o plano de bônus for criado com sucesso, será enviado uma mensagem via RabbitMQ para atualizar o status de provisório para definitivo nos Planos.
