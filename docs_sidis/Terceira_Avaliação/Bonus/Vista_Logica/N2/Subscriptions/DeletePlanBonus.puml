@@ -9,6 +9,8 @@ autonumber
 actor "Client" as Ac
 box "Plan Component Container"
 participant ":PlanC" as Auth
+participant ":PlanQ" as Serv
+
 end box
 
 
@@ -16,27 +18,35 @@ participant ":Message Broker" as Broker
 
 box "Subscriptions Component"
     participant ":SubC" as NewComp
+    participant ":SubQ" as NewQ
 end box
 
 Ac->Auth:POST /plans/createBonus
 Auth->Broker: publish(create_plan_bonus,CreatePlanRequestBonus planBonusName)
+Auth->Broker: publish(send_plan_to_sub_bonus,CreatePlanRequestBonus planBonusName)
 
 Auth-->Ac:202
 
+Broker->NewQ: consumes(create_plan_bonus,CreatePlanRequestBonus planBonusName)
 
-Broker->NewComp:consumes(create_plan_bonus,CreatePlanRequestBonus plansBonusName)
+Broker->NewComp:consumes(send_plan_to_sub_bonus,CreatePlanRequestBonus plansBonusName)
 NewComp->NewComp:create
-note right
+note left
 If there is a Subscription
  bonus,it throws an error
 end note
 NewComp->Broker:publish(delete_plan,String name)
+deactivate NewComp
+deactivate NewComp
 
+Broker->NewQ:consumes(delete_plan,CreateSubsByRabbitRequest updatedSub)
+NewQ->NewQ:deletePlanBonus
 Broker->Auth:consumes(delete_plan,CreateSubsByRabbitRequest updatedSub)
 Auth->Auth:deletePlanBonus
 
 
-
+Broker->Serv:consumes(delete_plan,CreateSubsByRabbitRequest updatedSub)
+Serv->Serv:deletePlanBonus
 
 
 

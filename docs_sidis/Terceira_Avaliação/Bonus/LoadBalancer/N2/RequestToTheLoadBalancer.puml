@@ -1,0 +1,43 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Request the LoadBalancer
+
+autonumber
+
+participant ":Plans" as Auth
+
+
+participant ":Message Broker" as Broker
+participant ":LoadBalancer" as LOAD
+
+
+
+
+note right
+The Plans starts
+end note
+Auth->Broker: RPC call
+
+Broker->LOAD:consumes
+LOAD->LOAD:checks DB
+LOAD->Broker:respondes
+Broker->Auth:data
+Auth->Auth:stores it
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@enduml

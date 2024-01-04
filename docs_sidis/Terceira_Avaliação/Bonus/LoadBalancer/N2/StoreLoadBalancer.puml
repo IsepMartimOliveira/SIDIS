@@ -1,0 +1,35 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Store in the LoadBalancer
+
+autonumber
+
+participant ":Plans" as Auth
+
+
+participant ":Message Broker" as Broker
+participant ":LoadBalancer" as LOAD
+
+
+Auth->Broker: publish
+
+Broker->LOAD:consumes
+LOAD->LOAD:stores
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@enduml

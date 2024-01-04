@@ -37,13 +37,14 @@ PManager-->PService:empty
 deactivate PManager
 PService->PSender:createBonus(CreatePlanRequestBonus resource)
 PSender->Broker:Publish(create_plan_bonus,CreatePlanRequestBonus planBonusName)
+PSender->Broker:Publish(send_plan_to_sub_bonus,CreatePlanRequestBonus planBonusName)
 
 deactivate PSender
 
 note right
 Broker Notifies PlanQ and PlanC about the plan created
 end note
-PReceiver<-Broker:consumes(create_plan_bonus,CreatePlanRequestBonus planBonusName)
+PReceiver<-Broker:consumes(send_plan_to_sub_bonus,CreatePlanRequestBonus planBonusName)
 PService<-PReceiver:storeBonusPlan
 deactivate PReceiver
 

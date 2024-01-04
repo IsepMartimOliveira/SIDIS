@@ -31,15 +31,10 @@ deactivate Auth
 
 
 
-Broker->NewComp:consumes(create_plan_bonus,CreatePlanRequestBonus plansBonusName)
-NewComp->NewComp:create
-note right
-If there is a Subscription
-not bonus,it updates it
-end note
-NewComp->Broker:publish(update_to_bonus,UpdateSubsRabbitRequest updatedSub)
-Broker->NewComp:consumes(update_to_bonus,UpdateSubsRabbitRequest updatedSub)
+Broker->NewComp:consumes(send_plan_to_sub_bonus,CreatePlanRequestBonus plansBonusName)
+NewComp->NewComp:update sub
 NewComp->NewComp:save(Subscription sub)
+NewComp->Broker:publish(update_to_bonus,UpdateSubsRabbitRequest updatedSub)
 deactivate NewComp
 deactivate NewComp
 deactivate NewComp

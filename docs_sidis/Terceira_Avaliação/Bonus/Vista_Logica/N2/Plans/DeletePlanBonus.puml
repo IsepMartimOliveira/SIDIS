@@ -14,10 +14,12 @@ participant ":PlanQ" as Serv
 participant ":Message Broker" as Broker
 box "Subscriptions Component"
     participant ":SubC" as NewComp
+     participant ":SubQ" as NewCompQ
 end box
 
 Ac->Auth:POST /plans/createBonus
 Auth->Broker: publish(create_plan_bonus,CreatePlanRequestBonus planBonusName)
+Auth->Broker: publish(send_plan_to_sub_bonus,CreatePlanRequestBonus planBonusName)
 
 Auth-->Ac:202
 Broker->Auth:consumes(create_plan_bonus,CreatePlanRequestBonus planBonusName)
@@ -32,21 +34,37 @@ Broker->Serv:consumes(plans_create,PlanDetails plandetails)
 Serv->Serv:storePlan(Plan plan)
 deactivate Serv
 deactivate Serv
+Broker->NewCompQ:consumes(create_plan_bonus,CreatePlanRequestBonus plansBonusName)
 
-Broker->NewComp:consumes(create_plan_bonus,CreatePlanRequestBonus plansBonusName)
-NewComp->NewComp:create
+Broker->NewComp:consumes(send_plan_to_sub_bonus,CreatePlanRequestBonus plansBonusName)
+NewCompQ->NewCompQ:store Plan
 note right
+Plan is stored to be displayed in
+PlanDetails from subscription
+end note
+deactivate NewCompQ
+deactivate NewCompQ
+
+NewComp->NewComp:create
+note left
 If there is a Subscription
  bonus,it throws an error
 end note
 deactivate Broker
+deactivate Broker
+
+
 NewComp->Broker:publish(delete_plan,String name)
+deactivate NewComp
+deactivate NewComp
+
 Broker->Auth:consumes(delete_plan,CreateSubsByRabbitRequest updatedSub)
 Auth->Auth:deletePlanBonus
 Broker->Serv:consumes(delete_plan,CreateSubsByRabbitRequest updatedSub)
 Serv->Serv:deletePlanBonus
 
-
+Broker->NewCompQ:consumes(delete_plan,CreateSubsByRabbitRequest updatedSub)
+NewCompQ->NewCompQ:deletePlanBonus
 
 
 

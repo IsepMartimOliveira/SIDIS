@@ -1,0 +1,45 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Store in the LoadBalancer
+
+autonumber
+
+
+box "Plan Command Component"
+participant ":RPC" as Auth
+end box
+
+
+participant ":Message Broker" as Broker
+box "LoadBalancer Component"
+participant ":LoadBalancerReceiver" as LOAD
+participant ":LoadBalancerService" as LDBSERVICE
+participant ":PlansManager" as PManager
+end box
+
+
+
+Auth->Broker:publish(rpc_plans,rpc_plans_receiver,key)
+Broker->LOAD:consumes(rpc_plans_receiver)
+LOAD->LDBSERVICE:createPlan
+LDBSERVICE->PManager:saves it
+PManager->PManager:saves
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@enduml

@@ -38,13 +38,14 @@ PManager-->PService:empty
 deactivate PManager
 PService->PSender:createBonus(resource)
 PSender->Broker:Publish(create_plan_bonus,CreatePlanRequestBonus planBonusName)
+PSender->Broker:Publish(send_plan_to_sub_bonus,CreatePlanRequestBonus planBonusName)
 
 deactivate PSender
 note right
 Broker Notifies PlanQ and PlanC about the plan created
 end note
 
-PReceiver<-Broker:consumes(create_plan_bonus,CreatePlanRequestBonus planBonusName)
+PReceiver<-Broker:consumes(send_plan_to_sub_bonus,CreatePlanRequestBonus planBonusName)
 PReceiver->PService:storeBonusPlan
 deactivate PReceiver
 
@@ -73,6 +74,11 @@ deactivate MG
 Service->Service:throws error
 Service->SSender:sendDelete(plansBonusName)
 SSender->Broker:publish(delete_plan,String name)
+note right
+In the SubQ it consumes the delete_plan
+in the SubsComReceiver and deletes in the
+Subs service
+end note
 deactivate SSender
 deactivate Service
 deactivate Service
