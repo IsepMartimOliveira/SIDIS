@@ -8,4 +8,6 @@ import java.util.Optional;
 public interface PlansManager {
     void storePlan(PlansDetails planRequest);
     Optional<PlansDetails> findPlan(String plan);
+    Optional<PlansDetails>  findByNameDoesExists(String name);
+    void deleteByName(String plansBonus);
 }

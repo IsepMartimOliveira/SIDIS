@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -122,6 +123,23 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         }catch (Exception e){
             e.printStackTrace();
         }
+
+    }
+
+    public void storeBonusPlan(CreatePlanRequestBonus resource){
+        PlansDetails plansDetail = plansDetailsMapper.toPlansDetailsBonus(resource);
+        plansManager.storePlan(plansDetail);
+    }
+
+    @Transactional
+    public void deleteBonus(String plansBonus) {
+        Optional<PlansDetails> find=plansManager.findByNameDoesExists(plansBonus);
+        try {
+            plansManager.deleteByName(plansBonus);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
 
     }
 }

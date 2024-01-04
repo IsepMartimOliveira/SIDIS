@@ -33,4 +33,5 @@ public interface PlansManager {
     void findByNameDoesNotExists(String name);
 	Optional<Plans> findByNameDoesExistsSubs(String name);
 	Optional<Plans> findByNameDoesExists(String name);
+	void deleteByName(String plansBonus);
 }

@@ -103,4 +103,7 @@ public class PlansServiceImpl implements PlansService {
 		Plans obj = createPlansMapper.createBonus(resource);
 		plansManager.save(obj);
 	}
+
+    public void deleteBonus(String plansBonus) {
+    }
 }

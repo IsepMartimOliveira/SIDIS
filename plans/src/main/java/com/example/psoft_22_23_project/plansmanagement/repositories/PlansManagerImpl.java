@@ -58,4 +58,9 @@ class PlansManagerImpl implements PlansManager {
 
     }
 
+    @Override
+    public void deleteByName(String plansBonus) {
+        dbRepository.deletePlansByName_Name(plansBonus);
+    }
+
 }

@@ -60,5 +60,17 @@ public class SubsQReceiver {
         subsService.storeSubBonus(subsRequest);
         System.out.println(" [x] Received '" + subsRequest + "' from bonus");
     }
+    @RabbitListener(queues = "#{planBonusQueue.name}")
+    public void receivePlanBonus(CreatePlanRequestBonus plansBonus){
+        subsService.storeBonusPlan(plansBonus);
+        System.out.println(" [x] Received bonus message '" + plansBonus + "' from planBonusQueue");
+
+    }
+    @RabbitListener(queues = "#{deletePlanBonusQueue.name}")
+    public void deletePlanBonus(String plansBonus){
+        subsService.deleteBonus(plansBonus);
+        System.out.println(" [x] Received delete bonus message '" + plansBonus );
+
+    }
 
 }

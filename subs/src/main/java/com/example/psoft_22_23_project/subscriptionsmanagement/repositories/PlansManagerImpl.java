@@ -14,14 +14,26 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PlansManagerImpl implements PlansManager {
     private final PlansRepositoryDB plansRepositoryDB;
-    public void storePlan(PlansDetails planRequest) {
-        plansRepositoryDB.save(planRequest);
-    }
+    public void storePlan(PlansDetails planRequest) {plansRepositoryDB.save(planRequest);}
 
     @Override
     public Optional<PlansDetails> findPlan(String plan) {
         Optional<PlansDetails> plansDetails = plansRepositoryDB.findByName(plan);
         return plansDetails;
+    }
+
+    @Override
+    public Optional<PlansDetails> findByNameDoesExists(String name) {
+        Optional<PlansDetails> resultFromDB = plansRepositoryDB.findByName(name);
+        if (resultFromDB.isPresent()) {
+            return resultFromDB;
+        }
+        throw new IllegalArgumentException("Plan with name " + name + " doesn´t exists ");
+    }
+
+    @Override
+    public void deleteByName(String plansBonus) {
+        plansRepositoryDB.deletePlansByName(plansBonus);
     }
 
 }

@@ -29,5 +29,6 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public abstract class PlansDetailsMapper {
 	public abstract PlansDetails toPlansDetails(CreatePlanRequest plans);
+	public abstract PlansDetails toPlansDetailsBonus(CreatePlanRequestBonus plans);
 
 }

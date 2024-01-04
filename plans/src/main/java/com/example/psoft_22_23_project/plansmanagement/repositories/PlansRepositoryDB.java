@@ -27,6 +27,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
 import java.util.Optional;
@@ -34,6 +35,11 @@ import java.util.Optional;
 @Repository
 @Configuration
 public interface PlansRepositoryDB extends CrudRepository<Plans,Long> {
+
+	@Modifying
+	@Transactional
+	@Query("DELETE FROM Plans p WHERE p.name.name = :name")
+	void deletePlansByName_Name(@NotNull @Param("name") String name);
 	Optional<Plans> findByName_Name(@NotNull String name);
 
 	Optional<Plans> findByActive_ActiveAndName_Name_AndPromoted_Promoted(@NotNull boolean active, @NotNull String name_name, @NotNull boolean promoted);

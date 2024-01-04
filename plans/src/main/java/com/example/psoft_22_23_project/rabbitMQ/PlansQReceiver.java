@@ -47,7 +47,13 @@ public class PlansQReceiver {
     @RabbitListener(queues = "#{planBonusQueue.name}")
     public void receivePlanBonus(CreatePlanRequestBonus plansBonus){
         plansService.storeBonusPlan(plansBonus);
-        System.out.println(" [x] Received deactivate message '" + plansBonus + "' from planBonusQueue");
+        System.out.println(" [x] Received bonus  message '" + plansBonus + "' from planBonusQueue");
+
+    }
+    @RabbitListener(queues = "#{deletePlanBonusQueue.name}")
+    public void deletePlanBonus(String plansBonus){
+        plansService.deleteBonus(plansBonus);
+        System.out.println(" [x] Received delete bonus message '" + plansBonus );
 
     }
 

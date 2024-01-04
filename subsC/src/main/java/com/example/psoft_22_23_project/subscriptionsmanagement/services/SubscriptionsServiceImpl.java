@@ -135,8 +135,8 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
                 if (!subscriptions2.getIsBonus()) {
                     subscriptions2.changeBonus(true, plansBonusName.getName());
                     UpdateSubsRabbitRequest updateSubsRabbitRequest = updateSubsByRabbitMapper.toSubsRabbit("ads", subscriptions2.getVersion(),user,plansBonusName.getName());
-                    subsCOMSender.sendUpdatePlanBonus(updateSubsRabbitRequest);
                     subsManager.save(subscriptions2);
+                    subsCOMSender.sendUpdatePlanBonus(updateSubsRabbitRequest);
 
                 }else{
                     subsCOMSender.sendDelete(plansBonusName.getName());
@@ -145,8 +145,8 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
             } else {
                 Subscriptions obj = createSubscriptionsMapper.createBonus(user, plansBonusName.getName(), plansBonusName, true);
                 CreateSubsByRabbitRequest rabbitRequest = subsByRabbitMapper.toSubsRabbitBonus(plansBonusName,user);
-                subsCOMSender.sendCreatePlanBonus(rabbitRequest);
                 subsManager.save(obj);
+                subsCOMSender.sendCreatePlanBonus(rabbitRequest);
             }
         } catch (Exception e) {
             e.printStackTrace();
