@@ -20,12 +20,8 @@
  */
 package com.example.psoft_22_23_project.bootstrapping;
 
-import com.example.psoft_22_23_project.plansmanagement.model.*;
-import com.example.psoft_22_23_project.plansmanagement.repositories.PlansRepositoryDB;
 import com.example.psoft_22_23_project.rabbitMQ.RPC;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -33,15 +29,14 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Profile("bootstrap")
-public class PlansBootstrapper implements CommandLineRunner {
-	@Autowired
-	private RPC rpc;
+public class SubsBootstrapper implements CommandLineRunner {
+@Autowired
+private RPC rpc;
 
 	@Override
 	public void run( String... args) throws Exception {
 		rpc.helper();
+		}
 	}
-}
-
 
 
