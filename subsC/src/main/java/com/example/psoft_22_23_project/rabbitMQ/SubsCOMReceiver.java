@@ -49,4 +49,14 @@ public class SubsCOMReceiver {
         subscriptionsService.createBonusPlan(plansBonusName);
 
     }
+    @RabbitListener(queues = "#{createSubQueue.name}")
+    public void  createSubBonus(CreateSubsByRabbitRequest subsRequest) {
+        subscriptionsService.storeSubBonus(subsRequest);
+        System.out.println(" [x] Received '" + subsRequest + "' from bonus");
+    }
+    @RabbitListener(queues = "#{toPlanBonusQueue.name}")
+    public void receiveUpdateBonus(UpdateSubsRabbitRequest sub){
+        subscriptionsService.storePlanUpdateBonus(sub);
+        System.out.println(" [x] Received update message '" + sub + "' from subsQ bonus");
+    }
 }

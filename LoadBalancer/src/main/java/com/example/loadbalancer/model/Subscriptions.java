@@ -1,9 +1,11 @@
 package com.example.loadbalancer.model;
 
 import lombok.Data;
+import org.hibernate.StaleObjectStateException;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Entity
 @Data
@@ -29,7 +31,7 @@ public class Subscriptions {
     public Subscriptions(String paymentType, String plan, String user, Boolean isBonus) {
         this.startDate = LocalDate.now().toString();
         this.endDate = calculateEndDate(paymentType);
-        this.activeStatus = "Active";
+        this.activeStatus = "true";
         this.paymentType = paymentType;
         this.plan = plan;
         this.user = user;
@@ -46,4 +48,16 @@ public class Subscriptions {
         }
     }
     protected  Subscriptions(){}
+    public void changePlan(final String plan) {
+        if (Objects.equals(this.plan, plan))
+        {
+            throw new IllegalArgumentException("Can not change to same plan");
+
+        }
+        this.plan = plan;
+
+
+    }
+
+
 }

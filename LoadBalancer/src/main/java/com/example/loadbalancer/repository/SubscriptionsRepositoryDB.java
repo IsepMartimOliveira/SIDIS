@@ -17,5 +17,6 @@ public interface SubscriptionsRepositoryDB extends CrudRepository<Subscriptions,
     List<Subscriptions> findAll();
 
     Optional<Subscriptions> findByActiveStatusAndUser(String b, String user);
+    Optional<Subscriptions> findByUser(String user);
 }
 

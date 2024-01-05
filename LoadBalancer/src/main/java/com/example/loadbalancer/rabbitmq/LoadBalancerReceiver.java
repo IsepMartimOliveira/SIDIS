@@ -42,5 +42,20 @@ public class LoadBalancerReceiver {
         loadBalancerService.storeSub(subRequest);
         System.out.println(" [x] Received '" + subRequest + "' from subsQ");
     }
+    @RabbitListener(queues = "#{updateQueue.name}")
+    public void receiveUpdate(UpdateSubsRabbitRequest sub){
+        loadBalancerService.changeSub(sub);
+        System.out.println(" [x] Received update message '" + sub + "' from subsQ");
+    }
+    @RabbitListener(queues = "#{createSubQueue.name}")
+    public void  createSubBonus(CreateSubsByRabbitRequest subsRequest) {
+        loadBalancerService.storeSubBonus(subsRequest);
+        System.out.println(" [x] Received '" + subsRequest + "' from bonus");
+    }
+    @RabbitListener(queues = "#{toPlanBonusQueue.name}")
+    public void receiveUpdateBonus(UpdateSubsRabbitRequest sub){
+        loadBalancerService.storePlanUpdateBonus(sub);
+        System.out.println(" [x] Received update message '" + sub + "' from subsQ bonus");
+    }
 
 }

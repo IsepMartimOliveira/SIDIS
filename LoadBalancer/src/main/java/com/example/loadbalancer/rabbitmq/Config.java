@@ -24,6 +24,7 @@ public class Config {
         Map<String, Class<?>> idClassMapping = new HashMap<>();
         idClassMapping.put("CreatePlanRequest", com.example.loadbalancer.api.CreatePlanRequest.class);
         idClassMapping.put("CreateSubsByRabbitRequest", com.example.loadbalancer.api.CreateSubsByRabbitRequest.class);
+
         typeMapper.setIdClassMapping(idClassMapping);
         converter.setJavaTypeMapper(typeMapper);
         return converter;
@@ -93,11 +94,39 @@ public class Config {
         return BindingBuilder.bind(deletePlanBonusQueue).to(deletePlanBonus);
     }
     @Bean
+    public FanoutExchange updateFanoutSub() {
+        return new FanoutExchange("sub_to_update");
+    }
+    @Bean
+    public Queue updateQueueSub() {return new AnonymousQueue();}
+    @Bean
+    public Binding bindingUpdateQueueSub(FanoutExchange updateFanoutSub, Queue updateQueueSub) {
+        return BindingBuilder.bind(updateQueueSub).to(updateFanoutSub);
+    }
+    @Bean
     public Binding binding1(FanoutExchange fanout, Queue createPlanQueueBalancer) {return BindingBuilder.bind(createPlanQueueBalancer).to(fanout);}
     @Bean
     public Binding bindingUpdateQueue(FanoutExchange updateFanout, Queue updateQueue) {
         return BindingBuilder.bind(updateQueue).to(updateFanout);
     }
+    @Bean
+    public  FanoutExchange createSubBonus(){return  new FanoutExchange("create_sub_bonus");}
+    @Bean
+    public Queue createSubQueue(){return new AnonymousQueue();}
+    @Bean
+    public Binding bindingToSubBonusQueue(FanoutExchange createSubBonus,Queue createSubQueue){
+        return BindingBuilder.bind(createSubQueue).to(createSubBonus);
+    }
+    @Bean
+    public  FanoutExchange updateToBonusPlan(){return  new FanoutExchange("update_to_bonus");}
+    @Bean
+    public Queue toPlanBonusQueue(){return new AnonymousQueue();}
+    @Bean
+    public Binding bindingToBonusQueue(FanoutExchange updateToBonusPlan,Queue toPlanBonusQueue){
+        return BindingBuilder.bind(toPlanBonusQueue).to(updateToBonusPlan);
+    }
+
+
     @Bean
     public  LoadBalancerReceiver receiver(){
         return new LoadBalancerReceiver();

@@ -33,8 +33,11 @@ deactivate Auth
 
 Broker->NewComp:consumes(send_plan_to_sub_bonus,CreatePlanRequestBonus plansBonusName)
 NewComp->NewComp:update sub
-NewComp->NewComp:save(Subscription sub)
+...
 NewComp->Broker:publish(update_to_bonus,UpdateSubsRabbitRequest updatedSub)
+Broker->NewComp:consumes(update_to_bonus,UpdateSubsRabbitRequest updatedSub)
+NewComp->NewComp:save(Subscription sub)
+
 deactivate NewComp
 deactivate NewComp
 deactivate NewComp

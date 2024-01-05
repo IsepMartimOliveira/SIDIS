@@ -26,7 +26,7 @@ Auth->Broker: publish(create_plan_bonus,CreatePlanRequestBonus planBonusName)
 Auth->Broker: publish(send_plan_to_sub_bonus,CreatePlanRequestBonus planBonusName)
 
 Auth-->Ac:202
-
+...
 Broker->NewQ: consumes(create_plan_bonus,CreatePlanRequestBonus planBonusName)
 
 Broker->NewComp:consumes(send_plan_to_sub_bonus,CreatePlanRequestBonus plansBonusName)
@@ -35,6 +35,7 @@ note left
 If there is a Subscription
  bonus,it throws an error
 end note
+
 NewComp->Broker:publish(delete_plan,String name)
 deactivate NewComp
 deactivate NewComp

@@ -12,5 +12,9 @@ public interface SubsManager {
 
     Optional<Subscriptions> findByActiveStatus_ActiveAndUser(String b, String user);
 
+    Optional<Subscriptions> findByUser(String user);
+
+    Optional<Subscriptions> findIfUserHavesSub(String auth,String user) ;
+
 }
 

@@ -44,7 +44,7 @@ deactivate PSender
 note right
 Broker Notifies PlanQ and PlanC about the plan created
 end note
-PReceiver<-Broker:consumes(send_plan_to_sub_bonus,CreatePlanRequestBonus planBonusName)
+PReceiver<-Broker:consumes(create_plan_bonus,CreatePlanRequestBonus planBonusName)
 PService<-PReceiver:storeBonusPlan
 deactivate PReceiver
 
@@ -56,7 +56,7 @@ deactivate PService
 
 PlanController-->Ac:202
 
-Broker->Service:consumes(create_plan_bonus,CreatePlanRequestBonus planBonusName)
+Broker->Service:consumes(send_plan_to_sub_bonus,CreatePlanRequestBonus planBonusName)
 Service->MG:findByUser(user)
 MG->MG:checks if exist in DB
 note right

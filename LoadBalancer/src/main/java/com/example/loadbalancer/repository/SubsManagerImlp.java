@@ -27,5 +27,18 @@ class SubsManagerImlp implements SubsManager {
         return dbRepository.findByActiveStatusAndUser(b,user);
 
     }
+    @Override
+    public Optional<Subscriptions> findByUser(String user) {
+        return dbRepository.findByUser(user);
+
+    }
+    @Transactional
+    public Optional<Subscriptions> findIfUserHavesSub( String auth,String newString){
+        Optional<Subscriptions> resultFromDB = dbRepository.findByActiveStatusAndUser(auth, newString);
+        if (resultFromDB.isPresent()) {
+            return resultFromDB;
+        }
+        throw new IllegalArgumentException("Sub of user with name " + newString + " does not exist");
+    }
 
 }

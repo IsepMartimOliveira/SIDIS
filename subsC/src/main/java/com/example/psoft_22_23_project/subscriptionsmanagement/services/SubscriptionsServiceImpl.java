@@ -135,7 +135,6 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
                 if (!subscriptions2.getIsBonus()) {
                     subscriptions2.changeBonus(true, plansBonusName.getName());
                     UpdateSubsRabbitRequest updateSubsRabbitRequest = updateSubsByRabbitMapper.toSubsRabbit("ads", subscriptions2.getVersion(),user,plansBonusName.getName());
-                    subsManager.save(subscriptions2);
                     subsCOMSender.sendUpdatePlanBonus(updateSubsRabbitRequest);
 
                 }else{
@@ -145,7 +144,6 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
             } else {
                 Subscriptions obj = createSubscriptionsMapper.createBonus(user, plansBonusName.getName(), plansBonusName, true);
                 CreateSubsByRabbitRequest rabbitRequest = subsByRabbitMapper.toSubsRabbitBonus(plansBonusName,user);
-                subsManager.save(obj);
                 subsCOMSender.sendCreatePlanBonus(rabbitRequest);
             }
         } catch (Exception e) {
@@ -154,4 +152,25 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
     }
 
 
+    public void storeSubBonus(CreateSubsByRabbitRequest subsRequest) {
+        try {
+            subsManager.findByActiveStatus_ActiveAndUser(true,subsRequest.getUser());
+            Subscriptions obj=createSubscriptionsMapper.create(subsRequest.getUser(),subsRequest.getCreateSubscriptionsRequest().getName(),subsRequest.getCreateSubscriptionsRequest(),true);
+            subsManager.save(obj);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+    public void storePlanUpdateBonus(UpdateSubsRabbitRequest sub) {
+        try {
+            Optional<Subscriptions> subscriptions = subsManager.findByActiveStatus_ActiveAndUser(true,sub.getUser());
+            Subscriptions subscriptions1 = subscriptions.get();
+            subscriptions1.changePlan(sub.getDesiredVersion(),sub.getName());
+            subsManager.save(subscriptions1);}
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 }

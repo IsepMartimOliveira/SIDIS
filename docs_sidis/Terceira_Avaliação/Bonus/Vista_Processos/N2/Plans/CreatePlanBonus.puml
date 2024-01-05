@@ -22,6 +22,7 @@ It´s created a unique queue to create the
 Subscription bonus
 end note
 Auth-->Ac:202
+...
 Broker->Auth:consumes(create_plan_bonus,CreatePlanRequestBonus planBonusName)
 Auth->Auth:storePlan(Plan plan)
 

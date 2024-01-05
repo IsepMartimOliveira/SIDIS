@@ -84,4 +84,35 @@ public class LoadBalancerServiceImpl implements LoadBalanccerService {
         }
         return subsDTOList;
     }
+
+    public void changeSub(UpdateSubsRabbitRequest sub) {
+        Optional<Subscriptions> subscriptions = subsManager.findIfUserHavesSub(sub.getAuth(),sub.getUser());
+        Subscriptions subscriptions1 = subscriptions.get();
+        subscriptions1.changePlan(sub.getName());
+        subsManager.save(subscriptions1);
+    }
+
+    public void storeSubBonus(CreateSubsByRabbitRequest subsRequest) {
+        try {
+            subsManager.findByActiveStatus_ActiveAndUser("true",subsRequest.getUser());
+            Subscriptions obj=createSubscriptionsMapper.create(subsRequest.getUser(),subsRequest.getCreateSubscriptionsRequest().getName(),subsRequest.getCreateSubscriptionsRequest(),true);
+            subsManager.save(obj);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+    public void storePlanUpdateBonus(UpdateSubsRabbitRequest sub) {
+        try {
+            Optional<Subscriptions> subscriptions = subsManager.findByUser(sub.getUser());
+            Subscriptions subscriptions1 = subscriptions.get();
+            subscriptions1.changePlan(sub.getName());
+            subsManager.save(subscriptions1);}
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+
 }
