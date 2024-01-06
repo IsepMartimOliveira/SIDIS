@@ -86,10 +86,14 @@ public class LoadBalancerServiceImpl implements LoadBalanccerService {
     }
 
     public void changeSub(UpdateSubsRabbitRequest sub) {
-        Optional<Subscriptions> subscriptions = subsManager.findIfUserHavesSub(sub.getAuth(),sub.getUser());
-        Subscriptions subscriptions1 = subscriptions.get();
-        subscriptions1.changePlan(sub.getName());
-        subsManager.save(subscriptions1);
+        try {
+            Optional<Subscriptions> subscriptions = subsManager.findByActiveStatus_ActiveAndUser("true",sub.getUser());
+            Subscriptions subscriptions1 = subscriptions.get();
+            subscriptions1.changePlan(sub.getName());
+            subsManager.save(subscriptions1);}
+        catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public void storeSubBonus(CreateSubsByRabbitRequest subsRequest) {
