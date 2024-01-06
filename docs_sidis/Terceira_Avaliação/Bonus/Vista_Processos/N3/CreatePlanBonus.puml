@@ -2,7 +2,7 @@
 'https://plantuml.com/sequence-diagram
 autoactivate on
 autonumber
-title  title  Create  a new Subscription Bonus
+title Create  a new Subscription Bonus
 
 autonumber
 
@@ -72,7 +72,7 @@ deactivate SSender
 Broker->SReceiver:consumes(create_sub_bonus,CreateSubsByRabbitRequest subRequest)
 SReceiver->Service:storeSubBonus
 note right
-Broker Notifies SubsQ and SubsC about the plan created
+Broker Notifies SubsQ and SubsC about the sub created
 end note
 
 

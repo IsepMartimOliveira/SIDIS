@@ -20,7 +20,7 @@ participant ":Message Broker" as Broker
 Ac->Auth:POST /plans/createBonus
 Auth->Auth:creates plan bonus
 Auth->Auth:saves plan bonus
-Auth->Broker:publish plan bonus
+Auth->Broker:publish plan bonus temporary
 
 Auth-->Ac:202
 deactivate Auth
@@ -37,11 +37,18 @@ the created PlanBonus
 end note
 NewComp->NewComp:create
 
+NewComp->Broker:publish(change_plan_to_permanent,String planName)
+note right
+This msg goes to
+PlansQ, PlansC and SubsQ
+end note
+
 NewComp->Broker:publish(create_sub_bonus,CreateSubsByRabbitRequest updatedSub)
-...
 Broker->NewComp:consumes(create_sub_bonus,CreateSubsByRabbitRequest updatedSub)
 
 NewComp->NewComp:save(Subscription sub)
+Broker->NewCompQ:consumes(create_sub_bonus,CreateSubsByRabbitRequest updatedSub)
+NewCompQ->NewCompQ:change_plan_to_permanent(String name)
 
 Broker->NewCompQ:consumes(create_sub_bonus,CreateSubsByRabbitRequest updatedSub)
 NewCompQ->NewCompQ:save(Subscription sub)

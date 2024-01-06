@@ -1,4 +1,4 @@
-6@startuml
+@startuml
 'https://plantuml.com/sequence-diagram
 autoactivate on
 autonumber
@@ -22,8 +22,13 @@ box "Subscriptions Component"
 end box
 
 Ac->Auth:POST /plans/createBonus
-Auth->Broker: publish(create_plan_bonus,CreatePlanRequestBonus planBonusName)
-Auth->Broker: publish(send_plan_to_sub_bonus,CreatePlanRequestBonus planBonusName)
+Auth->Broker: publish Plan
+Auth->Broker: publish Plan
+Auth->Auth: saves Plan
+note right
+PlanQ also consumes and
+saves Plan
+end note
 
 Auth-->Ac:202
 ...

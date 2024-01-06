@@ -2,7 +2,7 @@
 'https://plantuml.com/sequence-diagram
 autoactivate on
 autonumber
-title  title  Delete Plan Bonus
+title   Delete Plan Bonus
 
 autonumber
 actor "Client" as Ac
@@ -86,7 +86,7 @@ Broker->PReceiver:consumes(delete_plan,String name)
 activate PService
 PReceiver-->PService: deletePlanBonus(String plansBonus)
 note right
-Broker Notifies PlansQ and PlansC about the plan updated
+Broker Notifies PlansQ and PlansC about the plan updated to delete
 end note
 PService->PManager:deleteByName(plansBonus)
 PManager->PManager:delete plan in database

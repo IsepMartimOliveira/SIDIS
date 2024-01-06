@@ -6,7 +6,7 @@ title  Request the LoadBalancer
 
 autonumber
 box "Plans Commander Component"
-participant ":PlanBootStraper" as PBS
+participant ":PlanBootStrapping" as PBS
 participant ":PlansManager" as PManager2
 participant ":PlansService" as Service
 participant ":RPC" as Auth
@@ -39,7 +39,7 @@ PManager-->LDBSERVICE:List<Plans>
 LDBSERVICE-->LOAD:return List<Plans>
 LOAD->Broker:responde(rpc_plans,key,List<Plans>)
 deactivate LOAD
-Broker->Auth:List<Plans>
+Broker->Auth:consumes(rpc_plans_receiver)
 Auth->Service:storePlan
 Service->PManager2:saves
 
