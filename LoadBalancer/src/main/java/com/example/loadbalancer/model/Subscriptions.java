@@ -5,6 +5,7 @@ import org.hibernate.StaleObjectStateException;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 @Entity
@@ -52,12 +53,9 @@ public class Subscriptions {
         if (Objects.equals(this.plan, plan))
         {
             throw new IllegalArgumentException("Can not change to same plan");
-
         }
         this.plan = plan;
 
-
     }
-
 
 }

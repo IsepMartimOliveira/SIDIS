@@ -48,7 +48,7 @@ public class SubsQReceiver {
     @RabbitListener(queues = "#{renewQueue.name}")
     public void receiveRenew(UpdateSubsRabbitRequest sub){
         subsService.storeRenew(sub);
-        System.out.println(" [x] Received update message '" + sub + "' from subsQ");
+        System.out.println(" [x] Received renew message '" + sub + "' from subsQ");
     }
     @RabbitListener(queues = "#{toPlanBonusQueue.name}")
     public void receiveUpdateBonus(UpdateSubsRabbitRequest sub){
