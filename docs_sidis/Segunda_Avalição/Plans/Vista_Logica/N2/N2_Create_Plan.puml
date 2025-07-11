@@ -1,0 +1,38 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Create  a new Plan
+
+autonumber
+
+actor "Client" as Ac
+participant ":PlanC" as Auth
+participant ":PlanQ" as Serv
+
+participant ":Message Broker" as Broker
+
+
+Ac->Auth:POST /plans
+Auth->Broker: publish(plans_create,CreatePlanRequest planRequest)
+
+Auth-->Ac:201
+Broker->Auth:consumes(plans_create,CreatePlanRequest planRequest)
+Auth->Auth:storePlan(Plan plan)
+
+Broker->Serv:consumes(plans_create,PlanDetails plandetails)
+
+
+Serv->Serv:storePlan(Plan plan)
+
+
+
+
+
+
+
+
+
+
+
+@enduml

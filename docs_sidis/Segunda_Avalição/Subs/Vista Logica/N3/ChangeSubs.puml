@@ -1,0 +1,36 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Change Subscription
+
+autonumber
+
+actor "Client" as Ac
+participant ":SubscriptionController" as Auth
+participant ":SubscriptionService" as SService
+participant ":SubscriptionManager" as UManager
+participant ":PlansManager" as PManager
+database ":SubsDB" as SDB
+database ":PlanDB" as Plan
+participant ":MS Broker" as Broker
+
+Ac->Auth: PATCH /subscriptions/change/{planName}
+Auth->SService: change
+SService->PManager: findPlan
+PManager->Plan: checkDataBase
+Plan-->PManager: plan
+PManager-->SService: plan
+SService->UManager: findSub
+UManager->SDB: checkDataBase
+SDB-->UManager:sub
+UManager --> SService:sub
+SService->Broker: publish
+deactivate SService
+SService -->Auth:sub
+Auth --> Ac : 200
+Broker-> SService: consumes
+SService --> SService: change
+
+
+@enduml

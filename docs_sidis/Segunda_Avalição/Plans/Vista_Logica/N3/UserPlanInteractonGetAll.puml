@@ -1,0 +1,34 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Get  all  Plans
+
+autonumber
+
+actor "Client" as Ac
+participant ":PlanController" as PlanController
+participant ":PlanService" as PService
+participant ":PlanManager" as PManager
+database ":PlanDB" as PDB
+participant ":MS Broker" as Broker
+
+
+
+Ac->PlanController:GET  /plans
+PlanController->PService:get all plans
+PService->PManager:getPlanByName()
+PManager->PDB:checkLocal
+PDB-->PManager:plans
+
+
+
+
+PManager-->PService:plans
+PService-->PlanController:plans
+PlanController-->Ac:200
+
+
+
+
+@enduml

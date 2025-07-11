@@ -1,0 +1,19 @@
+@startuml
+'https://plantuml.com/class-diagram
+hide circle
+
+
+title Class Diagram / Bootstraping the users
+
+class User{
+ - username;
+  -password;
+
+}
+
+class UserBootstraper{
++ CommandLineRuner
+}
+UserBootstraper"1"..down>"0"User: creates
+
+@enduml

@@ -1,0 +1,26 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Change details from  a  Plan
+
+autonumber
+
+actor "Client" as Ac
+participant ":PlanC" as Auth
+participant ":PlanQ" as Serv
+
+participant ":Message Broker" as Broker
+
+Ac->Auth:PATCH plans/update/{name}
+Auth->Broker: publish(plans_to_update,EditPlanRequestUpdate planRequest)
+
+Auth-->Ac:200
+
+
+Broker->Auth:consumes(plans_to_update,EditPlanRequestUpdate planRequest)
+Auth->Auth:storePlanUpdate(Plan plan)
+
+Broker->Serv:consumes(plans_to_update,EditPlanRequestUpdate plandetails)
+Serv->Serv:storePlanUpdate(Plan plan)
+@enduml

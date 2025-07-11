@@ -1,0 +1,44 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Change Plan details
+
+autonumber
+
+actor "Client" as Ac
+participant ":PlanController" as PlanController
+participant ":PlanService" as PService
+participant ":PlanManager" as PManager
+database ":PlanDB" as PDB
+participant ":Plans" as Plan
+participant ":MS Broker" as Broker
+
+
+
+
+
+
+Ac->PlanController:PATCH plans/update/{name}
+PlanController->PService:update
+PService->PManager:findByNameDoesExists()
+PManager->PDB:CheckPlan By Name
+PDB-->PManager:plan
+PManager-->PService:plan
+PService->PService:plan.get
+PService->Plan:Update plan
+Plan-->PService:Plan is updated
+PService->PService: Create a EditPlanRequestUpdate editPlanRequest
+PService->Broker:Publish editPlanRequest
+Broker->PService:consumes
+deactivate Broker
+note right
+Broker Notifies PlanQ and PlanC about the plan update
+end note
+PService->PService:save plan updated
+PService-->PlanController:plan
+PlanController-->Ac:200
+
+
+
+@enduml

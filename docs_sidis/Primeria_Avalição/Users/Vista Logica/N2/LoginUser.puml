@@ -1,0 +1,27 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Create  a new User
+
+autonumber
+
+actor "Client" as Ac
+participant ":User" as Auth
+
+
+
+Ac->Auth:POST /public/login
+Auth->Auth:getsAuthenticated
+Auth->Auth:generates JWT token
+Auth-->Ac:200
+
+
+
+
+
+
+
+
+
+@enduml

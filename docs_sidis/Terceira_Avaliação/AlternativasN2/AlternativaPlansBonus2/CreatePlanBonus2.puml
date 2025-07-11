@@ -1,0 +1,75 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Create  a new Subscription Bonus
+
+autonumber
+
+actor "Client" as Ac
+participant ":PlanC" as Auth
+participant ":PlanQ" as Serv
+
+
+participant ":Message Broker" as Broker
+
+
+Ac->Auth:POST /plans/createBonus
+Auth->Broker: publish(create_plan_bonus,CreatePlanRequestBonus planBonusName, String type)
+Auth->Broker: publish(send_plan_to_sub_bonus,CreatePlanRequestBonus planBonusName)
+
+note right
+It´s created a unique queue to create the
+Subscription bonus
+end note
+Auth-->Ac:202
+...
+
+Broker->Auth:consumes(create_plan_bonus,CreatePlanRequestBonus planBonusName, String type)
+note right
+Where the type will be temporary
+end note
+Auth->Auth:storePlan(Plan plan, String type)
+
+Broker->Serv:consumes(plans_create,PlanDetails plandetails)
+note right
+Where the type will be temporary
+end note
+Serv->Serv:storePlan(Plan plan, String type)
+
+
+Broker->Auth:consumes(create_sub_bonus,String name)
+note left
+The SubsC will be the one
+that will change this type
+to permanent
+end note
+note right
+This msg comes from SubsC if
+Plan need to be created
+end note
+Auth->Auth:change_plan_to_permanent(String name)
+note right
+The SubsC will be the one
+that will change this type
+to permanent
+end note
+Broker->Serv:consumes(create_sub_bonus,String name)
+
+note right
+This msg comes from SubsC if
+Plan need to be created
+end note
+Serv->Serv:change_plan_to_permanent(String name)
+
+
+
+
+
+
+
+
+
+
+
+@enduml

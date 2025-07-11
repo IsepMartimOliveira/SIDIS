@@ -1,0 +1,40 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Create  a new Subscription
+
+autonumber
+
+actor "Client" as Ac
+participant ":SubscriptionController" as Auth
+participant ":SubscriptionService" as SService
+participant ":SubscriptionManager" as UManager
+database ":SubsDB" as SDB
+participant ":PlanQ" as Plan
+
+
+
+participant ":MS Broker" as Broker
+
+Ac->Auth: POST /subscriptions/create
+Auth->SService: create
+
+SService-> Broker: publish
+Broker->Plan:consumes
+Plan->Broker:publish
+
+Broker->SService:consumes
+SService->UManager:findSub
+UManager->SDB: checkDataBase
+SDB-->UManager:empty
+UManager --> SService:empty
+SService->Broker: publish
+deactivate SService
+SService -->Auth:sub
+Auth --> Ac : 201
+Broker-> SService: consumes
+SService --> SService: create
+
+
+@enduml

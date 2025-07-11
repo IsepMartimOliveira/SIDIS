@@ -1,0 +1,61 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Update a Subscription from Normal to Bonus
+
+autonumber
+
+actor "Client" as Ac
+box "Plan Component Container"
+participant ":PlanC" as Auth
+end box
+
+participant ":Message Broker" as Broker
+box "Subscriptions Component Container"
+    participant ":SubC" as NewComp
+    participant ":SubQ" as NewCompQ
+end box
+
+
+
+Ac->Auth:POST /plans/createBonus
+Auth->Auth:creates plan bonus
+Auth->Auth:saves plan bonus
+Auth->Broker:publish plan bonus
+Auth-->Ac:202
+
+deactivate Auth
+deactivate Auth
+deactivate Auth
+
+
+
+Broker->NewComp:consumes(send_plan_to_sub_bonus,CreatePlanRequestBonus plansBonusName)
+NewComp->NewComp:update sub
+
+NewComp->Broker:publish(update_to_bonus,UpdateSubsRabbitRequest updatedSub)
+...
+Broker->NewComp:consumes(update_to_bonus,UpdateSubsRabbitRequest updatedSub)
+NewComp->NewComp:save(Subscription sub)
+
+deactivate NewComp
+deactivate NewComp
+deactivate NewComp
+deactivate NewComp
+
+Broker->NewCompQ:consumes(update_to_bonus,UpdateSubsRabbitRequest updatedSub)
+NewCompQ->NewCompQ:save(Subscription sub)
+
+
+
+
+
+
+
+
+
+
+
+
+@enduml

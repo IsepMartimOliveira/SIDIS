@@ -1,0 +1,45 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Create  a  Plan
+
+autonumber
+
+actor "Client" as Ac
+participant ":PlanController" as PlanController
+participant ":PlanService" as PService
+participant ":PlanManager" as PManager
+database ":PlanDB" as PDB
+
+
+
+
+
+
+
+participant ":MS Broker" as Broker
+
+Ac->PlanController:POST  /plans
+PlanController->PService:create(CreatePlanRequest resource)
+PService->PManager:findByNameDoesNotExists()
+PManager->PDB:check if exist in DB
+PDB-->PManager:empty
+PManager-->PService:empty
+
+PService->Broker:Publish resource
+note right
+Broker Notifies PlanQ and PlanC about the plan created
+end note
+PService<-Broker:consumes
+PService->PService:save plan created
+PService-->PlanController:plans
+PlanController-->Ac:201
+
+
+
+
+
+
+
+@enduml

@@ -1,0 +1,14 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Gett  all  Plan
+
+autonumber
+
+actor "Client" as Ac
+participant ":PlanQ" as Auth
+Ac->Auth:GET /plans/
+Auth->Auth:findByNameDoesExists()
+Auth-->Ac:200
+@enduml

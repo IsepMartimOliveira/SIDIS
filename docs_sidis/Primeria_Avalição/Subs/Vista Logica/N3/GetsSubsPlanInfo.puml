@@ -1,0 +1,76 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title Get Subscription Plan Details
+
+autonumber
+
+actor "Client" as Ac
+
+participant ":User" as User
+database ":UserDB" as Udb
+
+participant ":Subscription" as Auth
+database ":SubscriptionHTTP" as SHTTP
+
+database ":SubscriptionDB" as SDB
+participant ":Subscription1" as Serv
+participant ":Plan" as Plan
+database ":PlanDB" as PDB
+database ":PlanHTTP" as PHTTP
+participant ":Plan1" as Plan1
+database ":Plan1DB" as Plan1DB
+
+Ac->User: POST public/login
+User->Udb:checkLocal
+Udb-->User:user
+User-->User:generates JWT Token
+User-->Ac:200
+
+
+
+Ac->Auth:   GET /subscriptions/
+Auth->SHTTP: getplan
+
+
+alt Subscription exists in the first Instance
+SHTTP->SDB:checkSubExists
+SDB-->SHTTP:subscriptions
+alt Subscription doesn´t exist in the first instance
+SHTTP->Serv:GET subscriptions/external/{username}
+Serv-->SHTTP:200
+note left
+If sub does not exist
+SubsHTTP trows: User does not have sub
+--
+If sub exist in other machine
+SubsHTTP trows: Sub can only be changed in other machine
+end note
+end
+SHTTP->Plan:GET /api/plans/{name}
+
+alt Plan exist in the first instance
+Plan->PDB:checkLocal
+PDB-->Plan:200
+alt Plan doesn´t exist in the first instance
+Plan->PHTTP:GET plans/external/{planName}
+PHTTP->Plan1:checkInstance
+Plan1->Plan1DB:checkLocal
+Plan1DB-->Plan1:plan
+Plan1-->PHTTP:200
+PHTTP-->Plan:200
+note left
+If plan with name "planName"
+does not exist in both machines
+Plan trows: Plan with name "planName" does not exist
+end note
+end
+end
+Plan-->SHTTP:200
+end
+
+SHTTP-->Auth:showPlanDetails
+
+Auth-->Ac:200
+@enduml

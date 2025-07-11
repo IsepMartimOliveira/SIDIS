@@ -1,0 +1,55 @@
+@startuml
+'https://plantuml.com/class-diagram
+hide circle
+class PlansRepository <<interface>>
+
+title Class Diagram / As Marketing director, I want to define a new Plan detailing the monthly and annual cost, the maximum number of devices and other characteristics of the plan
+
+
+
+class Plans{
+    -name
+    - description
+    - numberOfMinutes
+    -maximumNumberOfUsers
+    -musicCollection
+     -musicSuggestion
+     -annualFee
+     -monthlyFee
+     -active
+     -promoted
+}
+class PlansViewMapper{
+    +toPlansView(Plans plans):PlansView
+}
+class PlansController{
+    create(final CreatePlanRequest resource):ResponseEntity<PlansView>
+    getPlanByNameExternal(String planName)
+    }
+class PlansService{
+ +create(createPlansMapper resource):Plans
+ getPlanByNameExternal(String planName)
+
+
+}
+class CreatePlansMapper{
+    +create(CreatePlanRequest request):Plans
+}
+
+interface PlansRepository
+{
++findByName_Name(String name): Optional<Plans>
++ getPlansFromOtherAPI(String name)
++save(S entity) : <S extends Plans>
+}
+
+
+
+
+PlansController ..> PlansService: uses >
+PlansService ..> PlansRepository: uses >
+PlansRepository ..> Plans: < record
+PlansRepository ..left>PlansController: HTTP API call >
+PlansService ..> CreatePlansMapper: uses >
+PlansController ..>PlansViewMapper: uses >
+@enduml

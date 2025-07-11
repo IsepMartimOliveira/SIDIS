@@ -1,0 +1,89 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  title  Update to a  Subscription Bonus
+
+autonumber
+
+actor "Client" as Ac
+box "Plans Command Conntainer"
+
+participant ":PlanController" as PlanController
+participant ":PlanService" as PService
+participant ":PlanCOMSender" as PSender
+participant ":PlanCOMReceiver" as PReceiver
+participant ":PlanManager" as PManager
+end box
+
+box "Subscriptions Command Conntainer"
+    participant ":SubService" as Service
+     participant ":SubscriptionCOMSender" as SSender
+    participant ":SubManager" as MG
+    participant ":SubscriptionCOMReceiver" as SReceiver
+end box
+
+
+
+
+
+participant ":MS Broker" as Broker
+
+Ac->PlanController:POST  /plans/createBonus
+PlanController->PService:createBonus(CreatePlanRequestBonus resource)
+PService->PManager:findByNameDoesNotExists()
+PManager->PManager:check if exist in DB
+PManager-->PService:empty
+deactivate PManager
+PService->PSender:createBonus(CreatePlanRequestBonus resource)
+PSender->Broker:Publish(create_plan_bonus,CreatePlanRequestBonus planBonusName)
+PSender->Broker:Publish(send_plan_to_sub_bonus,CreatePlanRequestBonus planBonusName)
+
+deactivate PSender
+
+note right
+Broker Notifies PlanQ and PlanC about the plan created
+end note
+PReceiver<-Broker:consumes(create_plan_bonus,CreatePlanRequestBonus planBonusName)
+PService<-PReceiver:storeBonusPlan
+deactivate PReceiver
+
+PService->PService:save plan created
+PService-->PlanController:plans
+deactivate PService
+deactivate PService
+
+
+PlanController-->Ac:202
+
+Broker->Service:consumes(send_plan_to_sub_bonus,CreatePlanRequestBonus planBonusName)
+Service->MG:findByUser(user)
+MG->MG:checks if exist in DB
+note right
+ Subscription related with the user
+ But is a Normal Subscription
+Means it can update to a Bonus Sub
+end note
+MG-->Service:subscription
+deactivate MG
+
+Service->Service:updates Subscription
+Service->SSender: sendUpdatePlanBonus(CreateSubsByRabbitRequest updatedSub)
+SSender->Broker:publish (update_to_bonus,UpdateSubsRabbitRequest updatedSub)
+deactivate SSender
+Broker->SReceiver:consumes(update_to_bonus,UpdateSubsRabbitRequest updatedSub)
+SReceiver->Service:storeSubBonus
+note right
+Broker Notifies SubsQ and SubsC about the plan created
+end note
+note right
+Broker Notifies SubsQ and SubsC about the plan updated
+end note
+
+
+
+
+
+
+
+@enduml

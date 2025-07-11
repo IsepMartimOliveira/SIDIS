@@ -1,0 +1,32 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Cancel Subscription
+
+autonumber
+
+actor "Client" as Ac
+participant ":SubscriptionController" as Auth
+participant ":SubscriptionService" as SService
+participant ":SubscriptionManager" as UManager
+database ":SubsDB" as SDB
+participant ":MS Broker" as Broker
+
+
+Ac->Auth: PATCH /subscriptions
+Auth->SService: cancel
+
+
+SService->UManager: findSub
+UManager->SDB: checkDataBase
+SDB-->UManager:sub
+UManager --> SService:sub
+SService->Broker: publish
+SService -->Auth:sub
+Auth --> Ac : 200
+
+Broker-> SService: consumes
+SService --> SService: cancel
+
+@enduml

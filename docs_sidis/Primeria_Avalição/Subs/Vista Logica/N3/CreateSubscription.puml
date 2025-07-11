@@ -1,0 +1,71 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Create  a new Subscription
+
+autonumber
+
+actor "Client" as Ac
+
+participant ":User" as User
+database ":UserDB" as Udb
+
+participant ":Subscription" as Auth
+database ":SubscriptionHTTP" as SHTTP
+participant ":Plan" as Plan
+database ":PlanDB" as PDB
+database ":PlanHTTP" as PHTTP
+participant ":Plan1" as Plan1
+database ":Plan1DB" as Plan1DB
+
+database ":SubscriptionDB" as SDB
+participant ":Subscription1" as Serv
+
+
+Ac->User: POST public/login
+User->Udb:checkLocal
+Udb-->User:user
+User-->User:generates JWT Token
+User-->Ac:200
+
+Ac->Auth: POST /subscriptions/create
+Auth->SHTTP: create
+SHTTP->Plan:GET /api/plans/{name}
+alt Plan exist in first instance
+Plan->PDB:checkLocal
+
+PDB-->Plan:exists
+alt Plan doesn´t exist in the first instance db
+Plan->PHTTP:GET plans/external/{planName}
+PHTTP->Plan1:checkInstance
+Plan1->Plan1DB:checkLocal
+Plan1DB-->Plan1: plan
+Plan1-->PHTTP:200
+PHTTP-->Plan:200
+end
+Plan-->SHTTP:200
+note left
+If plan with name "planName"
+does not exists
+Plan trows: Plan with that name already exists
+end note
+end
+
+SHTTP->SDB:checkSubExistsLocally
+SDB-->SHTTP:empty
+note left
+If subscription exist locally
+Subscription trows: subscription already exist locally
+end note
+SHTTP->Serv:GET subscriptions/external/{username}
+Serv-->SHTTP:404
+note left
+If subscription exist not locally
+Subscription trows: subscription already exist not locally
+end note
+
+SHTTP-->Auth:ok
+Auth->Auth:save
+Auth-->Ac:201
+@enduml

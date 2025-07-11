@@ -1,0 +1,52 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+
+
+actor "Subscriber" as Ac
+participant ":SubscriptionsController" as Ctrl
+participant ":SubscriptionsService" as Serv
+participant ":SubscriptionsRepository" as SubRepo
+participant ":Subscriptions" as Sub
+
+Ac -> Ctrl : PATCH /subscriptions/
+Ctrl -> Serv : Subscriptions obj = cancelSubscription(long desiredVersion, String auth)
+
+
+Serv -> SubRepo : Subscriptions obj = cancelSub(String username,String auth,long desiredVersion)
+
+SubRepo --> SubRepo :User user =findById(Long.valueOf(newString))
+
+
+alt A - will check if user´s subscription exist locally
+SubRepo --> SubRepo :Subscriptions subscription= findByActiveStatus_ActiveAndUser(user)
+else B - will check if user´s subscription exist not locally
+SubRepo --> SubRepo :Subscriptions subscription=getSubsFromOtherApi(newString, auth)
+end
+note right
+ There needs to exist a subscription
+ locally or not locally for
+ deactivate it
+end note
+
+deactivate Sub
+SubRepo -> subscription : deactivate(desiredVersion)
+subscription-->SubRepo: subscription
+SubRepo --> Serv: subscription
+
+Serv -> SubRepo: save(subscription)
+SubRepo --> Serv: subscription
+Serv --> Ctrl: subscription
+
+
+note left
+ The controller here also
+creates an ResponseEntity
+ to show the user the obj with
+ "subscriptionsViewMapper"
+ as subscriptionView
+end note
+Ac <-- Ctrl : subscriptionView
+
+@enduml

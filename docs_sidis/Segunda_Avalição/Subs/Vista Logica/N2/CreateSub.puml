@@ -1,0 +1,32 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Create Sub
+
+autonumber
+
+actor "Client" as Ac
+
+participant ":SubscriptionC" as SubC
+participant ":SubscriptionQ" as SubQ
+participant ":PlansQ" as Plans
+participant ":Message Broker" as Broker
+
+Ac->SubC:POST subscriptions/create
+SubC->Broker: publish(checkPlanName,String planName)
+Broker->Plans:consumes(checkPlanName,String planName)
+Plans-->Broker: publish(sendCheckPlanName,Boolean fact)
+
+Broker-->SubC: consumes(sendCheckPlanName,Boolean fact)
+SubC->Broker:publish(subs_create,CreateSubByRabbit sub)
+SubC-->Ac:201
+
+Broker->SubC:consumes(subs_create,CreateSubByRabbit sub)
+SubC-->SubC:storeSub(Subscriptions sub)
+Broker->SubQ:consumes(subs_create,CreateSubByRabbit sub)
+deactivate Broker
+
+SubQ-->SubQ:storeSub(Subscriptions sub)
+
+@enduml

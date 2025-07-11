@@ -1,0 +1,26 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title Get Plan
+
+autonumber
+
+participant ":PlanService" as PService
+participant ":PlanManager" as PManager
+database ":PlanDB" as PDB
+
+
+participant ":MS Broker" as Broker
+
+Broker->PService: consumes
+PService-> PManager: checkByName
+PManager-> PDB: checkDataBase
+PDB-->PManager:plan
+PManager-->PService:plan
+PService->Broker: publish
+deactivate PService
+
+
+
+@enduml

@@ -1,0 +1,27 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Renew Sub
+
+autonumber
+
+actor "Client" as Ac
+
+participant ":SubscriptionC" as SubC
+participant ":SubscriptionQ" as SubQ
+participant ":Message Broker" as Broker
+
+Ac->SubC:PATCH subscriptions/renew
+
+SubC->Broker: publish(subs_renew,UpdateSubsRabbitRequest update)
+SubC-->Ac:201
+
+Broker->SubC:consumes(subs_renew,UpdateSubsRabbitRequest update)
+SubC-->SubC:renewSub(Subscriptions sub)
+Broker->SubQ:consumes(subs_renew,UpdateSubsRabbitRequest update)
+deactivate Broker
+
+SubQ-->SubQ:renewSub(Subscriptions sub)
+
+@enduml

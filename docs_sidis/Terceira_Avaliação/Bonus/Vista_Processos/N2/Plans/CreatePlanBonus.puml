@@ -1,0 +1,46 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Create  a new Subscription Bonus
+
+autonumber
+
+actor "Client" as Ac
+participant ":PlanC" as Auth
+participant ":PlanQ" as Serv
+
+
+participant ":Message Broker" as Broker
+
+
+Ac->Auth:POST /plans/createBonus
+Auth->Broker: publish(create_plan_bonus,CreatePlanRequestBonus planBonusName)
+Auth->Broker: publish(send_plan_to_sub_bonus,CreatePlanRequestBonus planBonusName)
+note right
+It´s created a unique queue to create the
+Subscription bonus
+end note
+Auth-->Ac:202
+...
+Broker->Auth:consumes(create_plan_bonus,CreatePlanRequestBonus planBonusName)
+Auth->Auth:storePlan(Plan plan)
+
+Broker->Serv:consumes(create_plan_bonus,CreatePlanRequestBonus planBonusName)
+
+Serv->Serv:storePlan(Plan plan)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@enduml

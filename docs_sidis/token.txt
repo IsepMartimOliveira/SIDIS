@@ -1,0 +1,12 @@
+No fluxo de autenticação e autorização, o JWT é usado para transmitir a identidade do usuário e sua autorização para o servidor de autorização.
+O servidor de autorização verifica o JWT para determinar se o usuário tem permissão para acessar o recurso solicitado.
+
+Fluxo de autenticação e autorização:
+
+1 - O usuário faz login no sistema.
+2 - O servidor de autenticação gera um JWT para o usuário.
+3 - O JWT é associado a uma Role do usuário.
+4 - O JWT é enviado para o cliente.
+5 - O cliente armazena o JWT em uma variável de ambiente.
+6 - O cliente adiciona o JWT ao header de todas as solicitações HTTP.
+7 - O servidor de autorização verifica o JWT e determina se o usuário tem permissão para acessar o recurso solicitado.

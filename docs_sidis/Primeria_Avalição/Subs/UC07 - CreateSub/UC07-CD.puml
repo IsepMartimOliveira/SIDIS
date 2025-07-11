@@ -1,0 +1,54 @@
+@startuml
+hide circle
+class SubscriptionsRepository <<interface>>
+
+class Subscriptions {
+    -startDate
+    -endDate
+    -paymentType
+    -plan
+    -user
+    -activeStatus
+}
+
+
+
+class SubscriptionsViewMapper{
+    +toSubscriptionsView(Subscription subscriptions):SubscriptionsView
+}
+class SubscriptionsController{
+    create(final CreateSubscriptionsRequest resource, final String auth):ResponseEntity<SubscriptionsView>
+    }
+class SubscriptionsService{
+ +create(createSubscriptionsMapper resource):Subscriptions
+
+}
+
+class CreateSubscriptionsMapper{
+    +create(CreateSubscriptionsRequest request, String planName,String user):Subscriptions
+}
+
+interface SubscriptionsRepository
+{
++findByActiveStatus_ActiveAndUser(Boolean true, String username): Optional<Subscriptions>
++save(S entity) : <S extends Subscriptions>
++getPlansFromOtherAPI(String name): HttpResponse<String>
++getUserFromOtherAPI(String name) : HttpResponse<String>
++getSubsFromOtherApi(String name,String auth) : HttpResponse<String>
++planExists(String plan,String auth,String resource): Subscriptions
+}
+
+
+
+SubscriptionsController ..> SubscriptionsService: uses >
+SubscriptionsService ..> SubscriptionsRepository: uses >
+
+SubscriptionsService ..> CreateSubscriptionsMapper: uses >
+SubscriptionsRepository ..> Subscriptions: < record
+
+SubscriptionsController ..>SubscriptionsViewMapper: uses >
+SubscriptionsController ..>SubscriptionsRepository:  HTTP API Call <
+
+@enduml
+
+

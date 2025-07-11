@@ -1,0 +1,29 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Create  a new Plan
+
+autonumber
+
+actor "Client" as Ac
+participant ":Plan" as Auth
+participant ":Plan1" as Serv
+
+
+Ac->Auth:POST /plans
+Auth->Auth:checkLocal
+Auth->Serv: GET plans/external/{planName}
+Serv-->Auth:404
+Auth->Auth:save
+Auth-->Ac:201
+
+
+
+
+
+
+
+
+
+@enduml

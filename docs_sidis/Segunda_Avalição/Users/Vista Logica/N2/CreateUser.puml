@@ -1,0 +1,36 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Create  a new User
+
+autonumber
+
+
+
+
+actor "Client" as Ac
+participant ":UserC" as Auth
+
+participant ":Message Broker" as Broker
+
+
+Ac->Auth:POST /public/register
+Auth->Broker: publish(user_create,CreateUserRequest planRequest)
+
+Auth-->Ac:201
+Broker->Auth:notify(user_create,CreateUserRequest planRequest)
+Auth->Auth:storeUser(User user)
+
+
+
+
+
+
+
+
+
+
+
+
+@enduml

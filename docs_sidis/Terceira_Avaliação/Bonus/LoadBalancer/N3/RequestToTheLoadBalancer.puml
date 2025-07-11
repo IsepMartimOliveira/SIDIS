@@ -1,0 +1,66 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Request the LoadBalancer
+
+autonumber
+box "Plans Commander Component"
+participant ":PlanBootStrapping" as PBS
+participant ":PlansManager" as PManager2
+participant ":PlansService" as Service
+participant ":RPC" as Auth
+end box
+
+
+
+participant ":Message Broker" as Broker
+box "LoadBalancer Components"
+participant ":LoadBalancerSender" as LOAD
+participant ":LoadBalancerService" as LDBSERVICE
+participant ":PlansManager" as PManager
+end box
+
+
+
+
+note right
+The component starts
+end note
+PBS->Auth:helper()
+Auth->Broker:publish(rpc_plans,rpc_plans_receiver,key)
+
+Broker->LOAD:consumes(rpc_plans_receiver)
+LOAD->LDBSERVICE:getPlansList()
+LDBSERVICE->PManager:findAll()
+PManager->PManager:checks DB
+PManager-->LDBSERVICE:List<Plans>
+
+LDBSERVICE-->LOAD:return List<Plans>
+LOAD->Broker:responde(rpc_plans,key,List<Plans>)
+deactivate LOAD
+Broker->Auth:consumes(rpc_plans_receiver)
+Auth->Service:storePlan
+Service->PManager2:saves
+
+note left
+Data is bootstraped in to Component
+PlanQ or PlanC
+
+end note
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@enduml

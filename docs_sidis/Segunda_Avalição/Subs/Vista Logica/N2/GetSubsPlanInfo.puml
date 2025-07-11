@@ -1,0 +1,17 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Get Sub Plan Details
+
+autonumber
+
+actor "Client" as Ac
+
+participant ":SubscriptionQ" as SubC
+
+Ac->SubC:GET subscriptions/
+SubC->SubC: getPlanByName
+SubC-->Ac:200
+
+@enduml

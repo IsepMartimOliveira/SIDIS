@@ -1,0 +1,49 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Deactivate a Plan
+
+autonumber
+actor "Client" as Ac
+participant ":PlanController" as PlanController
+participant ":PlanService" as PService
+participant ":PlanManager" as PManager
+database ":PlanDB" as PDB
+participant ":Plans" as Plan
+participant ":MS Broker" as Broker
+
+
+
+
+
+
+
+Ac->PlanController:PATCH plans/deactivate/{name}
+PlanController->PService:Deactivate
+
+PService->PManager:findByNameDoesExists()
+PManager->PDB:CheckPlan By Name
+PDB-->PManager:plan
+PManager-->PService:plan
+PService->PService:plan.get
+PService->Plan:Deactivate plan
+Plan-->PService:Plan is deactivated
+PService->PService:DeactivateRequest deactivateRequest
+PService->Broker:Publish request to deactivate(deactivateRequest)
+Broker->PService:consumes
+note right
+Broker Notifies PlanQ and PlanC about the plan deactivate
+end note
+PService->PService:save deactivated plan
+
+PService-->PlanController:plan
+PlanController-->Ac:200
+
+
+
+
+
+
+
+@enduml

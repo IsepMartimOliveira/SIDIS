@@ -1,0 +1,40 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Deactivate  a  Plan
+
+autonumber
+
+
+actor "Client" as Ac
+participant ":PlanC" as Auth
+participant ":PlanQ" as Serv
+
+participant ":Message Broker" as Broker
+
+
+Ac->Auth:PATCH plans/deactivate/{name}
+Auth->Broker: publish(plans_to_deactivate,DeactivatPlanRequest plandetails)
+
+Auth-->Ac:200
+Broker->Auth:consumes(plans_to_deactivate,DeactivatPlanRequest plandetails)
+Auth->Auth:storePlanDeactivates(Plan plan)
+
+Broker->Serv:consumes(plans_to_deactivate,DeactivatPlanRequest plandetails)
+
+Serv->Serv:storePlanDeactivates(Plan plan)
+
+
+
+
+
+
+
+
+
+
+
+
+
+@enduml

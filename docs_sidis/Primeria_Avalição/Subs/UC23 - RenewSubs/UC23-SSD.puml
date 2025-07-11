@@ -1,0 +1,23 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+actor "Subscriber" as MD
+
+activate MD
+MD -> ":System" : PATCH /subscriptions/renew
+":System" --> ":System" : Checks Users in other machines
+
+alt successful case - user exist and sub is locally
+activate ":System"
+":System" --> ":System" : Checks Sub locally
+
+":System" --> ":System" : Advance to renew annual subscription
+":System" --> MD : Informs operation success
+
+else failure case - user does not exist or sub is not locally
+
+":System" --> MD : Shows error message
+deactivate ":System"
+
+end
+deactivate MD
+@enduml

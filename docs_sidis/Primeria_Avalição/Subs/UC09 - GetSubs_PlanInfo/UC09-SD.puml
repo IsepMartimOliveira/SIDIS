@@ -1,0 +1,60 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+
+
+actor "Subscriber" as Ac
+participant ":SubscriptionsController" as Ctrl
+participant ":SubscriptionsService" as Serv
+participant ":SubscriptionsRepository" as SubRepo
+participant ":Subscriptions" as Sub
+
+Ac -> Ctrl : GET /subscriptions/
+Ctrl -> Serv : PlansDetails plan = planDetails(auth)
+
+Serv -> SubRepo:Optional<Subscriptions> subscription isPresent(auth,username)
+SubRepo --> SubRepo:  HttpResponse<String> user = getUserFromOtherAPI(newString)
+note right
+  here the rep will do a call
+  for both user machines to check if
+  user exist if it does not it will
+  throw a UsernameNotFoundException
+end note
+SubRepo --> SubRepo: Optional<Subscriptions> sub = findByActiveStatus_ActiveAndUser(true, username)
+note right
+  here the rep will do a call
+  locally to check if
+  subs exist if it does not it will
+  throw a SubNotFoundException
+end note
+SubRepo --> Serv: subscription
+
+
+alt A - subs exist locally
+Serv -> SubRepo:PlansDetails subExistLocal(planName);
+
+SubRepo --> SubRepo :HttpResponse<String> plan = getPlansFromOtherAPI(plan2)
+SubRepo --> Serv : plan
+else B - subs does not exist locally
+
+Serv -> SubRepo:PlansDetails subExistNotLocal(username, auth);
+
+SubRepo --> SubRepo : HttpResponse<String> user = getUserFromOtherAPI(String name)
+SubRepo --> SubRepo : HttpResponse<String> sub = getSubsFromOtherApi(String username,String auth)
+SubRepo --> Serv : plan
+end alt
+
+
+Serv --> Ctrl: plan
+
+
+note left
+ The controller here also
+ creates an ResponseEntity
+ to show the user the plan with
+ "plansViewMapper" as objView
+end note
+Ac <-- Ctrl : objViewView
+
+@enduml

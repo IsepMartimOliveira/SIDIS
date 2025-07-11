@@ -1,0 +1,65 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autoactivate on
+autonumber
+title  Delete Plan Bonus in case Sub Bonus already exists
+
+autonumber
+
+actor "Client" as Ac
+box "Plan Component Container"
+participant ":PlanC" as Auth
+participant ":PlanQ" as Serv
+
+end box
+
+
+participant ":Message Broker" as Broker
+
+box "Subscriptions Component"
+    participant ":SubC" as NewComp
+    participant ":SubQ" as NewQ
+end box
+
+Ac->Auth:POST /plans/createBonus
+Auth->Broker: publish Plan
+Auth->Broker: publish Plan
+Auth->Auth: saves Plan
+note right
+PlanQ also consumes and
+saves Plan
+end note
+
+Auth-->Ac:202
+...
+Broker->NewQ: consumes(create_plan_bonus,CreatePlanRequestBonus planBonusName)
+
+Broker->NewComp:consumes(send_plan_to_sub_bonus,CreatePlanRequestBonus plansBonusName)
+NewComp->NewComp:create
+note left
+If there is a Subscription
+ bonus,it throws an error
+end note
+
+NewComp->Broker:publish(delete_plan,String name)
+deactivate NewComp
+deactivate NewComp
+
+Broker->NewQ:consumes(delete_plan,CreateSubsByRabbitRequest updatedSub)
+NewQ->NewQ:deletePlanBonus
+Broker->Auth:consumes(delete_plan,CreateSubsByRabbitRequest updatedSub)
+Auth->Auth:deletePlanBonus
+
+
+Broker->Serv:consumes(delete_plan,CreateSubsByRabbitRequest updatedSub)
+Serv->Serv:deletePlanBonus
+
+
+
+
+
+
+
+
+
+@enduml

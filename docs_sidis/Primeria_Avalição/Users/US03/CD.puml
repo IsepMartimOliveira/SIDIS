@@ -1,0 +1,41 @@
+@startuml
+'https://plantuml.com/class-diagram
+hide circle
+
+
+title Class Diagram /Login a  account
+
+
+
+class User{
+  - username;
+   -password;
+}
+
+class Role{
+-role
+}
+
+class AuthApi{
+  login( final AuthRequest request)
+    }
+
+
+
+interface Authentication
+{
++   Object getPrincipal()
++   Collection<? extends GrantedAuthority> getAuthorities()
+}
+
+class JwtClaimsSet
+{
+JwtClaimsSet(Map<String, Object> claims)
+}
+
+
+User..left>Role:has
+AuthApi ..> Authentication: uses >
+AuthApi..>User: uses >
+AuthApi..>JwtClaimsSet: uses >
+@enduml
